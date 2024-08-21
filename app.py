@@ -75,7 +75,7 @@ def render_sidebar() -> Dict[str, Any]:
         unsafe_allow_html=True
     )
     st.sidebar.header("Configuration Options")
-    options = {"system_config": {}, "essential_apps": {}, "additional_apps": {}, "customization": {}}
+    options = {"system_config": {}, "essential_apps": {}, "internet_apps": {}, "productivity_apps": {}, "multimedia_apps": {}, "gaming_apps": {}, "management_apps": {}, "customization": {}}
 
     output_mode = st.sidebar.radio("Output Mode", ["Quiet", "Verbose"], index=0, help="Select the output mode for the script.")
 
@@ -126,14 +126,14 @@ def render_sidebar() -> Dict[str, Any]:
                 help=app["description"]
             )
 
-    # Additional Applications section
-    with st.sidebar.expander("Additional Applications"):
-        for category, category_data in nattd_data["additional_apps"].items():
+    # Internet Applications section
+    with st.sidebar.expander("Internet Applications"):
+        for category, category_data in nattd_data["internet_apps"].items():
             st.subheader(category_data["name"])
-            options["additional_apps"][category] = {}
+            options["internet_apps"][category] = {}
             for app_id, app_info in category_data["apps"].items():
                 app_selected = st.checkbox(app_info['name'], key=f"app_{category}_{app_id}", help=app_info['description'])
-                options["additional_apps"][category][app_id] = {'selected': app_selected}
+                options["internet_apps"][category][app_id] = {'selected': app_selected}
                 
                 if app_selected and 'installation_types' in app_info:
                     installation_type = st.radio(
@@ -141,7 +141,75 @@ def render_sidebar() -> Dict[str, Any]:
                         list(app_info['installation_types'].keys()),
                         key=f"{category}_{app_id}_install_type"
                     )
-                    options["additional_apps"][category][app_id]['installation_type'] = installation_type
+                    options["internet_apps"][category][app_id]['installation_type'] = installation_type
+
+    # Productivity Applications section
+    with st.sidebar.expander("Productivity Applications"):
+        for category, category_data in nattd_data["productivity_apps"].items():
+            st.subheader(category_data["name"])
+            options["productivity_apps"][category] = {}
+            for app_id, app_info in category_data["apps"].items():
+                app_selected = st.checkbox(app_info['name'], key=f"app_{category}_{app_id}", help=app_info['description'])
+                options["productivity_apps"][category][app_id] = {'selected': app_selected}
+                
+                if app_selected and 'installation_types' in app_info:
+                    installation_type = st.radio(
+                        f"Choose {app_info['name']} installation type:",
+                        list(app_info['installation_types'].keys()),
+                        key=f"{category}_{app_id}_install_type"
+                    )
+                    options["productivity_apps"][category][app_id]['installation_type'] = installation_type
+
+    # Multimedia Applications section
+    with st.sidebar.expander("Multimedia Applications"):
+        for category, category_data in nattd_data["multimedia_apps"].items():
+            st.subheader(category_data["name"])
+            options["multimedia_apps"][category] = {}
+            for app_id, app_info in category_data["apps"].items():
+                app_selected = st.checkbox(app_info['name'], key=f"app_{category}_{app_id}", help=app_info['description'])
+                options["multimedia_apps"][category][app_id] = {'selected': app_selected}
+                
+                if app_selected and 'installation_types' in app_info:
+                    installation_type = st.radio(
+                        f"Choose {app_info['name']} installation type:",
+                        list(app_info['installation_types'].keys()),
+                        key=f"{category}_{app_id}_install_type"
+                    )
+                    options["multimedia_apps"][category][app_id]['installation_type'] = installation_type
+
+    # Gaming Applications section
+    with st.sidebar.expander("Gaming Applications"):
+        for category, category_data in nattd_data["gaming_apps"].items():
+            st.subheader(category_data["name"])
+            options["gaming_apps"][category] = {}
+            for app_id, app_info in category_data["apps"].items():
+                app_selected = st.checkbox(app_info['name'], key=f"app_{category}_{app_id}", help=app_info['description'])
+                options["gaming_apps"][category][app_id] = {'selected': app_selected}
+                
+                if app_selected and 'installation_types' in app_info:
+                    installation_type = st.radio(
+                        f"Choose {app_info['name']} installation type:",
+                        list(app_info['installation_types'].keys()),
+                        key=f"{category}_{app_id}_install_type"
+                    )
+                    options["gaming_apps"][category][app_id]['installation_type'] = installation_type
+
+    # Management Applications section
+    with st.sidebar.expander("Management Applications"):
+        for category, category_data in nattd_data["management_apps"].items():
+            st.subheader(category_data["name"])
+            options["management_apps"][category] = {}
+            for app_id, app_info in category_data["apps"].items():
+                app_selected = st.checkbox(app_info['name'], key=f"app_{category}_{app_id}", help=app_info['description'])
+                options["management_apps"][category][app_id] = {'selected': app_selected}
+                
+                if app_selected and 'installation_types' in app_info:
+                    installation_type = st.radio(
+                        f"Choose {app_info['name']} installation type:",
+                        list(app_info['installation_types'].keys()),
+                        key=f"{category}_{app_id}_install_type"
+                    )
+                    options["management_apps"][category][app_id]['installation_type'] = installation_type
 
     # Customization section
     with st.sidebar.expander("Customization"):
