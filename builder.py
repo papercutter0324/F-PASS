@@ -2,12 +2,21 @@ import json
 from typing import Dict, Any
 import logging
 
+# List of app categories
+all_std_categories = ["essential_apps", "internet_apps", "productivity_apps", "multimedia_apps", "gaming_apps", "management_apps"]
+additional_categories = ["internet_apps", "productivity_apps", "multimedia_apps", "gaming_apps", "management_apps"]
+
 # Configure logging
 logging.basicConfig(
     level=logging.DEBUG,  # Change to INFO in production
     format='%(asctime)s - %(levelname)s - %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S'
 )
+
+# List of placeholders
+PLACEHOLDERS = {
+    "hostname": "{{hostname}}",
+}
 
 def load_nattd():
     with open('nattd.json', 'r') as f:
@@ -18,7 +27,7 @@ def get_option_name(category: str, option: str) -> str:
     logging.debug(f"get_option_name - category: {category}, option: {option}")
     if category == "system_config":
         return nattd_data[category][option]["name"]
-    elif category in ["essential_apps", "additional_apps"]:
+    elif category in all_std_categories:
         return nattd_data[category]["apps"][option]["name"]
     elif category == "customization":
         return nattd_data[category]["apps"][option]["name"]
@@ -30,7 +39,7 @@ def get_option_description(category: str, option: str) -> str:
     logging.debug(f"get_option_description - category: {category}, option: {option}")
     if category == "system_config":
         return nattd_data[category][option]["description"]
-    elif category in ["essential_apps", "additional_apps"]:
+    elif category in all_std_categories:
         return nattd_data[category]["apps"][option]["description"]
     elif category == "customization":
         return nattd_data[category]["apps"][option]["description"]
@@ -43,14 +52,20 @@ def generate_options():
     options = {
         "system_config": [key for key in nattd_data["system_config"].keys() if key != "description"],
         "essential_apps": [app["name"] for app in nattd_data["essential_apps"]["apps"]],
-        "additional_apps": {},
+        "internet_apps": {},
+        "productivity_apps": {},
+        "multimedia_apps": {},
+        "gaming_apps": {},
+        "management_apps": {},
         "customization": list(nattd_data["customization"]["apps"].keys())
     }
     
-    for category, data in nattd_data["additional_apps"].items():
-        options["additional_apps"][category] = {
-            "name": data["name"],
-            "apps": list(data["apps"].keys())
+    # Loop through the additional categories
+    for category in additional_categories:
+        category_data = nattd_data.get(category, {})
+        options[category] = {
+            "name": category_data.get("name", ""),
+            "apps": list(category_data.get("apps", {}).keys())
         }
     
     logging.debug(f"generate_options - options: {options}")
@@ -112,14 +127,14 @@ def build_system_config(options: Dict[str, Any], output_mode: str) -> str:
             if isinstance(commands, list):
                 for cmd in commands:
                     if option == "set_hostname" and "hostnamectl set-hostname" in cmd:
-                        cmd = f"{cmd} {{hostname}}"  # Use a placeholder for the hostname
+                        cmd = f"{cmd} {PLACEHOLDERS['hostname']}"
                     if output_mode == "Quiet" and should_quiet_redirect(cmd):
                         cmd += quiet_redirect
                     config_commands.append(cmd)
             else:
                 cmd = commands
                 if option == "set_hostname" and "hostnamectl set-hostname" in cmd:
-                    cmd = f"{cmd} {{hostname}}"  # Use a placeholder for the hostname
+                    cmd = f"{cmd} {PLACEHOLDERS['hostname']}"
                 if output_mode == "Quiet" and should_quiet_redirect(cmd):
                     cmd += quiet_redirect
                 config_commands.append(cmd)
@@ -143,15 +158,16 @@ def build_app_install(options: Dict[str, Any], output_mode: str) -> str:
         install_commands.append("")
 
     # Additional apps
-    for category, category_data in options["additional_apps"].items():
+    for category in additional_categories:
+        category_data = options.get(category, {})
         category_apps = [app_id for app_id, app_data in category_data.items() if app_data.get('selected', False)]
         if category_apps:
             install_commands.append(f"# Install {nattd_data['additional_apps'][category]['name']} applications")
             for app_id in category_apps:
                 app_data = nattd_data['additional_apps'][category]['apps'][app_id]
                 install_commands.append(f"log_message \"Installing {app_data['name']}...\"")
-                if 'installation_types' in app_data and options["additional_apps"][category][app_id].get('installation_type'):
-                    install_type = options["additional_apps"][category][app_id]['installation_type']
+                install_type = category_data.get(app_id, {}).get('installation_type')
+                if 'installation_types' in app_data and install_type in app_data['installation_types']:
                     commands = app_data['installation_types'][install_type]['command']
                 else:
                     commands = app_data["command"]
@@ -178,7 +194,8 @@ def build_customization(options: Dict[str, Any], output_mode: str) -> str:
             # This is for apps with installation types (like Windows Fonts)
             if options["customization"][app_id]['selected']:
                 install_type = options["customization"][app_id]['installation_type']
-                commands = app_data['installation_types'][install_type]['command']
+                if 'installation_types' in app_data and install_type in app_data['installation_types']:
+                    commands = app_data['installation_types'][install_type]['command']
                 customization_commands.append(f"# {app_data['description']} ({install_type})")
                 customization_commands.append(f"log_message \"Installing {app_data['name']} ({install_type})...\"")
                 
