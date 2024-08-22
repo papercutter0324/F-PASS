@@ -132,9 +132,9 @@
             {"name": "syncthing", "description": "Continuous file synchronization program for sharing files between devices securely"}
     ]
     },
-    "additional_apps": {
-        "internet_communication": {
-            "name": "Internet & Communication",
+    "internet_apps": {
+        "internet_browsers": {
+            "name": "Browsers",
             "apps": {
                 "install_firefox": {
                     "name": "Firefox",
@@ -152,9 +152,9 @@
                     "description": "An open-source browser project that aims to build a safer, faster, and more stable way to experience the web."
                 },
                 "install_brave": {
-                "name": "Brave",
-                "command": "flatpak install -y flathub com.brave.Browser",
-                "description": "Privacy-focused web browser."
+                    "name": "Brave",
+                    "command": "flatpak install -y flathub com.brave.Browser",
+                    "description": "Privacy-focused web browser."
                 },
                 "install_vivaldi": {
                     "name": "Vivaldi",
@@ -187,6 +187,21 @@
                     "command": "flatpak install -y flathub com.opera.Opera",
                     "description": "A fast, feature-rich web browser with a focus on user experience and security."
                 },
+                "install_tor": {
+                    "name": "Tor",
+                    "command": [
+                        "dnf install -y tor",
+                        "sleep 5",
+                        "systemctl enable --now tor",
+                        "flatpak install -y flathub org.torproject.torbrowser-launcher"
+                    ],
+                    "description": "Tor service and Tor Browser Launcher for secure networking"
+                }
+            }
+        },
+        "internet_communication": {
+            "name": "Email & Messaging",
+            "apps": {
                 "install_thunderbird": {
                     "name": "Thunderbird",
                     "command": "flatpak install -y flathub org.mozilla.Thunderbird",
@@ -196,15 +211,6 @@
                     "name": "Betterbird",
                     "command": "flatpak install -y flathub eu.betterbird.Betterbird",
                     "description": "A fast, feature-rich email client with a focus on user experience and security."
-                },
-                "install_webappmanager": {
-                    "name": "WebAppManager",
-                    "command": [
-                        "sudo dnf copr enable risi/risiOS -y",
-                        "echo 'includepkgs=webapp-manager' | sudo tee -a /etc/yum.repos.d/_copr:copr.fedorainfracloud.org:risi:risiOS.repo",
-                        "dnf install webapp-manager -y"
-                    ],
-                    "description": "Run websites as if they were apps."
                 },
                 "install_discord": {
                     "name": "Discord",
@@ -230,42 +236,75 @@
                     "name": "Whatsie",
                     "command": "flatpak install -y flathub com.ktechpit.whatsie",
                     "description": "Feature rich WhatsApp web client based on Qt WebEngine"
-                },
-                "install_tor": {
-                    "name": "Tor",
-                    "command": [
-                        "dnf install -y tor",
-                        "sleep 5",
-                        "systemctl enable --now tor",
-                        "flatpak install -y flathub org.torproject.torbrowser-launcher"
-                    ],
-                    "description": "Tor service and Tor Browser Launcher for secure networking"
                 }
             }
         },
-        "office_productivity": {
-            "name": "Office Productivity",
+        "internet_downloading": {
+            "name": "File Sharing & Download",
             "apps": {
-                "install_libreoffice": {
-                    "name": "LibreOffice",
+                "install_qbittorrent": {
+                    "name": "qBittorrent",
+                    "description": "Aims to provide an open-source software alternative to µTorrent.",
+                    "installation_types": {
+                        "DNF": {
+                            "command": "dnf install -y qbittorrent"
+                        },
+                        "Flatpak": {
+                            "command": "flatpak install -y flathub org.qbittorrent.qBittorrent"
+                        }
+                    }
+                },
+                "install_video_downloader": {
+                    "name": "Video Downloader",
+                    "command": "flatpak install -y flathub com.github.unrud.VideoDownloader",
+                    "description": "Download videos from websites with an easy-to-use interface"
+                }
+            }
+        },
+        "internet_other": {
+            "name": "Other Useful Apps",
+            "apps": {
+                "install_webappmanager": {
+                    "name": "WebAppManager",
                     "command": [
-                        "dnf remove -y libreoffice*",
-                        "flatpak install -y flathub org.libreoffice.LibreOffice",
-                        "flatpak install -y --reinstall org.freedesktop.Platform.Locale/x86_64/23.08",
-                        "flatpak install -y --reinstall org.libreoffice.LibreOffice.Locale"
+                        "sudo dnf copr enable risi/risiOS -y",
+                        "echo 'includepkgs=webapp-manager' | sudo tee -a /etc/yum.repos.d/_copr:copr.fedorainfracloud.org:risi:risiOS.repo",
+                        "dnf install webapp-manager -y"
                     ],
-                    "description": "A powerful office suite. Its clean interface and feature-rich tools help you unleash your creativity and enhance your productivity"
-                },
-                "install_onlyoffice": {
-                    "name": "OnlyOffice",
-                    "command": "flatpak install -y flathub org.onlyoffice.desktopeditors",
-                    "description": "Create, view and edit text documents, spreadsheets and presentations of any size and complexity"
-                },
-                "install_wpsoffice": {
-                    "name": "WPS Office",
-                    "command": "flatpak install -y flathub com.wps.Office",
-                    "description": "a powerful office suite, which is able to process word file, produce wonderful slides, and analyze data as well"
-                },
+                    "description": "Run websites as if they were apps."
+                }
+            }
+        }
+    },
+    "productivity_apps": {
+        "office_suites": {
+          "name": "Office Suites",
+          "apps": {
+            "install_libreoffice": {
+                "name": "LibreOffice",
+                "command": [
+                    "dnf remove -y libreoffice*",
+                    "flatpak install -y flathub org.libreoffice.LibreOffice",
+                    "flatpak install -y --reinstall org.freedesktop.Platform.Locale/x86_64/23.08",
+                    "flatpak install -y --reinstall org.libreoffice.LibreOffice.Locale"
+                ],
+                "description": "A powerful office suite. Its clean interface and feature-rich tools help you unleash your creativity and enhance your productivity"
+            },
+            "install_onlyoffice": {
+                "name": "OnlyOffice",
+                "command": "flatpak install -y flathub org.onlyoffice.desktopeditors",
+                "description": "Create, view and edit text documents, spreadsheets and presentations of any size and complexity"
+            },
+            "install_wpsoffice": {
+                "name": "WPS Office",
+                "command": "flatpak install -y flathub com.wps.Office",
+                "description": "a powerful office suite, which is able to process word file, produce wonderful slides, and analyze data as well"
+            }
+          }
+        },
+        "notetaking_apps": {
+            "name": "Notetaking Apps",
+            "apps": {
                 "install_joplin": {
                     "name": "Joplin",
                     "command": "flatpak install -y flathub net.cozic.joplin_desktop",
@@ -280,7 +319,12 @@
                     "name": "Obsidian",
                     "command": "flatpak install -y flathub md.obsidian.Obsidian",
                     "description": "A note-taking app with a focus on privacy and security"
-                },
+                }
+            }
+        },
+        "programming_ide": {
+            "name": "Programming Editors & IDEs",
+            "apps": {
                 "install_vscode": {
                     "name": "Visual Studio Code",
                     "command": [
@@ -299,16 +343,13 @@
                         "dnf -y install codium"
                     ],
                     "description": "A free and open-source distribution of VS Code"
-                },
-                "install_bitwarden": {
-                    "name": "Bitwarden",
-                    "command": "flatpak install -y flathub com.bitwarden.desktop",
-                    "description": "A secure and free password manager for all of your devices"
                 }
             }
-        },
-        "media_graphics": {
-            "name": "Media & Graphics",
+        }
+    },
+    "multimedia_apps": {
+        "media_players": {
+            "name": "Video & Music Players",
             "apps": {
                 "install_vlc": {
                     "name": "VLC",
@@ -325,6 +366,16 @@
                     "command": "flatpak install -y flathub com.spotify.Client",
                     "description": "A music streaming service with a focus on privacy and security"
                 },
+                "install_freetube": {
+                    "name": "FreeTube",
+                    "command": "flatpak install -y flathub com.freetubeapp.FreeTube",
+                    "description": "An open source desktop YouTube player built with privacy in mind."
+                }
+            }
+        },
+        "media_image-editors": {
+            "name": "Image Editors",
+            "apps": {
                 "install_gimp": {
                     "name": "GIMP",
                     "description": "a freely distributed program for such tasks as photo retouching, image composition and image authoring",
@@ -353,7 +404,12 @@
                     "name": "Krita",
                     "command": "flatpak install -y flathub org.kde.krita",
                     "description": "A full-featured digital art studio."
-                },
+                }
+            }
+        },
+        "media_video-editors": {
+            "name": "Video Editors",
+            "apps": {
                 "install_blender": {
                     "name": "Blender",
                     "command": "flatpak install -y flathub org.blender.Blender",
@@ -368,16 +424,13 @@
                     "name": "Kdenlive",
                     "command": "flatpak install -y flathub org.kde.kdenlive",
                     "description": "A video editing application with support for many audio and video formats"
-                },
-                "install_freetube": {
-                    "name": "FreeTube",
-                    "command": "flatpak install -y flathub com.freetubeapp.FreeTube",
-                    "description": "An open source desktop YouTube player built with privacy in mind."
                 }
             }
-        },
-        "gaming_emulation": {
-            "name": "Gaming & Emulation",
+        }
+    },
+    "gaming_apps": {
+        "gaming_launchers": {
+            "name": "Game Stores & Launchers",
             "apps": {
                 "install_steam": {
                     "name": "Steam",
@@ -401,6 +454,31 @@
                     "command": "flatpak install -y flathub com.heroicgameslauncher.hgl",
                     "description": "A free and open source games launcher."
                 },
+                "install_bottles": {
+                    "name": "Bottles",
+                    "command": "flatpak install -y flathub com.usebottles.bottles",
+                    "description": "Lets you run Windows software on Linux, such as applications and games."
+                }
+            }
+        },
+        "gaming_compatibility": {
+            "name": "Compatibility Layers",
+            "apps": {
+                "install_protontricks": {
+                    "name": "Protontricks",
+                    "command": "flatpak install -y flathub com.github.Matoking.protontricks",
+                    "description": "A wrapper script that allows you to easily run Winetricks commands for Steam Play/Proton games"
+                },
+                "install_protonup_qt": {
+                    "name": "ProtonUp-Qt",
+                    "command": "flatpak install -y flathub net.davidotek.pupgui2",
+                    "description": "Install and manage Wine- and Proton-based compatibility tools for Steam and Lutris with this graphical user interface"
+                }
+            }
+        },
+        "gaming_emulation": {
+            "name": "Emulators & Frontends",
+            "apps": {
                 "install_retroarch": {
                     "name": "RetroArch",
                     "command": "flatpak install -y flathub org.libretro.RetroArch",
@@ -437,6 +515,18 @@
                     "description": "A free and open-source application that emulates the original Microsoft Xbox game console"
                 }
             }
+        }
+    },
+    "management_apps": {
+       "password_managers": {
+            "name": "Password Managers",
+            "apps": {
+                "install_bitwarden": {
+                    "name": "Bitwarden",
+                    "command": "flatpak install -y flathub com.bitwarden.desktop",
+                    "description": "A secure and free password manager for all of your devices"
+                }
+            }
         },
         "system_tools": {
             "name": "System Tools",
@@ -456,25 +546,10 @@
                     "command": "flatpak install -y flathub com.mattjakeman.ExtensionManager",
                     "description": "A utility for browsing and installing GNOME Shell Extensions"
                 },
-                "install_bottles": {
-                    "name": "Bottles",
-                    "command": "flatpak install -y flathub com.usebottles.bottles",
-                    "description": "Lets you run Windows software on Linux, such as applications and games."
-                },
-                "install_protontricks": {
-                    "name": "Protontricks",
-                    "command": "flatpak install -y flathub com.github.Matoking.protontricks",
-                    "description": "A wrapper script that allows you to easily run Winetricks commands for Steam Play/Proton games"
-                },
-                "install_protonup_qt": {
-                    "name": "ProtonUp-Qt",
-                    "command": "flatpak install -y flathub net.davidotek.pupgui2",
-                    "description": "Install and manage Wine- and Proton-based compatibility tools for Steam and Lutris with this graphical user interface"
-                },
                 "install_gear_lever": {
                     "name": "Gear Lever",
                     "command": "flatpak install -y flathub it.mijorus.gearlever",
-                    "description": "An utility to manage AppImages with ease!"
+                    "description": "A utility to manage AppImages with ease!"
                 },
                 "install_appimage_launcher": {
                     "name": "AppImage Launcher",
@@ -483,7 +558,7 @@
                         "dnf install -y ./appimagelauncher-2.2.0-gha111.d9d4c73.x86_64.rpm",
                         "rm -f ./appimagelauncher-2.2.0-gha111.d9d4c73.x86_64.rpm"
                     ],
-                    "description": "A AppImage launcher and integration tool"
+                    "description": "An AppImage launcher and integration tool"
                 },
                 "install_peazip": {
                     "name": "PeaZip",
@@ -536,30 +611,8 @@
                     "description": "A secure network overlay that allows you to manage all of your network resources as if they were on the same LAN"
                 }
             }
-        },
-        "file_sharing_download": {
-            "name": "File Sharing & Download",
-            "apps": {
-                "install_qbittorrent": {
-                    "name": "qBittorrent",
-                    "description": "Aims to provide an open-source software alternative to µTorrent.",
-                    "installation_types": {
-                        "DNF": {
-                            "command": "dnf install -y qbittorrent"
-                        },
-                        "Flatpak": {
-                            "command": "flatpak install -y flathub org.qbittorrent.qBittorrent"
-                        }
-                    }
-                },
-                "install_video_downloader": {
-                    "name": "Video Downloader",
-                    "command": "flatpak install -y flathub com.github.unrud.VideoDownloader",
-                    "description": "Download videos from websites with an easy-to-use interface"
-                }
-            }
         }
-    },    
+    },
     "customization": {
         "name": "Customization",
         "apps": {

@@ -15,12 +15,19 @@ logging.basicConfig(
 
 # List of placeholders
 PLACEHOLDERS = {
-    "hostname": "{{hostname}}",
+    "hostname": "{hostname}",
 }
 
 def load_nattd():
-    with open('nattd.json', 'r') as f:
-        return json.load(f)
+    try:
+        with open('nattd.json', 'r') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        logging.error("nattd.json file not found!")
+        return {}
+    except json.JSONDecodeError:
+        logging.error("nattd.json is not a valid JSON file!")
+        return {}
 
 def get_option_name(category: str, option: str) -> str:
     nattd_data = load_nattd()
@@ -161,23 +168,35 @@ def build_app_install(options: Dict[str, Any], output_mode: str) -> str:
     for category in additional_categories:
         category_data = options.get(category, {})
         category_apps = [app_id for app_id, app_data in category_data.items() if app_data.get('selected', False)]
+
         if category_apps:
-            install_commands.append(f"# Install {nattd_data['additional_apps'][category]['name']} applications")
+            install_commands.append(f"# Install {nattd_data[category]['name']} applications")
+            app_data = nattd_data[category]['apps'][app_id]
+
             for app_id in category_apps:
-                app_data = nattd_data['additional_apps'][category]['apps'][app_id]
+                app_data = nattd_data[category]['apps'][app_id]
+                if not app_data:
+                    logging.warning(f"App ID {app_id} not found in category {category}")
+                    continue
+
                 install_commands.append(f"log_message \"Installing {app_data['name']}...\"")
+
+                # Determine the installation command based on install type
                 install_type = category_data.get(app_id, {}).get('installation_type')
                 if 'installation_types' in app_data and install_type in app_data['installation_types']:
                     commands = app_data['installation_types'][install_type]['command']
                 else:
                     commands = app_data["command"]
                 
+                # Add the install commands, ensuring list or string handling
                 if isinstance(commands, list):
                     for cmd in commands:
                         install_commands.append(f"{cmd}{quiet_redirect if should_quiet_redirect(cmd) else ''}")
                 else:
                     install_commands.append(f"{commands}{quiet_redirect if should_quiet_redirect(commands) else ''}")
                 install_commands.append(f"log_message \"{app_data['name']} installed successfully.\"")
+
+            # Add a blank line for readability
             install_commands.append("")
 
     return "\n".join(install_commands)
