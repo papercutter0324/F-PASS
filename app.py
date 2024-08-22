@@ -110,7 +110,7 @@ def render_sidebar() -> Dict[str, Any]:
                 options["hostname"] = st.text_input("Enter the new hostname:")
 
         # Check if any codec option is selected and update RPM Fusion checkbox
-        codec_options = ["install_multimedia_codecs", "install_intel_codecs", "install_amd_codecs"]
+        codec_options = ["install_multimedia_codecs", "install_intel_codecs", "install_amd_codecs", "install_nvidia_codecs"]
         if any(options["system_config"].get(option, False) for option in codec_options):
             options["system_config"]["enable_rpmfusion"] = True
             if not rpm_fusion_checkbox:

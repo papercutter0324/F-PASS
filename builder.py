@@ -164,39 +164,114 @@ def build_app_install(options: Dict[str, Any], output_mode: str) -> str:
         install_commands.append(f"log_message \"Essential applications installed successfully.\"")
         install_commands.append("")
 
-    # Additional apps
-    for category in additional_categories:
-        category_data = options.get(category, {})
+    # Internet apps
+    for category, category_data in options["internet_apps"].items():
         category_apps = [app_id for app_id, app_data in category_data.items() if app_data.get('selected', False)]
-
         if category_apps:
-            install_commands.append(f"# Install {nattd_data[category]['name']} applications")
-            app_data = nattd_data[category]['apps'][app_id]
-
+            install_commands.append(f"# Install {nattd_data['internet_apps'][category]['name']} applications")
             for app_id in category_apps:
-                app_data = nattd_data[category]['apps'][app_id]
-                if not app_data:
-                    logging.warning(f"App ID {app_id} not found in category {category}")
-                    continue
-
+                app_data = nattd_data['internet_apps'][category]['apps'][app_id]
                 install_commands.append(f"log_message \"Installing {app_data['name']}...\"")
-
-                # Determine the installation command based on install type
-                install_type = category_data.get(app_id, {}).get('installation_type')
-                if 'installation_types' in app_data and install_type in app_data['installation_types']:
+                if 'installation_types' in app_data and options["internet_apps"][category][app_id].get('installation_type'):
+                    install_type = options["internet_apps"][category][app_id]['installation_type']
                     commands = app_data['installation_types'][install_type]['command']
                 else:
                     commands = app_data["command"]
                 
-                # Add the install commands, ensuring list or string handling
                 if isinstance(commands, list):
                     for cmd in commands:
                         install_commands.append(f"{cmd}{quiet_redirect if should_quiet_redirect(cmd) else ''}")
                 else:
                     install_commands.append(f"{commands}{quiet_redirect if should_quiet_redirect(commands) else ''}")
                 install_commands.append(f"log_message \"{app_data['name']} installed successfully.\"")
+            install_commands.append("")
 
-            # Add a blank line for readability
+    # Productivity apps
+    for category, category_data in options["productivity_apps"].items():
+        category_apps = [app_id for app_id, app_data in category_data.items() if app_data.get('selected', False)]
+        if category_apps:
+            install_commands.append(f"# Install {nattd_data['productivity_apps'][category]['name']} applications")
+            for app_id in category_apps:
+                app_data = nattd_data['productivity_apps'][category]['apps'][app_id]
+                install_commands.append(f"log_message \"Installing {app_data['name']}...\"")
+                if 'installation_types' in app_data and options["productivity_apps"][category][app_id].get('installation_type'):
+                    install_type = options["productivity_apps"][category][app_id]['installation_type']
+                    commands = app_data['installation_types'][install_type]['command']
+                else:
+                    commands = app_data["command"]
+                
+                if isinstance(commands, list):
+                    for cmd in commands:
+                        install_commands.append(f"{cmd}{quiet_redirect if should_quiet_redirect(cmd) else ''}")
+                else:
+                    install_commands.append(f"{commands}{quiet_redirect if should_quiet_redirect(commands) else ''}")
+                install_commands.append(f"log_message \"{app_data['name']} installed successfully.\"")
+            install_commands.append("")
+
+    # Multimedia apps
+    for category, category_data in options["multimedia_apps"].items():
+        category_apps = [app_id for app_id, app_data in category_data.items() if app_data.get('selected', False)]
+        if category_apps:
+            install_commands.append(f"# Install {nattd_data['multimedia_apps'][category]['name']} applications")
+            for app_id in category_apps:
+                app_data = nattd_data['multimedia_apps'][category]['apps'][app_id]
+                install_commands.append(f"log_message \"Installing {app_data['name']}...\"")
+                if 'installation_types' in app_data and options["multimedia_apps"][category][app_id].get('installation_type'):
+                    install_type = options["multimedia_apps"][category][app_id]['installation_type']
+                    commands = app_data['installation_types'][install_type]['command']
+                else:
+                    commands = app_data["command"]
+                
+                if isinstance(commands, list):
+                    for cmd in commands:
+                        install_commands.append(f"{cmd}{quiet_redirect if should_quiet_redirect(cmd) else ''}")
+                else:
+                    install_commands.append(f"{commands}{quiet_redirect if should_quiet_redirect(commands) else ''}")
+                install_commands.append(f"log_message \"{app_data['name']} installed successfully.\"")
+            install_commands.append("")
+
+    # Gaming apps
+    for category, category_data in options["gaming_apps"].items():
+        category_apps = [app_id for app_id, app_data in category_data.items() if app_data.get('selected', False)]
+        if category_apps:
+            install_commands.append(f"# Install {nattd_data['gaming_apps'][category]['name']} applications")
+            for app_id in category_apps:
+                app_data = nattd_data['gaming_apps'][category]['apps'][app_id]
+                install_commands.append(f"log_message \"Installing {app_data['name']}...\"")
+                if 'installation_types' in app_data and options["gaming_apps"][category][app_id].get('installation_type'):
+                    install_type = options["gaming_apps"][category][app_id]['installation_type']
+                    commands = app_data['installation_types'][install_type]['command']
+                else:
+                    commands = app_data["command"]
+                
+                if isinstance(commands, list):
+                    for cmd in commands:
+                        install_commands.append(f"{cmd}{quiet_redirect if should_quiet_redirect(cmd) else ''}")
+                else:
+                    install_commands.append(f"{commands}{quiet_redirect if should_quiet_redirect(commands) else ''}")
+                install_commands.append(f"log_message \"{app_data['name']} installed successfully.\"")
+            install_commands.append("")
+
+    # Management apps
+    for category, category_data in options["management_apps"].items():
+        category_apps = [app_id for app_id, app_data in category_data.items() if app_data.get('selected', False)]
+        if category_apps:
+            install_commands.append(f"# Install {nattd_data['management_apps'][category]['name']} applications")
+            for app_id in category_apps:
+                app_data = nattd_data['management_apps'][category]['apps'][app_id]
+                install_commands.append(f"log_message \"Installing {app_data['name']}...\"")
+                if 'installation_types' in app_data and options["management_apps"][category][app_id].get('installation_type'):
+                    install_type = options["management_apps"][category][app_id]['installation_type']
+                    commands = app_data['installation_types'][install_type]['command']
+                else:
+                    commands = app_data["command"]
+                
+                if isinstance(commands, list):
+                    for cmd in commands:
+                        install_commands.append(f"{cmd}{quiet_redirect if should_quiet_redirect(cmd) else ''}")
+                else:
+                    install_commands.append(f"{commands}{quiet_redirect if should_quiet_redirect(commands) else ''}")
+                install_commands.append(f"log_message \"{app_data['name']} installed successfully.\"")
             install_commands.append("")
 
     return "\n".join(install_commands)
