@@ -345,7 +345,7 @@
                         "sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc",
                         "echo -e \"[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc\" | sudo tee /etc/yum.repos.d/vscode.repo > /dev/null",
                         "dnf check-update",
-                        "sudo dnf install code"
+                        "sudo dnf install -y code"
                     ],
                     "description": "A lightweight but powerful source code editor"
                 },
@@ -365,7 +365,7 @@
                 },
                 "install_bluefish": {
                     "name": "Kate",
-                    "command": "flatpak install flathub nl.openoffice.bluefish",
+                    "command": "flatpak install -y flathub nl.openoffice.bluefish",
                     "description": "Text editor with many web and software development extras"
                 }
             }
@@ -382,7 +382,7 @@
                 },
                 "install_plex": {
                     "name": "Plex",
-                    "command": "flatpak install flathub tv.plex.PlexDesktop",
+                    "command": "flatpak install -y flathub tv.plex.PlexDesktop",
                     "description": "Plex client for desktop computers"
                 },
                 "install_stremio": {
@@ -456,7 +456,7 @@
                 },
                 "install_mkvtoolnix": {
                     "name": "MKVToolNix",
-                    "command": "flatpak install flathub org.bunkus.mkvtoolnix-gui",
+                    "command": "flatpak install -y flathub org.bunkus.mkvtoolnix-gui",
                     "description": "Tools to create, alter and inspect Matroska files"
                 }
             }
@@ -520,7 +520,7 @@
                 },
                 "install_scummvm": {
                     "name": "ScummVM",
-                    "command": "flatpak install flathub org.scummvm.ScummVM",
+                    "command": "flatpak install -y flathub org.scummvm.ScummVM",
                     "description": "A program which allows you to run certain classic graphical adventure and role-playing games"
                 },
                 "install_duckstation": {
@@ -540,7 +540,7 @@
                 },
                 "install_rpcs3": {
                     "name": "RPCS3",
-                    "command": "flatpak install flathub net.rpcs3.RPCS3",
+                    "command": "flatpak install -y flathub net.rpcs3.RPCS3",
                     "description": "An experimental open-source Sony PlayStation 3 emulator and debugger written in C++"
                 },
                 "install_nestopia": {
@@ -550,7 +550,7 @@
                 },
                 "install_bsnes": {
                     "name": "bsnes",
-                    "command": "flatpak install flathub dev.bsnes.bsnes",
+                    "command": "flatpak install -y flathub dev.bsnes.bsnes",
                     "description": "bsnes is a Super Nintendo (SNES) emulator focused on performance, features, and ease of use"
                 },
                 "install_snes9x": {
@@ -560,7 +560,7 @@
                 },
                 "install_parallel_launcher": {
                     "name": "Parallel Launcher",
-                    "command": "flatpak install flathub ca.parallel_launcher.ParallelLauncher",
+                    "command": "flatpak install -y flathub ca.parallel_launcher.ParallelLauncher",
                     "description": "Aims to make playing N64 games, both retail and homebrew, as simple and as accessible as possible"
                 },
                 "install_dolphin": {
@@ -570,27 +570,27 @@
                 },
                 "install_cemu": {
                     "name": "Cemu",
-                    "command": "flatpak install flathub info.cemu.Cemu",
+                    "command": "flatpak install -y flathub info.cemu.Cemu",
                     "description": "Nintendo Wii U emulator that is able to run most Wii U games and homebrew in a playable state"
                 },
                 "install_ryujinx": {
                     "name": "Ryujinx",
-                    "command": "flatpak install flathub org.ryujinx.Ryujinx",
+                    "command": "flatpak install -y flathub org.ryujinx.Ryujinx",
                     "description": "An open-source Nintendo Switch emulator written in C#"
                 },
                 "install_sameboy": {
                     "name": "SameBoy",
-                    "command": "flatpak install flathub io.github.sameboy.SameBoy",
+                    "command": "flatpak install -y flathub io.github.sameboy.SameBoy",
                     "description": "An open source Game Boy (DMG) and Game Boy Color (CGB) emulator, written in portable C"
                 },
                 "install_mgba": {
                     "name": "mGBA",
-                    "command": "flatpak install flathub io.mgba.mGBA",
+                    "command": "flatpak install -y flathub io.mgba.mGBA",
                     "description": "Aims to be faster and more accurate than many existing Game Boy Advance emulators"
                 },
                 "install_visualboyadvance-m": {
                     "name": "VisualBoyAdvance-M",
-                    "command": "flatpak install flathub com.vba_m.visualboyadvance-m",
+                    "command": "flatpak install -y flathub com.vba_m.visualboyadvance-m",
                     "description": "A Nintendo Game Boy Emulator with high compatibility with commercial games"
                 },
                 "install_melonds": {
@@ -610,12 +610,12 @@
                 },
                 "install_stella": {
                     "name": "Stella",
-                    "command": "flatpak install flathub io.github.stella_emu.Stella",
+                    "command": "flatpak install -y flathub io.github.stella_emu.Stella",
                     "description": "A multi-platform Atari 2600 VCS emulator"
                 },
                 "install_vice": {
                     "name": "Vice",
-                    "command": "flatpak install flathub net.sf.VICE",
+                    "command": "flatpak install -y flathub net.sf.VICE",
                     "description": "A free and cross platform emulator for Commodore's 8-bit computers"
                 }
             }
@@ -634,7 +634,7 @@
                     "name": "Enpass",
                     "command": [
                         "wget -O /etc/yum.repos.d/enpass-yum.repo https://yum.enpass.io/enpass-yum.repo",
-                        "yum install enpass"
+                        "yum install -y enpass"
                     ],
                     "description": "A secure and free password manager for all of your devices"
                 }
@@ -685,9 +685,10 @@
                 "install_cooler_control": {
                     "name": "CoolerControl",
                     "command": [
-                        "dnf copr enable codifryed/CoolerControl",
-                        "dnf install coolercontrol",
-                        "systemctl enable --now coolercontrold"
+                        "dnf -y copr enable codifryed/CoolerControl",
+                        "dnf install -y coolercontrol",
+                        "systemctl enable --now coolercontrold",
+                        "xdg-open http://localhost:11987/"
                     ],
                     "description": "A feature-rich cooling device control application for Linux"
                 },
@@ -720,7 +721,7 @@
                 "install_xpadneo": {
                     "name": "Xpadneo",
                     "command": [
-                        "dnf install dkms make bluez bluez-tools kernel-devel-`uname -r` kernel-headers ",
+                        "dnf install -y dkms make bluez bluez-tools kernel-devel-`uname -r` kernel-headers ",
                         "mkdir -p $ACTUAL_HOME/Git-Repos && cd $ACTUAL_HOME/Git-Repos",
                         "git clone https://github.com/atar-axis/xpadneo.git",
                         "cd $ACTUAL_HOME/Git-Repos/xpadneo",
