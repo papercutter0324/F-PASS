@@ -281,8 +281,8 @@
                 "install_webappmanager": {
                     "name": "WebAppManager",
                     "command": [
-                        "sudo dnf copr enable risi/risiOS -y",
-                        "echo 'includepkgs=webapp-manager' | sudo tee -a /etc/yum.repos.d/_copr:copr.fedorainfracloud.org:risi:risiOS.repo",
+                        "dnf copr enable risi/risiOS -y",
+                        "echo 'includepkgs=webapp-manager' | tee -a /etc/yum.repos.d/_copr:copr.fedorainfracloud.org:risi:risiOS.repo",
                         "dnf install webapp-manager -y"
                     ],
                     "description": "Run websites as if they were apps."
@@ -342,8 +342,8 @@
                 "install_vscode": {
                     "name": "Visual Studio Code",
                     "command": [
-                        "sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc",
-                        "echo -e \"[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc\" | sudo tee /etc/yum.repos.d/vscode.repo > /dev/null",
+                        "rpm --import https://packages.microsoft.com/keys/microsoft.asc",
+                        "echo -e \"[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc\" | tee /etc/yum.repos.d/vscode.repo > /dev/null",
                         "dnf check-update",
                         "sudo dnf install -y code"
                     ],
@@ -353,7 +353,7 @@
                     "name": "VSCodium",
                     "command": [
                         "rpmkeys --import https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/-/raw/master/pub.gpg",
-                        "printf \"[gitlab.com_paulcarroty_vscodium_repo]\nname=download.vscodium.com\nbaseurl=https://download.vscodium.com/rpms/\nenabled=1\ngpgcheck=1\nrepo_gpgcheck=1\ngpgkey=https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/-/raw/master/pub.gpg\nmetadata_expire=1h\" | sudo tee -a /etc/yum.repos.d/vscodium.repo",
+                        "printf \"[gitlab.com_paulcarroty_vscodium_repo]\nname=download.vscodium.com\nbaseurl=https://download.vscodium.com/rpms/\nenabled=1\ngpgcheck=1\nrepo_gpgcheck=1\ngpgkey=https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/-/raw/master/pub.gpg\nmetadata_expire=1h\" | tee -a /etc/yum.repos.d/vscodium.repo",
                         "dnf -y install codium"
                     ],
                     "description": "A free and open-source distribution of VS Code"
@@ -364,7 +364,7 @@
                     "description": "A feature-packed texted editor with syntax highlighting"
                 },
                 "install_bluefish": {
-                    "name": "Kate",
+                    "name": "Bluefish",
                     "command": "flatpak install -y flathub nl.openoffice.bluefish",
                     "description": "Text editor with many web and software development extras"
                 }
@@ -701,17 +701,54 @@
                         "udevadm trigger",
                         "python -m pip install streamdeck-linux-gui --user",
                         "mkdir -p $ACTUAL_HOME/.local/share/systemd/user/",
-                        "touch $ACTUAL_HOME/.local/share/systemd/user/streamdeck.service",
-                        "echo '[Unit]' > $ACTUAL_HOME/.local/share/systemd/user/streamdeck.service",
-                        "echo 'Description=A Linux compatible UI for the Elgato Stream Deck.' >> $ACTUAL_HOME/.local/share/systemd/user/streamdeck.service",
-                        "echo '' >> $ACTUAL_HOME/.local/share/systemd/user/streamdeck.service",
-                        "echo '[Service]' >> $ACTUAL_HOME/.local/share/systemd/user/streamdeck.service",
-                        "echo 'Type=simple' >> $ACTUAL_HOME/.local/share/systemd/user/streamdeck.service",
-                        "echo 'ExecStart=$ACTUAL_HOME/.local/bin/streamdeck -n' >> $ACTUAL_HOME/.local/share/systemd/user/streamdeck.service",
-                        "echo 'Restart=on-failure' >> $ACTUAL_HOME/.local/share/systemd/user/streamdeck.service",
-                        "echo '' >> $ACTUAL_HOME/.local/share/systemd/user/streamdeck.service",
-                        "echo '[Install]' >> $ACTUAL_HOME/.local/share/systemd/user/streamdeck.service",
-                        "echo 'WantedBy=default.target' >> $ACTUAL_HOME/.local/share/systemd/user/streamdeck.service",
+                        "bash -c 'cat <<EOF > $ACTUAL_HOME/.local/share/systemd/user/streamdeck.service\n[Unit]\nDescription=A Linux compatible UI for the Elgato Stream Deck.\n\n[Service]\nType=simple\nExecStart=$ACTUAL_HOME/.local/bin/streamdeck -n\nRestart=on-failure\n\n[Install]\nWantedBy=default.target\nEOF'",
+                        "systemctl --user daemon-reload",
+                        "systemctl --user enable streamdeck",
+                        "systemctl --user start streamdeck"
+                    ],
+                    "description": "A Linux compatible UI for the Elgato Stream Deck"
+                },
+                "install_xpadneo": {
+                    "name": "Xpadneo",
+                    "command": [
+                        "dnf install -y dkms make bluez bluez-tools kernel-devel-`uname -r` kernel-headers ",
+                        "mkdir -p $ACTUAL_HOME/Git-Repos && cd $ACTUAL_HOME/Git-Repos",
+                        "git clone https://github.com/atar-axis/xpadneo.git",
+                        "cd $ACTUAL_HOME/Git-Repos/xpadneo",
+                        "./install.sh"
+                    ],
+                    "description": "Advanced Linux driver for Xbox One wireless gamepad"
+                }
+            }
+        },
+        "virtualization_apps": {
+            "name": "Virtualization Apps",
+            "apps": {
+                "install_docker_engine": {
+                    "name": "Docker Engine",
+                    "command": [
+                        "dnf remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-selinux docker-engine-selinux docker-engine -y",
+                        "dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo",
+                        "dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin",
+                        "systemctl start docker",
+                        "systemctl enable docker.service",
+                        "systemctl enable containerd.service",
+                        "docker volume create portainer_data",
+                        "docker run -d -p 8000:8000 -p 9443:9443 --privileged --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest",
+                        "xdg-open http://localhost:9443/"
+                    ],
+                    "description": "A feature-rich cooling device control application for Linux"
+                },
+                "install_streamdeck_ui": {
+                    "name": "Streamdeck UI",
+                    "command": [
+                        "dnf install python3-pip python3-devel hidapi -y",
+                        "python -m pip install --upgrade pip",
+                        "wget https://raw.githubusercontent.com/streamdeck-linux-gui/streamdeck-linux-gui/main/udev/60-streamdeck.rules -O /etc/udev/rules.d/60-streamdeck.rules",
+                        "udevadm trigger",
+                        "python -m pip install streamdeck-linux-gui --user",
+                        "mkdir -p $ACTUAL_HOME/.local/share/systemd/user/",
+                        "bash -c 'cat <<EOF > $ACTUAL_HOME/.local/share/systemd/user/streamdeck.service\n[Unit]\nDescription=A Linux compatible UI for the Elgato Stream Deck.\n\n[Service]\nType=simple\nExecStart=$ACTUAL_HOME/.local/bin/streamdeck -n\nRestart=on-failure\n\n[Install]\nWantedBy=default.target\nEOF'",
                         "systemctl --user daemon-reload",
                         "systemctl --user enable streamdeck",
                         "systemctl --user start streamdeck"
@@ -737,7 +774,7 @@
                 "install_remmina": {
                     "name": "Remmina",
                     "command": "flatpak install -y flathub org.remmina.Remmina",
-                "description": "A remote-desktop client written in GTK, to use other desktops remotely, from a tiny screen or large monitors"
+                    "description": "A remote-desktop client written in GTK, to use other desktops remotely, from a tiny screen or large monitors"
                 },
                 "install_nomachine": {
                     "name": "NoMachine",
