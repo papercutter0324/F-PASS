@@ -1,15 +1,6 @@
-# Fedora Workstation: Not Another 'Things To Do'!
+# Forked NATTD!
 
 ![Fedora Workstation NATTD](./assets/cover.png)
-
-<p align="center">
-  <a href="https://nattdf.streamlit.app"><img src="https://img.shields.io/badge/webapp-visit-brightgreen" alt="Webapp"></a>
-  <img src="https://img.shields.io/github/last-commit/k-mktr/fedora-things-to-do" alt="Last Commit">
-  <img src="https://img.shields.io/github/issues/k-mktr/fedora-things-to-do" alt="GitHub issues">
-  <img src="https://img.shields.io/github/license/k-mktr/fedora-things-to-do" alt="GitHub license">
-  <a href="https://mktr.sbs/linkedin"><img src="https://img.shields.io/badge/LinkedIn-Connect-0077B5?style=flat&logo=linkedin" alt="LinkedIn"></a>
-  <img src="https://img.shields.io/github/stars/k-mktr/fedora-things-to-do" alt="GitHub stars">
-</p>
 
 **Initial System Setup Shell Script Builder for Fedora Workstation**
 
@@ -28,10 +19,6 @@ We're grateful for the valuable feedback and suggestions from the r/Fedora commu
 - Expanded the list of additional applications and configurations
 - Introduced virtualization tools
 - Addressed inconsistent naming conventions across the project
-
-Special thanks to [u/RedBearAK](https://www.reddit.com/user/RedBearAK/), [u/ScootSchloingo](https://www.reddit.com/user/ScootSchloingo/), [u/charliesbot](https://www.reddit.com/user/charliesbot/), [u/Laughingatyou1000](https://www.reddit.com/user/Laughingatyou1000/), [u/Papercutter0324](https://www.reddit.com/user/Papercutter0324/), [u/ajunior7](https://www.reddit.com/user/ajunior7/), and [u/intulor](https://www.reddit.com/user/intulor/) for their contributions and insights.
-
-We're continuously working to enhance the script and welcome further suggestions from the community.
 
 ## Features
 
@@ -65,7 +52,7 @@ We're continuously working to enhance the script and welcome further suggestions
 
 1. Clone this repository:
    ```
-   git clone https://github.com/k-mktr/fedora-things-to-do.git
+   git clone https://github.com/papercutter0324/fedora-things-to-do.git
    cd fedora-things-to-do
    ```
 
@@ -121,15 +108,9 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 
 ## Acknowledgements
 
-- Fedora Project for their excellent Linux distribution
+- Original Version: [Fedora Workstation: Not Another 'Things To Do'!](https://github.com/k-mktr/fedora-things-to-do)
 - Streamlit for their intuitive app framework
 - All contributors of Open Source Software
-
-## Contact
-
-For questions, feedback, or support, please:
-- Open an issue on this repository
-- Contact the author: [Karol Stefan Danisz](https://mktr.sbs/linkedin)
 
 ## Roadmap
 
