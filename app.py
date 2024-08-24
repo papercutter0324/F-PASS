@@ -200,16 +200,41 @@ def render_sidebar() -> Dict[str, Any]:
             st.subheader(category_data["name"])
             options["management_apps"][category] = {}
             for app_id, app_info in category_data["apps"].items():
-                app_selected = st.checkbox(app_info['name'], key=f"app_{category}_{app_id}", help=app_info['description'])
+                app_selected = st.checkbox(app_info['name'], key=f"management_apps_{category}_{app_id}", help=app_info['description'])
                 options["management_apps"][category][app_id] = {'selected': app_selected}
                 
-                if app_selected and 'installation_types' in app_info:
+                # Special handling for VirtualBox
+                if app_id == "install_virtualbox" and options["management_apps"][category][app_id]['selected'] == True:
+                    options["management_apps"][category][app_id] = {
+                        'installation_type': st.radio(
+                            "Extension Pack",
+                            ('with_extension', 'without_extension'),
+                            format_func=lambda x: "Download" if x == "with_extension" else "Ignore",
+                            key=f"management_apps_{category}_{app_id}_install_type",
+                            # key=f"management_apps_{app_id}_install_type",
+                            help="Selected if you wish to download the VirtualBox Extension Pack."
+                        )
+                    }
+
+                    # Inform user of download destination
+                    if options["management_apps"][category][app_id]['installation_type'] == 'with_extension':
+                        st.warning("⚠️ The extension pack will be save in your downloads folder. You will still need to manually install it as normal.")
+                elif app_selected and 'installation_types' in app_info:
                     installation_type = st.radio(
                         f"Choose {app_info['name']} installation type:",
                         list(app_info['installation_types'].keys()),
                         key=f"{category}_{app_id}_install_type"
                     )
                     options["management_apps"][category][app_id]['installation_type'] = installation_type
+                
+                # Special handling for when GPG keys need to be imported
+                if app_id == "install_enpass" and options["management_apps"][category][app_id]['selected'] == True:
+                    st.warning("⚠️ During installation, Enpass's YUM repository will automatically be imported.")
+                elif app_id == "install_docker_engine" and options["management_apps"][category][app_id]['selected'] == True:
+                    st.warning("⚠️ During installation, Enpass's GPG key will automatically be imported.")
+                    st.markdown("[You can verify Docker's GPG key here](https://docs.docker.com/engine/install/fedora/)")
+                
+                
 
     # Customization section
     with st.sidebar.expander("Customization"):

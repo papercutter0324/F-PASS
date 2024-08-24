@@ -739,32 +739,24 @@
                     ],
                     "description": "A feature-rich cooling device control application for Linux"
                 },
-                "install_streamdeck_ui": {
-                    "name": "Streamdeck UI",
-                    "command": [
-                        "dnf install python3-pip python3-devel hidapi -y",
-                        "python -m pip install --upgrade pip",
-                        "wget https://raw.githubusercontent.com/streamdeck-linux-gui/streamdeck-linux-gui/main/udev/60-streamdeck.rules -O /etc/udev/rules.d/60-streamdeck.rules",
-                        "udevadm trigger",
-                        "python -m pip install streamdeck-linux-gui --user",
-                        "mkdir -p $ACTUAL_HOME/.local/share/systemd/user/",
-                        "bash -c 'cat <<EOF > $ACTUAL_HOME/.local/share/systemd/user/streamdeck.service\n[Unit]\nDescription=A Linux compatible UI for the Elgato Stream Deck.\n\n[Service]\nType=simple\nExecStart=$ACTUAL_HOME/.local/bin/streamdeck -n\nRestart=on-failure\n\n[Install]\nWantedBy=default.target\nEOF'",
-                        "systemctl --user daemon-reload",
-                        "systemctl --user enable streamdeck",
-                        "systemctl --user start streamdeck"
-                    ],
-                    "description": "A Linux compatible UI for the Elgato Stream Deck"
-                },
-                "install_xpadneo": {
-                    "name": "Xpadneo",
-                    "command": [
-                        "dnf install -y dkms make bluez bluez-tools kernel-devel-`uname -r` kernel-headers ",
-                        "mkdir -p $ACTUAL_HOME/Git-Repos && cd $ACTUAL_HOME/Git-Repos",
-                        "git clone https://github.com/atar-axis/xpadneo.git",
-                        "cd $ACTUAL_HOME/Git-Repos/xpadneo",
-                        "./install.sh"
-                    ],
-                    "description": "Advanced Linux driver for Xbox One wireless gamepad"
+                "install_virtualbox": {
+                    "name": "VirtualBox",
+                    "description": "A powerful virtualization product for enterprise as well as home use",
+                    "installation_types": {
+                        "with_extension": {
+                            "command": [
+                                "wget -O /etc/yum.repos.d/virtualbox.repo https://download.virtualbox.org/virtualbox/rpm/fedora/virtualbox.repo",
+                                "yum install -y VirtualBox"
+                            ]
+                        },
+                        "without_extension": {
+                            "command": [
+                                "wget -O /etc/yum.repos.d/virtualbox.repo https://download.virtualbox.org/virtualbox/rpm/fedora/virtualbox.repo",
+                                "yum install -y VirtualBox",
+                                "wget -O $ACTUAL_HOME/Downloads/Oracle_VM_VirtualBox_Extension_Pack-7.0.20.vbox-extpack https://download.virtualbox.org/virtualbox/7.0.20/Oracle_VM_VirtualBox_Extension_Pack-7.0.20.vbox-extpack"
+                            ]
+                        }
+                    }
                 }
             }
         },
