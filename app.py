@@ -171,15 +171,12 @@ def render_sidebar() -> Dict[str, Any]:
             }
         }
     </style>
-    <div class="link-bar">
-        <a href="https://fedoraproject.org/workstation/" target="_blank" style="text-decoration: none;" aria-label="Fedora Workstation">Still on the fence?<br>Grab your Fedora now!</a>
-    </div>
     <div class="separator"></div>
-    <div style="text-align: center; padding: 55px 0;">
-        <p style="margin-bottom: 5px;">Created with ❤️ for Open Source</p>
-        <a href="https://mktr.sbs/linkedin" target="_blank" style="text-decoration: none; color: #8da9c4;" aria-label="Karol Stefan Danisz LinkedIn">
-            <i>by Karol Stefan Danisz</i>
-        </a>
+    <div class="link-bar">
+        <img src="https://fedoraproject.org/assets/images/fedora-workstation-logo.png" alt="Fedora Logo" class="logo" width="240">
+    </div>
+    <div style="text-align: center;">
+        <a href="https://fedoraproject.org/workstation/" target="_blank" style="text-decoration: none;" aria-label="Fedora Workstation">Grab the latest version of Fedora here.</a>
     </div>
     """, unsafe_allow_html=True)
 
@@ -234,7 +231,7 @@ def render_app_section(app_category_key: str, app_category_name: str, nattd_data
                         list(app_info['installation_types'].keys()),
                         key=f"{category}_{app_id}_install_type"
                     )
-                    options["management_apps"][category][app_id]['installation_type'] = installation_type
+                    options[app_category_key][category][app_id]['installation_type'] = installation_type
                 
                 # Special handling for when GPG keys need to be imported
                 if app_id == "install_enpass" and options["management_apps"][category][app_id]['selected'] == True:
@@ -326,8 +323,8 @@ def main():
     </style>
     <div class="header-container">
         <img src="https://fedoraproject.org/assets/images/fedora-workstation-logo.png" alt="Fedora Logo" class="logo">
-        <h1 class="main-header">Not Another <i>'Things To Do'!</i></h1>
-        <h2 class="sub-header">Fedora Workstation Initial System Setup Shell Script Builder</h2>
+        <h1 class="main-header">F-PASS</h1>
+        <h2 class="sub-header">Fedora Post-Installation Automated Setup Script</h2>
     </div>
     """, unsafe_allow_html=True)
 
