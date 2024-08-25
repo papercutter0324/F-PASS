@@ -1,5 +1,5 @@
-# Welcome to the FICTS-M
-# Fedora Installation Completion & Turning Script Maker
+# Welcome to the F-PASS
+# Fedora Post-Installation Automated Setup Script
 #
 # This tool is designed to help you generate a script you can run after completing the
 # intial installation of Fedora. It make's use of a Streamlit-based web interface to
@@ -28,10 +28,10 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items={
-        'Report a bug': "https://github.com/papercutter0324/fedora-things-to-do",
+        'Report a bug': "https://github.com/papercutter0324/F-PASS/issues",
         'About': """
-        #### FICTS-M    
-        **Fedora Installation Completion & Turning Script Maker**
+        #### F-PASS   
+        **Fedora Post-Installation Automated Setup Script**
         
         A shell script generating tool for automating the final steps of setting up
         a fresh Fedora Workstation installion.
@@ -40,7 +40,7 @@ st.set_page_config(
         propose changes.
 
         Created by papercutter0324
-        [GitHub Repository](https://github.com/papercutter0324/fedora-things-to-do)
+        [GitHub Repository](https://github.com/papercutter0324/F-PASS)
         """
     }
 )
@@ -55,7 +55,7 @@ def render_sidebar() -> Dict[str, Any]:
         """
         <div style="display: flex; justify-content: center; align-items: center; padding: 10px;">
             <a href="/" target="_self">
-                <img src="https://github.com/k-mktr/fedora-things-to-do/blob/master/assets/logo.png?raw=true" width="250" alt="Logo">
+                <img src="https://github.com/papercutter0324/F-PASS/blob/master/assets/logo.png?raw=true" width="240" alt="Logo">
             </a>
         </div>
         """,
