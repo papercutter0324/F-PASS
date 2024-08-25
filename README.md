@@ -53,7 +53,7 @@ We're grateful for the valuable feedback and suggestions from the r/Fedora commu
 1. Clone this repository:
    ```
    git clone https://github.com/papercutter0324/F-PASS.git
-   cd F-Pass
+   cd ./F-Pass
    ```
 
 2. Install the required Python packages:
