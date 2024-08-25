@@ -1,36 +1,23 @@
-# Fedora Workstation NATTD Not Another "Things To Do"!
-# Initial System Setup Shell Script Builder for Fedora Workstation
+# Welcome to the FICTS-M
+# Fedora Installation Completion & Turning Script Maker
 #
-# This application is a Streamlit-based web interface that allows users to customize
-# and generate a shell script for setting up a fresh Fedora Workstation installation.
-# It provides options for system configuration, essential and additional app installation,
-# and system customization. The app uses predefined profiles and allows users to select
-# individual options or apply preset profiles. It generates a downloadable shell script
-# based on the user's selections, which can be run on a Fedora system to automate the
-# setup process.
+# This tool is designed to help you generate a script you can run after completing the
+# intial installation of Fedora. It make's use of a Streamlit-based web interface to
+# simplify generating a script that will automate configuration of some key settings
+# and drivers and install a selection of useful programs. The goal is to offer a 
+# one-file # solution to get you all set up and running after performing a fresh
+# installation.
 #
-# This tool aims to simplify the post-installation process for Fedora users,
-# allowing for easy customization and automation of common setup tasks.
+# Originally fork of Karl Stefan Danisz's [Fedora Workstation NATTD Not Another "Things
+# To Do"!]. Much of the code has be rewritten, slowly growing into a project all of its
+# own. You can check out the orginal version at his github repository:
+# https://github.com/k-mktr/fedora-things-to-do/
 #
-# Author: Karl Stefan Danisz
-# Contact: https://mktr.sbs/linkedin
-# Version: 24.08
-#
-#
-# Use responsibly, and always check the script you are about to run.
 # This script is licensed under the GNU General Public License v3.0
 #
-import logging
 import streamlit as st
 from typing import Dict, Any
 import builder
-
-# Configure logging
-logging.basicConfig(
-    level=logging.DEBUG,  # Change to INFO in production
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
-)
 
 # Constants
 SCRIPT_TEMPLATE_PATH = 'template.sh'
@@ -41,19 +28,19 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items={
-        'Get Help': 'https://github.com/k-mktr/fedora-things-to-do/issues',
-        'Report a bug': "https://github.com/k-mktr/fedora-things-to-do/issues",
+        'Report a bug': "https://github.com/papercutter0324/fedora-things-to-do",
         'About': """
-        #### Not Another "Things To Do"!    
-        **Fedora Workstation Setup Script Builder**
+        #### FICTS-M    
+        **Fedora Installation Completion & Turning Script Maker**
         
-        A Shell Script Builder for setting up Fedora Workstation after a fresh install.
+        A shell script generating tool for automating the final steps of setting up
+        a fresh Fedora Workstation installion.
         
-        If you find this tool useful, consider sharing it with others.
+        If you find this tool useful, feel free to share, suggest improvements, and
+        propose changes.
 
-        Created by [Karl Stefan Danisz](https://mktr.sbs/linkedin)        
-        
-        [GitHub Repository](https://github.com/k-mktr/fedora-things-to-do)
+        Created by papercutter0324
+        [GitHub Repository](https://github.com/papercutter0324/fedora-things-to-do)
         """
     }
 )
@@ -82,14 +69,9 @@ def render_sidebar() -> Dict[str, Any]:
     all_options = builder.generate_options()
     nattd_data = builder.load_nattd()
 
-    logging.debug(f"all_options: {all_options}")
-    logging.debug(f"nattd_data['system_config']: {nattd_data['system_config']}")
-
     # System Configuration section
     with st.sidebar.expander("System Configuration"):
         for option in all_options["system_config"]:
-            logging.debug(f"Processing option: {option}")
-            logging.debug(f"nattd_data['system_config'][{option}]: {nattd_data['system_config'][option]}")
             
             # Special handling for RPM Fusion
             if option == "enable_rpmfusion":
@@ -126,143 +108,12 @@ def render_sidebar() -> Dict[str, Any]:
                 help=app["description"]
             )
 
-    # Internet Applications section
-    with st.sidebar.expander("Internet Applications"):
-        for category, category_data in nattd_data["internet_apps"].items():
-            st.subheader(category_data["name"])
-            options["internet_apps"][category] = {}
-            for app_id, app_info in category_data["apps"].items():
-                app_selected = st.checkbox(app_info['name'], key=f"app_{category}_{app_id}", help=app_info['description'])
-                options["internet_apps"][category][app_id] = {'selected': app_selected}
-                
-                if app_selected and 'installation_types' in app_info:
-                    installation_type = st.radio(
-                        f"Choose {app_info['name']} installation type:",
-                        list(app_info['installation_types'].keys()),
-                        key=f"{category}_{app_id}_install_type"
-                    )
-                    options["internet_apps"][category][app_id]['installation_type'] = installation_type
-
-    # Productivity Applications section
-    with st.sidebar.expander("Productivity Applications"):
-        for category, category_data in nattd_data["productivity_apps"].items():
-            st.subheader(category_data["name"])
-            options["productivity_apps"][category] = {}
-            for app_id, app_info in category_data["apps"].items():
-                app_selected = st.checkbox(app_info['name'], key=f"app_{category}_{app_id}", help=app_info['description'])
-                options["productivity_apps"][category][app_id] = {'selected': app_selected}
-                
-                if app_selected and 'installation_types' in app_info:
-                    installation_type = st.radio(
-                        f"Choose {app_info['name']} installation type:",
-                        list(app_info['installation_types'].keys()),
-                        key=f"{category}_{app_id}_install_type"
-                    )
-                    options["productivity_apps"][category][app_id]['installation_type'] = installation_type
-
-    # Multimedia Applications section
-    with st.sidebar.expander("Multimedia Applications"):
-        for category, category_data in nattd_data["multimedia_apps"].items():
-            st.subheader(category_data["name"])
-            options["multimedia_apps"][category] = {}
-            for app_id, app_info in category_data["apps"].items():
-                app_selected = st.checkbox(app_info['name'], key=f"app_{category}_{app_id}", help=app_info['description'])
-                options["multimedia_apps"][category][app_id] = {'selected': app_selected}
-                
-                if app_selected and 'installation_types' in app_info:
-                    installation_type = st.radio(
-                        f"Choose {app_info['name']} installation type:",
-                        list(app_info['installation_types'].keys()),
-                        key=f"{category}_{app_id}_install_type"
-                    )
-                    options["multimedia_apps"][category][app_id]['installation_type'] = installation_type
-
-    # Gaming Applications section
-    with st.sidebar.expander("Gaming Applications"):
-        for category, category_data in nattd_data["gaming_apps"].items():
-            st.subheader(category_data["name"])
-            options["gaming_apps"][category] = {}
-            for app_id, app_info in category_data["apps"].items():
-                app_selected = st.checkbox(app_info['name'], key=f"app_{category}_{app_id}", help=app_info['description'])
-                options["gaming_apps"][category][app_id] = {'selected': app_selected}
-                
-                if app_selected and 'installation_types' in app_info:
-                    installation_type = st.radio(
-                        f"Choose {app_info['name']} installation type:",
-                        list(app_info['installation_types'].keys()),
-                        key=f"{category}_{app_id}_install_type"
-                    )
-                    options["gaming_apps"][category][app_id]['installation_type'] = installation_type
-
-    # Management Applications section
-    with st.sidebar.expander("Management Applications"):
-        for category, category_data in nattd_data["management_apps"].items():
-            st.subheader(category_data["name"])
-            options["management_apps"][category] = {}
-            for app_id, app_info in category_data["apps"].items():
-                app_selected = st.checkbox(app_info['name'], key=f"management_apps_{category}_{app_id}", help=app_info['description'])
-                options["management_apps"][category][app_id] = {'selected': app_selected}
-                
-                # Special handling for VirtualBox
-                if app_id == "install_virtualbox" and options["management_apps"][category][app_id]['selected'] == True:
-                    options["management_apps"][category][app_id] = {
-                        'installation_type': st.radio(
-                            "Extension Pack",
-                            ('with_extension', 'without_extension'),
-                            format_func=lambda x: "Download" if x == "with_extension" else "Ignore",
-                            key=f"management_apps_{category}_{app_id}_install_type",
-                            # key=f"management_apps_{app_id}_install_type",
-                            help="Selected if you wish to download the VirtualBox Extension Pack."
-                        )
-                    }
-
-                    # Inform user of download destination
-                    if options["management_apps"][category][app_id]['installation_type'] == 'with_extension':
-                        st.warning("⚠️ The extension pack will be save in your downloads folder. You will still need to manually install it as normal.")
-                elif app_selected and 'installation_types' in app_info:
-                    installation_type = st.radio(
-                        f"Choose {app_info['name']} installation type:",
-                        list(app_info['installation_types'].keys()),
-                        key=f"{category}_{app_id}_install_type"
-                    )
-                    options["management_apps"][category][app_id]['installation_type'] = installation_type
-                
-                # Special handling for when GPG keys need to be imported
-                if app_id == "install_enpass" and options["management_apps"][category][app_id]['selected'] == True:
-                    st.warning("⚠️ During installation, Enpass's YUM repository will automatically be imported.")
-                elif app_id == "install_docker_engine" and options["management_apps"][category][app_id]['selected'] == True:
-                    st.warning("⚠️ During installation, Enpass's GPG key will automatically be imported.")
-                    st.markdown("[You can verify Docker's GPG key here](https://docs.docker.com/engine/install/fedora/)")
-                
-                
-
-    # Customization section
-    with st.sidebar.expander("Customization"):
-        customization_apps = nattd_data["customization"]["apps"]
-        for app_id, app_info in customization_apps.items():
-            options["customization"][app_id] = st.checkbox(
-                app_info['name'],
-                key=f"customization_{app_id}",
-                help=app_info['description']
-            )
-            
-            # Special handling for Windows Fonts
-            if app_id == "install_microsoft_fonts" and options["customization"][app_id]:
-                options["customization"][app_id] = {
-                    'selected': True,
-                    'installation_type': st.radio(
-                        "Windows Fonts Installation Method",
-                        ('core', 'windows'),
-                        format_func=lambda x: "Core Fonts" if x == "core" else "Windows Fonts",
-                        key=f"customization_{app_id}_install_type",
-                        help="Choose how to install Windows fonts."
-                    )
-                }
-                
-                if options["customization"][app_id]['installation_type'] == 'windows':
-                    st.warning("⚠️ This method requires a valid Windows license. "
-                               "Please ensure you comply with Microsoft's licensing terms.")
-                    st.markdown("[Learn more about Windows fonts licensing](https://learn.microsoft.com/en-us/typography/fonts/font-faq)")
+    options = render_app_section("internet_apps", "Internet", nattd_data, options)
+    options = render_app_section("productivity_apps", "Productivity", nattd_data, options)
+    options = render_app_section("multimedia_apps", "Multimedia", nattd_data, options)
+    options = render_app_section("gaming_apps", "Gaming", nattd_data, options)
+    options = render_app_section("management_apps", "Management", nattd_data, options)
+    options = render_app_section("customization", "Customization", nattd_data, options)
 
     # Advanced section for custom script
     with st.sidebar.expander("Advanced"):
@@ -334,13 +185,71 @@ def render_sidebar() -> Dict[str, Any]:
 
     return options, output_mode
 
+def render_app_section(app_category_key: str, app_category_name: str, nattd_data: str, options: Dict[str, Any]) -> Dict[str, Any]:
+    with st.sidebar.expander(f"{app_category_name} Applications"):
+        for category, category_data in nattd_data[app_category_key].items():
+            st.subheader(category_data["name"])
+            options[app_category_key][category] = {}
+            
+            for app_id, app_info in category_data["apps"].items():
+                app_selected = st.checkbox(app_info['name'], key=f"app_{category}_{app_id}", help=app_info['description'])
+                options[app_category_key][category][app_id] = {'selected': app_selected}
+                
+                # Handling for special cases
+                if app_id == "install_virtualbox" and options["management_apps"][category][app_id]['selected'] == True:
+                    options[app_category_key][category][app_id] = {
+                        'selected': True,
+                        'installation_type': st.radio(
+                            "Extension Pack",
+                            ('with_extension', 'without_extension'),
+                            format_func=lambda x: "Download" if x == "with_extension" else "Ignore",
+                            key=f"app_{category}_{app_id}_install_type",
+                            help="Selected if you wish to download the VirtualBox Extension Pack."
+                        )
+                    }
+
+                    # Inform user of download destination
+                    if options["management_apps"][category][app_id]['installation_type'] == 'with_extension':
+                        st.warning("⚠️ The extension pack will be save in your downloads folder. You will still need to manually install it as normal.")
+                elif app_id == "install_microsoft_fonts" and options["customization"][category][app_id]['selected'] == True:
+                    options["customization"][category][app_id] = {
+                        'selected': True,
+                        'installation_type': st.radio(
+                            "Windows Fonts Installation Method",
+                            ('core', 'windows'),
+                            format_func=lambda x: "Core Fonts" if x == "core" else "Windows Fonts",
+                            key=f"customization_{app_id}_install_type",
+                            help="Choose how to install Windows fonts."
+                        )
+                    }
+                    
+                    if options["customization"][category][app_id]['installation_type'] == 'windows':
+                        st.warning("⚠️ This method requires a valid Windows license. "
+                                "Please ensure you comply with Microsoft's licensing terms.")
+                        st.markdown("[Learn more about Windows fonts licensing](https://learn.microsoft.com/en-us/typography/fonts/font-faq)")
+                
+                elif app_selected and 'installation_types' in app_info:
+                    installation_type = st.radio(
+                        f"Choose {app_info['name']} installation type:",
+                        list(app_info['installation_types'].keys()),
+                        key=f"{category}_{app_id}_install_type"
+                    )
+                    options["management_apps"][category][app_id]['installation_type'] = installation_type
+                
+                # Special handling for when GPG keys need to be imported
+                if app_id == "install_enpass" and options["management_apps"][category][app_id]['selected'] == True:
+                    st.warning("⚠️ During installation, Enpass's YUM repository will automatically be imported.")
+                elif app_id == "install_docker_engine" and options["management_apps"][category][app_id]['selected'] == True:
+                    st.warning("⚠️ During installation, Enpass's GPG key will automatically be imported.")
+                    st.markdown("[You can verify Docker's GPG key here](https://docs.docker.com/engine/install/fedora/)")
+                    
+    return options
 
 def build_script(options: Dict[str, Any], output_mode: str) -> str:
     script_parts = {
         "system_upgrade": builder.build_system_upgrade(options, output_mode),
         "system_config": builder.build_system_config(options, output_mode),
         "app_install": builder.build_app_install(options, output_mode),
-        "customization": builder.build_customization(options, output_mode),
         "custom_script": builder.build_custom_script(options, output_mode),
     }
     
@@ -364,7 +273,6 @@ def build_full_script(template: str, options: Dict[str, Any], output_mode: str) 
         "system_upgrade": builder.build_system_upgrade(options, output_mode),
         "system_config": builder.build_system_config(options, output_mode),
         "app_install": builder.build_app_install(options, output_mode),
-        "customization": builder.build_customization(options, output_mode),
         "custom_script": builder.build_custom_script(options, output_mode),
     }
     
@@ -378,7 +286,6 @@ def build_full_script(template: str, options: Dict[str, Any], output_mode: str) 
     return template
 
 def main():
-    logging.info("Starting main function")
     # Add a header with a logo and links
     st.markdown("""
     <style>
@@ -428,21 +335,15 @@ def main():
     if 'script_built' not in st.session_state:
         st.session_state.script_built = False
 
-    logging.info("Loading template")
     template = load_template()
-    logging.info("Rendering sidebar")
     options, output_mode = render_sidebar()
 
-    logging.info("Creating script preview")
     script_preview = st.empty()
 
-    logging.info("Building script")
     updated_script = build_script(options, output_mode)
-    logging.info("Displaying script preview")
     script_preview.code(updated_script, language="bash")
 
     if st.button("Build Your Script"):
-        logging.info("Building full script")
         full_script = build_full_script(template, options, output_mode)
         st.session_state.full_script = full_script
         st.session_state.script_built = True
@@ -475,8 +376,6 @@ def main():
 
         ⚠️ **Caution**: This script will make changes to your system. Please review the script contents before running and ensure you understand the modifications it will make.
         """)
-
-    logging.info("Main function completed")
 
 if __name__ == "__main__":
     main()
