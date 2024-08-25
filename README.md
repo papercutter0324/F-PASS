@@ -52,7 +52,7 @@ We're grateful for the valuable feedback and suggestions from the r/Fedora commu
 
 1. Clone this repository:
    ```
-   git clone https://github.com/papercutter0324/fedora-things-to-do.git
+   git clone https://github.com/papercutter0324/FICTS-M.git
    cd fedora-things-to-do
    ```
 
