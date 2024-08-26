@@ -202,5 +202,5 @@ def build_app_install(options: Dict[str, Any], output_mode: str) -> str:
 def build_custom_script(options: Dict[str, Any], output_mode: str) -> str:
     custom_script = options.get("custom_script", "").strip()
     if custom_script:
-        return f"# Custom user-defined commands\n{custom_script}\n"
+        return f"{custom_script}\n"
     return ""

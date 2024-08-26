@@ -8,7 +8,7 @@
 # one-file # solution to get you all set up and running after performing a fresh
 # installation.
 #
-# Originally fork of Karl Stefan Danisz's [Fedora Workstation NATTD Not Another "Things
+# Originally a fork of Karl Stefan Danisz's [Fedora Workstation NATTD Not Another "Things
 # To Do"!]. Much of the code has be rewritten, slowly growing into a project all of its
 # own. You can check out the orginal version at his github repository:
 # https://github.com/k-mktr/fedora-things-to-do/
@@ -20,7 +20,7 @@ from typing import Dict, Any
 import builder
 
 # Constants
-SCRIPT_TEMPLATE_PATH = 'template.sh'
+script_template = 'template.sh'
 
 st.set_page_config(
     page_title="Fedora Things To Do",
@@ -46,7 +46,7 @@ st.set_page_config(
 )
 
 def load_template() -> str:
-    with open(SCRIPT_TEMPLATE_PATH, 'r') as file:
+    with open(script_template, 'r') as file:
         return file.read()
 
 def render_sidebar() -> Dict[str, Any]:
@@ -72,7 +72,6 @@ def render_sidebar() -> Dict[str, Any]:
     # System Configuration section
     with st.sidebar.expander("System Configuration"):
         for option in all_options["system_config"]:
-            
             # Special handling for RPM Fusion
             if option == "enable_rpmfusion":
                 rpm_fusion_checkbox = st.checkbox(
@@ -117,25 +116,19 @@ def render_sidebar() -> Dict[str, Any]:
 
     # Advanced section for custom script
     with st.sidebar.expander("Advanced"):
-        st.warning("⚠️ **Caution**: This section is for advanced users. Incorrect shell commands can potentially harm your system. Use with care.")
+        st.warning("""⚠️ **Caution**: Intended for advanced users. Incorrect shell commands can potentially harm your system or render it inoperable.
+                   \nUse with care!""")
         
-        st.markdown("""
-        Guidelines for custom commands:
-        - Ensure each command is on a new line
-        - Test your commands before adding them here
-        - Be aware that these commands will run with sudo privileges
-        """)
-        
-        default_custom_script = 'echo "Created with ❤️ for Open Source"'
+        default_custom_text = 'echo "Each command is on a new line."'
         options["custom_script"] = st.text_area(
-            "Custom Shell Commands",
-            value=default_custom_script,
+            "Custom Commands:",
+            value=default_custom_text,
             help="Enter any additional shell commands you want to run at the end of the script.",
             height=200,
             key="custom_script_input"
         )
         
-        if options["custom_script"].strip() != default_custom_script:
+        if options["custom_script"].strip() != default_custom_text:
             st.info("Remember to review your custom commands in the script preview before downloading.")
 
     
