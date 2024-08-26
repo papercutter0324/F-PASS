@@ -67,7 +67,7 @@ def render_sidebar() -> Dict[str, Any]:
     output_mode = st.sidebar.radio("Output Mode", ["Quiet", "Verbose"], index=0, help="Select the output mode for the script.")
 
     all_options = builder.generate_options()
-    nattd_data = builder.load_nattd()
+    fedora_data = builder.load_app_data()
 
     # System Configuration section
     with st.sidebar.expander("System Configuration"):
@@ -75,16 +75,16 @@ def render_sidebar() -> Dict[str, Any]:
             # Special handling for RPM Fusion
             if option == "enable_rpmfusion":
                 rpm_fusion_checkbox = st.checkbox(
-                    nattd_data["system_config"][option]["name"],
+                    fedora_data["system_config"][option]["name"],
                     key=f"system_config_{option}",
-                    help=nattd_data["system_config"][option]["description"]
+                    help=fedora_data["system_config"][option]["description"]
                 )
                 options["system_config"][option] = rpm_fusion_checkbox
             else:
                 options["system_config"][option] = st.checkbox(
-                    nattd_data["system_config"][option]["name"],
+                    fedora_data["system_config"][option]["name"],
                     key=f"system_config_{option}",
-                    help=nattd_data["system_config"][option]["description"]
+                    help=fedora_data["system_config"][option]["description"]
                 )
             
             if option == "set_hostname" and options["system_config"][option]:
@@ -99,7 +99,7 @@ def render_sidebar() -> Dict[str, Any]:
 
     # Essential Apps section
     with st.sidebar.expander("Essential Applications"):
-        essential_apps = nattd_data["essential_apps"]["apps"]
+        essential_apps = fedora_data["essential_apps"]["apps"]
         for app in essential_apps:
             options["essential_apps"][app["name"]] = st.checkbox(
                 app["name"],
@@ -107,12 +107,12 @@ def render_sidebar() -> Dict[str, Any]:
                 help=app["description"]
             )
 
-    options = render_app_section("internet_apps", "Internet", nattd_data, options)
-    options = render_app_section("productivity_apps", "Productivity", nattd_data, options)
-    options = render_app_section("multimedia_apps", "Multimedia", nattd_data, options)
-    options = render_app_section("gaming_apps", "Gaming", nattd_data, options)
-    options = render_app_section("management_apps", "Management", nattd_data, options)
-    options = render_app_section("customization", "Customization", nattd_data, options)
+    options = render_app_section("internet_apps", "Internet", fedora_data, options)
+    options = render_app_section("productivity_apps", "Productivity", fedora_data, options)
+    options = render_app_section("multimedia_apps", "Multimedia", fedora_data, options)
+    options = render_app_section("gaming_apps", "Gaming", fedora_data, options)
+    options = render_app_section("management_apps", "Management", fedora_data, options)
+    options = render_app_section("customization", "Customization", fedora_data, options)
 
     # Advanced section for custom script
     with st.sidebar.expander("Advanced"):
@@ -175,9 +175,9 @@ def render_sidebar() -> Dict[str, Any]:
 
     return options, output_mode
 
-def render_app_section(app_category_key: str, app_category_name: str, nattd_data: str, options: Dict[str, Any]) -> Dict[str, Any]:
+def render_app_section(app_category_key: str, app_category_name: str, fedora_data: str, options: Dict[str, Any]) -> Dict[str, Any]:
     with st.sidebar.expander(f"{app_category_name} Applications"):
-        for category, category_data in nattd_data[app_category_key].items():
+        for category, category_data in fedora_data[app_category_key].items():
             st.subheader(category_data["name"])
             options[app_category_key][category] = {}
             
