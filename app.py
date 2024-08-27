@@ -17,6 +17,7 @@
 #
 import streamlit as st
 from typing import Dict, Any
+import session_config
 import builder
 
 # Constants
@@ -63,11 +64,28 @@ def render_sidebar() -> Dict[str, Any]:
     )
     st.sidebar.header("Configuration Options")
     options = {"system_config": {}, "essential_apps": {}, "internet_apps": {}, "productivity_apps": {}, "multimedia_apps": {}, "gaming_apps": {}, "management_apps": {}, "customization": {}}
+    supported_distros = {"Fedora 40": 'fedora_data.json'}
 
-    output_mode = st.sidebar.radio("Output Mode", ["Quiet", "Verbose"], index=0, help="Select the output mode for the script.")
+    selected_distro = st.sidebar.selectbox("Choose a Distribution", list(supported_distros.keys()), help="Load the options supported for your distro.")
 
+    if selected_distro: # Figure out how to denote selected distro in the build window.
+        distro_file = supported_distros[selected_distro]
+    else: #Default to Fedora 40 if nothing has been selected
+        distro_file = supported_distros["Fedora 40"]
+
+    # Load the distro data and store it in the session state
+    distro_data = builder.load_app_data(distro_file)
+    session_config.set_distro_data(distro_data)
+
+    # output_mode = st.sidebar.radio("Output Mode", ["Quiet", "Verbose"], index=0, help="Select the output mode for the script.")
+    output_mode = st.sidebar.selectbox(
+        "Selected Terminal Output Mode",
+        ["Quiet", "Verbose"],
+        help="Determines how much information the terminal will display as the script runs."
+    )
+
+    # Generate the sidebar and valid options based on the loaded data set
     all_options = builder.generate_options()
-    fedora_data = builder.load_app_data()
 
     # System Configuration section
     with st.sidebar.expander("System Configuration"):
@@ -75,16 +93,16 @@ def render_sidebar() -> Dict[str, Any]:
             # Special handling for RPM Fusion
             if option == "enable_rpmfusion":
                 rpm_fusion_checkbox = st.checkbox(
-                    fedora_data["system_config"][option]["name"],
+                    distro_data["system_config"][option]["name"],
                     key=f"system_config_{option}",
-                    help=fedora_data["system_config"][option]["description"]
+                    help=distro_data["system_config"][option]["description"]
                 )
                 options["system_config"][option] = rpm_fusion_checkbox
             else:
                 options["system_config"][option] = st.checkbox(
-                    fedora_data["system_config"][option]["name"],
+                    distro_data["system_config"][option]["name"],
                     key=f"system_config_{option}",
-                    help=fedora_data["system_config"][option]["description"]
+                    help=distro_data["system_config"][option]["description"]
                 )
             
             if option == "set_hostname" and options["system_config"][option]:
@@ -99,7 +117,7 @@ def render_sidebar() -> Dict[str, Any]:
 
     # Essential Apps section
     with st.sidebar.expander("Essential Applications"):
-        essential_apps = fedora_data["essential_apps"]["apps"]
+        essential_apps = distro_data["essential_apps"]["apps"]
         for app in essential_apps:
             options["essential_apps"][app["name"]] = st.checkbox(
                 app["name"],
@@ -107,19 +125,19 @@ def render_sidebar() -> Dict[str, Any]:
                 help=app["description"]
             )
 
-    options = render_app_section("internet_apps", "Internet", fedora_data, options)
-    options = render_app_section("productivity_apps", "Productivity", fedora_data, options)
-    options = render_app_section("multimedia_apps", "Multimedia", fedora_data, options)
-    options = render_app_section("gaming_apps", "Gaming", fedora_data, options)
-    options = render_app_section("management_apps", "Management", fedora_data, options)
-    options = render_app_section("customization", "Customization", fedora_data, options)
+    options = render_app_section("internet_apps", "Internet", distro_data, options)
+    options = render_app_section("productivity_apps", "Productivity", distro_data, options)
+    options = render_app_section("multimedia_apps", "Multimedia", distro_data, options)
+    options = render_app_section("gaming_apps", "Gaming", distro_data, options)
+    options = render_app_section("management_apps", "Management", distro_data, options)
+    options = render_app_section("customization", "Customization", distro_data, options)
 
     # Advanced section for custom script
     with st.sidebar.expander("Advanced"):
         st.warning("""⚠️ **Caution**: Intended for advanced users. Incorrect shell commands can potentially harm your system or render it inoperable.
                    \nUse with care!""")
         
-        default_custom_text = 'echo "Each command is on a new line."'
+        default_custom_text = '# Each command goes on a new line.'
         options["custom_script"] = st.text_area(
             "Custom Commands:",
             value=default_custom_text,
@@ -175,9 +193,9 @@ def render_sidebar() -> Dict[str, Any]:
 
     return options, output_mode
 
-def render_app_section(app_category_key: str, app_category_name: str, fedora_data: str, options: Dict[str, Any]) -> Dict[str, Any]:
+def render_app_section(app_category_key: str, app_category_name: str, distro_data: str, options: Dict[str, Any]) -> Dict[str, Any]:
     with st.sidebar.expander(f"{app_category_name} Applications"):
-        for category, category_data in fedora_data[app_category_key].items():
+        for category, category_data in distro_data[app_category_key].items():
             st.subheader(category_data["name"])
             options[app_category_key][category] = {}
             

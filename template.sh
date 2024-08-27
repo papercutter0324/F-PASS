@@ -13,19 +13,19 @@ get_timestamp() {
     date +"%Y-%m-%d %H:%M:%S"
 }
 
-log_message() {
+generate_log() {
     local message="$1"
     echo "$(get_timestamp) - $message" | tee -a "$LOG_FILE"
 }
 
 error_handler() {
     local exit_code=$?; local message="$1"
-    [ $exit_code -eq 0 ] ||; { log_message "ERROR: $message"; exit $exit_code; }
+    [ $exit_code -eq 0 ] ||; { generate_log "ERROR: $message"; exit $exit_code; }
 }
 
 request_restart() {
     sudo -u $ACTUAL_USER bash -c 'read -p "Your computer must restart to complete the process. Restart now? (y/n): " choice; [[ $choice == [yY] ]]'
-    [ $? -eq 0 ] && log_message "Rebooting." && reboot || log_message "Reboot cancelled."
+    [ $? -eq 0 ] && generate_log "Rebooting." && reboot || generate_log "Reboot cancelled."
 }
 
 # Function to backup configuration files
@@ -34,7 +34,7 @@ backup_file() {
     if [ -f "$file" ]; then
         cp "$file" "$file.bak"
         error_handler "Failed to backup $file"
-        log_message "Backed up $file"
+        generate_log "Backed up $file"
     fi
 }
 
@@ -64,7 +64,6 @@ read -p "Press Enter to continue or CTRL+C to cancel."
 
 {{custom_script}}
 
-# Finish
 echo "";
 echo -e "\e[34m╔═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗\e[0m";
 echo -e "\e[34m║ ░██████╗███████╗████████╗██╗░░░██╗██████╗░░░░█████╗░░█████╗░███╗░░░███╗██████╗░██╗░░░░░███████╗████████╗███████╗██╗ ║\e[0m";
@@ -75,7 +74,6 @@ echo -e "\e[34m║ ██████╔╝███████╗░░░█�
 echo -e "\e[34m║ ╚═════╝░╚══════╝░░░╚═╝░░░░╚═════╝░╚═╝░░░░░░░░╚════╝░░╚════╝░╚═╝░░░░░╚═╝╚═╝░░░░░╚══════╝╚══════╝░░░╚═╝░░░╚══════╝╚═╝ ║\e[0m";
 echo -e "\e[34m╚═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝\e[0m";
 echo "";
-log_message "All steps completed. Enjoy!"
+generate_log "All steps completed. Enjoy!"
 
-# Prompt user to restart
 request_restart

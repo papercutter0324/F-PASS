@@ -1,3 +1,4 @@
+import session_config
 import json
 from typing import Dict, Any
 import logging
@@ -18,43 +19,49 @@ PLACEHOLDERS = {
     "hostname": "{hostname}",
 }
 
-def load_app_data():
+def load_app_data(file_name: str) -> dict:
     try:
-        with open('fedora_data.json', 'r') as f:
+        with open(file_name, 'r') as f:
             return json.load(f)
     except FileNotFoundError:
-        logging.error("fedora_data.json file not found!")
+        logging.error(f"{file_name} not found!")
         return {}
     except json.JSONDecodeError:
-        logging.error("fedora_data.json is not a valid JSON file!")
+        logging.error(f"{file_name} is not a valid JSON file!")
         return {}
 
 def get_option_name(category: str, option: str) -> str:
-    fedora_data = load_app_data()
+    distro_data = session_config.get_distro_data()
     logging.debug(f"get_option_name - category: {category}, option: {option}")
     if category == "system_config":
-        return fedora_data[category][option]["name"]
+        return distro_data[category][option]["name"]
     elif category in all_std_categories:
-        return fedora_data[category]["apps"][option]["name"]
+        return distro_data[category]["apps"][option]["name"]
     else:
         raise ValueError(f"Unknown category: {category}")
 
 def get_option_description(category: str, option: str) -> str:
-    fedora_data = load_app_data()
+    distro_data = session_config.get_distro_data()
     logging.debug(f"get_option_description - category: {category}, option: {option}")
     if category == "system_config":
-        return fedora_data[category][option]["description"]
+        return distro_data[category][option]["description"]
     elif category in all_std_categories:
-        return fedora_data[category]["apps"][option]["description"]
+        return distro_data[category]["apps"][option]["description"]
     else:
         raise ValueError(f"Unknown category: {category}")
 
 def generate_options():
-    fedora_data = load_app_data()
-    logging.debug(f"generate_options - fedora_data: {fedora_data}")
+    distro_data = session_config.get_distro_data()
+
+    if not distro_data:
+        logging.error("No distro data is available!")
+        return {}
+    
+    logging.debug(f"generate_options - distro_data: {distro_data}")
+    
     options = {
-        "system_config": [key for key in fedora_data["system_config"].keys() if key != "description"],
-        "essential_apps": [app["name"] for app in fedora_data["essential_apps"]["apps"]],
+        "system_config": [key for key in distro_data["system_config"].keys() if key != "description"],
+        "essential_apps": [app["name"] for app in distro_data["essential_apps"]["apps"]],
         "internet_apps": {},
         "productivity_apps": {},
         "multimedia_apps": {},
@@ -65,7 +72,7 @@ def generate_options():
     
     # Loop through the additional categories
     for category in additional_categories:
-        category_data = fedora_data.get(category, {})
+        category_data = distro_data.get(category, {})
         options[category] = {
             "name": category_data.get("name", ""),
             "apps": list(category_data.get("apps", {}).keys())
@@ -99,7 +106,7 @@ def should_quiet_redirect(cmd: str) -> bool:
 
 # Add this function to check dependencies
 def check_dependencies(options: Dict[str, Any]) -> Dict[str, Any]:
-    fedora_data = load_app_data()
+    distro_data = session_config.get_distro_data()
     
     # Check if multimedia codecs or GPU codecs are selected
     if any([
@@ -119,8 +126,8 @@ def build_system_config(options: Dict[str, Any], output_mode: str) -> str:
     config_commands = []
     quiet_redirect = " > /dev/null 2>&1" if output_mode == "Quiet" else ""
 
-    fedora_data = load_app_data()
-    system_config = fedora_data["system_config"]
+    distro_data = session_config.get_distro_data()
+    system_config = distro_data["system_config"]
 
     for option, enabled in options["system_config"].items():
         if enabled and option in system_config:
@@ -146,7 +153,7 @@ def build_system_config(options: Dict[str, Any], output_mode: str) -> str:
     return "\n".join(config_commands)
 
 def build_app_install(options: Dict[str, Any], output_mode: str) -> str:
-    fedora_data = load_app_data()
+    distro_data = session_config.get_distro_data()
     install_commands = []
     quiet_redirect = " > /dev/null 2>&1" if output_mode == "Quiet" else ""
 
@@ -155,10 +162,10 @@ def build_app_install(options: Dict[str, Any], output_mode: str) -> str:
         for category_name, category_data in options.get(category, {}).items():
             category_apps = [app_id for app_id, app_data in category_data.items() if app_data.get('selected', False)]
             if category_apps:
-                install_commands.append(f"# Install {fedora_data[category][category_name]['name']} applications")
+                install_commands.append(f"# Install {distro_data[category][category_name]['name']} applications")
 
                 for app_id in category_apps:
-                    app_data = fedora_data[category][category_name]['apps'][app_id]
+                    app_data = distro_data[category][category_name]['apps'][app_id]
                     install_commands.append(f"log_message \"Installing {app_data['name']}...\"")
                     
                     # Handle if there are multiple installation types
@@ -184,7 +191,7 @@ def build_app_install(options: Dict[str, Any], output_mode: str) -> str:
                 install_commands.append("")
 
     # Install essential apps separately since it doesn't use the general category structure
-    essential_apps = [app for app in fedora_data["essential_apps"]["apps"] if options["essential_apps"].get(app["name"], False)]
+    essential_apps = [app for app in distro_data["essential_apps"]["apps"] if options["essential_apps"].get(app["name"], False)]
     if essential_apps:
         install_commands.append("# Install essential applications")
         app_names = " ".join([app["name"] for app in essential_apps])
