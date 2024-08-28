@@ -24,7 +24,7 @@ import builder
 script_template = 'template.sh'
 
 st.set_page_config(
-    page_title="Fedora Things To Do",
+    page_title="F-Pass Creator",
     page_icon="🛠️",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -34,14 +34,14 @@ st.set_page_config(
         #### F-PASS   
         **Fedora Post-Installation Automated Setup Script**
         
-        A shell script generating tool for automating the final steps of setting up
-        a fresh Fedora Workstation installion.
-        
-        If you find this tool useful, feel free to share, suggest improvements, and
-        propose changes.
+        This tool will generate a script to automate the final steps of
+        setting up a fresh Fedora Workstation installion. If you find this
+        tool useful, feel free to share, suggest improvements, and propose
+        changes.
 
         Created by papercutter0324
-        [GitHub Repository](https://github.com/papercutter0324/F-PASS)
+
+        GitHub: https://github.com/papercutter0324/F-PASS
         """
     }
 )
@@ -68,10 +68,12 @@ def render_sidebar() -> Dict[str, Any]:
 
     selected_distro = st.sidebar.selectbox("Choose a Distribution", list(supported_distros.keys()), help="Load the options supported for your distro.")
 
-    if selected_distro: # Figure out how to denote selected distro in the build window.
+    if selected_distro:
         distro_file = supported_distros[selected_distro]
+        session_config.set_distro_name(selected_distro)
     else: #Default to Fedora 40 if nothing has been selected
         distro_file = supported_distros["Fedora 40"]
+        session_config.set_distro_name("Fedora 40")
 
     # Load the distro data and store it in the session state
     distro_data = builder.load_app_data(distro_file)
@@ -113,7 +115,12 @@ def render_sidebar() -> Dict[str, Any]:
         if any(options["system_config"].get(option, False) for option in codec_options):
             options["system_config"]["enable_rpmfusion"] = True
             if not rpm_fusion_checkbox:
-                st.sidebar.markdown("**RPM Fusion** has been automatically selected due to codec choices.")
+                st.sidebar.markdown("""
+                    ```
+                    RPM Fusion has been automatically  
+                    added due to codec choices.
+                    ```
+                """)
 
     # Essential Apps section
     with st.sidebar.expander("Essential Applications"):
@@ -134,8 +141,8 @@ def render_sidebar() -> Dict[str, Any]:
 
     # Advanced section for custom script
     with st.sidebar.expander("Advanced"):
-        st.warning("""⚠️ **Caution**: Intended for advanced users. Incorrect shell commands can potentially harm your system or render it inoperable.
-                   \nUse with care!""")
+        st.warning("""⚠️ **Caution**: Intended for advanced users. Incorrect shell commands can potentially harm your system or render it inoperable.  
+                   Use with care!""")
         
         default_custom_text = '# Each command goes on a new line.'
         options["custom_script"] = st.text_area(
@@ -254,14 +261,21 @@ def render_app_section(app_category_key: str, app_category_name: str, distro_dat
     return options
 
 def build_script(options: Dict[str, Any], output_mode: str) -> str:
-    script_parts = {
-        "system_upgrade": builder.build_system_upgrade(options, output_mode),
-        "system_config": builder.build_system_config(options, output_mode),
-        "app_install": builder.build_app_install(options, output_mode),
-        "custom_script": builder.build_custom_script(options, output_mode),
-    }
+    if options["custom_script"] != "# Each command goes on a new line.":
+        script_parts = {
+            "system_upgrade": builder.build_system_upgrade(options, output_mode),
+            "system_config": builder.build_system_config(options, output_mode),
+            "app_install": builder.build_app_install(options, output_mode),
+            "custom_script": builder.build_custom_script(options, output_mode),
+        }
+    else: 
+        script_parts = {
+            "system_upgrade": builder.build_system_upgrade(options, output_mode),
+            "system_config": builder.build_system_config(options, output_mode),
+            "app_install": builder.build_app_install(options, output_mode),
+        }
     
-    preview_script = "(...)  # Script header and initial setup\n\n"
+    preview_script = f"(...)  # Script header\n\n# Selected distro: {session_config.get_distro_name()}\n# Output Mode: {output_mode}\n\n"
     
     for placeholder, content in script_parts.items():
         if content and content.strip():  # Check if content is not None and not empty
@@ -334,7 +348,7 @@ def main():
     </style>
     <div class="header-container">
         <img src="https://fedoraproject.org/assets/images/fedora-workstation-logo.png" alt="Fedora Logo" class="logo">
-        <h1 class="main-header">F-PASS</h1>
+        <h1 class="main-header">F-PASS Creator</h1>
         <h2 class="sub-header">Fedora Post-Installation Automated Setup Script</h2>
     </div>
     """, unsafe_allow_html=True)
@@ -361,7 +375,7 @@ def main():
         st.download_button(
             label="Download Your Script",
             data=st.session_state.full_script,
-            file_name="fedora_things_to_do.sh",
+            file_name="f-pass.sh",
             mime="text/plain"
         )
         
@@ -370,20 +384,29 @@ def main():
 
         Follow these steps to use your script:
 
-        1. **Download the Script**: Click the 'Download Your Script' button above to save the script to your computer.
+        1. **Download the Script**  
+        Click the 'Download Your Script' button above to save the script to your computer.
 
-        2. **Make the Script Executable**: Open a terminal, navigate to the directory containing the downloaded script, and run:
+        2. **Make the Script Executable**  
+        There are two methods for doing this:  
+        <span style="visibility: hidden;">....</span>A - Right-click on f-pass.sh and select 'Properties'. Navigate to the 'Permissions' tab, check 'Is executable', and click 'Ok'.  
+        <span style="visibility: hidden;">....</span>B - Open a terminal, navigate to the directory containing the downloaded script, and run:
            ```
-           chmod +x fedora_things_to_do.sh
-           ```
-
-        3. **Run the Script**: Execute the script with sudo privileges:
-           ```
-           sudo ./fedora_things_to_do.sh
+           chmod +x f-pass.sh
            ```
 
-        ⚠️ **Caution**: This script will make changes to your system. Please review the script contents before running and ensure you understand the modifications it will make.
-        """)
+        3. **Run the Script**  
+        In a terminal window, run the script with sudo privileges:
+           ```
+           sudo ./f-pass.sh
+           ```
+        """, unsafe_allow_html=True)
+
+    st.markdown(f"""
+    ### Impotant Notes:
+    <span style="visibility: hidden;">....</span>🛠️ This script may work with other releases, but these commands were written with {session_config.get_distro_name()} in mind.  
+    <span style="visibility: hidden;">....</span>⚠️  Similarly, this script will install programs and make changes to your system. Use with care.
+    """, unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()

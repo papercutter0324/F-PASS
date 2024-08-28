@@ -28,7 +28,7 @@ request_restart() {
     [ $? -eq 0 ] && generate_log "Rebooting." && reboot || generate_log "Reboot cancelled."
 }
 
-# Function to backup configuration files
+# Function to backup files
 backup_file() {
     local file="$1"
     if [ -f "$file" ]; then
