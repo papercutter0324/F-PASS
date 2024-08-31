@@ -1,147 +1,264 @@
 {
     "system_config": {
-        "description": "Configure the system settings",
-        "set_hostname": {
-            "name": "Set Hostname",
-            "command": [
-                "log_message \"Setting hostname...\"",
-                "hostnamectl set-hostname"
-            ],
-            "description": "Set the system hostname to uniquely identify the machine on the network"
+        "name": "System Configuration",
+        "recommended_settings": {
+            "name": "Recommended Settings",
+            "apps": {
+                "set_hostname": {
+                    "name": "Set Hostname",
+                    "command": [
+                        "log_message \"Setting hostname...\"",
+                        "hostnamectl set-hostname"
+                    ],
+                    "description": "Set the system hostname to uniquely identify the machine on the network"
+                },
+                "configure_dnf": {
+                    "name": "Configure DNF",
+                    "command": [
+                        "log_message \"Configuring DNF Package Manager...\"",
+                        "backup_file \"/etc/dnf/dnf.conf\"",
+                        "echo \"max_parallel_downloads=10\" | tee -a /etc/dnf/dnf.conf > /dev/null",
+                        "echo \"fastestmirror=True\" | tee -a /etc/dnf/dnf.conf > /dev/null",
+                        "dnf -y install dnf-plugins-core"
+                    ],
+                    "description": "Optimize DNF package manager for faster downloads and efficient updates"
+                },
+                "enable_dnf_autoupdate": {
+                    "name": "Enable DNF Autoupdate",
+                    "command": [
+                        "log_message \"Enabling DNF autoupdate...\"",
+                        "dnf install dnf-automatic -y",
+                        "sed -i 's/apply_updates = no/apply_updates = yes/' /etc/dnf/automatic.conf",
+                        "systemctl enable --now dnf-automatic.timer"
+                    ],
+                    "description": "Enable and configure automatic system updates to enhance security and stability"
+                },
+                "gnome_power_settings": {
+                    "name": "Gnome Power Settings",
+                    "command": [
+                        "log_message \"Configuring power settings...\"",
+                        "sudo -u $ACTUAL_USER gsettings set org.gnome.desktop.session idle-delay 0",
+                        "sudo -u $ACTUAL_USER gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type 'nothing'",
+                        "sudo -u $ACTUAL_USER gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-type 'nothing'",
+                        "sudo -u $ACTUAL_USER gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-timeout 0",
+                        "sudo -u $ACTUAL_USER gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-timeout 0",
+                        "sudo -u $ACTUAL_USER gsettings set org.gnome.settings-daemon.plugins.power power-button-action 'suspend'"
+                    ],
+                    "description": "Configure power settings to prevent system sleep and hibernation"
+                },
+                "install_ssh": {
+                    "name": "Install and Enable SSH",
+                    "command": [
+                        "log_message \"Installing and enabling SSH...\"",
+                        "dnf install -y openssh-server",
+                        "systemctl enable --now sshd"
+                    ],
+                    "description": "Install and enable SSH server for secure remote access and file transfers"
+                },
+                "firmware_updates": {
+                    "name": "Update Firmware",
+                    "command": [
+                        "log_message \"Checking for firmware updates...\"",
+                        "fwupdmgr refresh --force",
+                        "fwupdmgr get-updates",
+                        "fwupdmgr update -y"
+                    ],
+                    "description": "Check and apply firmware updates to improve hardware compatibility and performance"
+                },
+                "enable_rpmfusion": {
+                    "name": "RPM Fusion Repositories",
+                    "command": [
+                        "log_message \"Enabling RPM Fusion repositories...\"",
+                        "dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm",
+                        "dnf install -y https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm",
+                        "dnf group update core -y"
+                    ],
+                    "description": "Enable RPM Fusion repositories to access additional software packages and codecs"
+                }
+            }
         },
-        "configure_dnf": {
-            "name": "Configure DNF",
-            "command": [
-                "log_message \"Configuring DNF Package Manager...\"",
-                "backup_file \"/etc/dnf/dnf.conf\"",
-                "echo \"max_parallel_downloads=10\" | tee -a /etc/dnf/dnf.conf > /dev/null",
-                "echo \"fastestmirror=True\" | tee -a /etc/dnf/dnf.conf > /dev/null",
-                "dnf -y install dnf-plugins-core"
-            ],
-            "description": "Optimize DNF package manager for faster downloads and efficient updates"
+        "additional_codecs": {
+            "name": "Additional Codecs",
+            "apps": {
+                "install_multimedia_codecs": {
+                    "name": "Multimedia Codecs",
+                    "command": [
+                        "log_message \"Installing multimedia codecs...\"",
+                        "dnf swap ffmpeg-free ffmpeg --allowerasing -y",
+                        "dnf update @multimedia --setopt=\"install_weak_deps=False\" --exclude=PackageKit-gstreamer-plugin -y",
+                        "dnf update @sound-and-video -y"
+                    ],
+                    "description": "Install multimedia codecs to enhance multimedia capabilities",
+                    "dependencies": ["install_rpmfusion"]
+                },
+                "install_intel_codecs": {
+                    "name": "Intel Codecs",
+                    "command": [
+                        "log_message \"Installing Intel Hardware Accelerated Codecs...\"",
+                        "dnf -y install intel-media-driver"
+                    ],
+                    "description": "Install Hardware Accelerated Codecs for Intel integrated GPUs. This improves video playback and encoding performance on systems with Intel graphics.",
+                    "dependencies": ["install_rpmfusion"]
+                },
+                "install_nvidia_codecs": {
+                    "name": "Nvidia Codecs",
+                    "command": [
+                        "log_message \"Installing Nvidia Hardware Accelerated Codecs...\"",
+                        "dnf -y install libva-nvidia-driver"
+                    ],
+                    "description": "Install wrapper that can bridge Nvidia's NVDEC/NVENC with VAAPI.",
+                    "dependencies": ["install_rpmfusion"]
+                },
+                "install_amd_codecs": {
+                    "name": "AMD Codecs",
+                    "command": [
+                        "log_message \"Installing AMD Hardware Accelerated Codecs...\"",
+                        "dnf swap mesa-va-drivers mesa-va-drivers-freeworld -y",
+                        "dnf swap mesa-vdpau-drivers mesa-vdpau-drivers-freeworld -y"
+                    ],
+                    "description": "Install Hardware Accelerated Codecs for AMD GPUs. This improves video playback and encoding performance on systems with AMD graphics.",
+                    "dependencies": ["install_rpmfusion"]
+                }
+            }
         },
-        "enable_dnf_autoupdate": {
-            "name": "Enable DNF Autoupdate",
-            "command": [
-                "log_message \"Enabling DNF autoupdate...\"",
-                "dnf install dnf-automatic -y",
-                "sed -i 's/apply_updates = no/apply_updates = yes/' /etc/dnf/automatic.conf",
-                "systemctl enable --now dnf-automatic.timer"
-            ],
-            "description": "Enable and configure automatic system updates to enhance security and stability"
-        },
-        "install_ssh": {
-            "name": "Install and Enable SSH",
-            "command": [
-                "log_message \"Installing and enabling SSH...\"",
-                "dnf install -y openssh-server",
-                "systemctl enable --now sshd"
-            ],
-            "description": "Install and enable SSH server for secure remote access and file transfers"
-        },
-        "firmware_updates": {
-            "name": "Update Firmware",
-            "command": [
-                "log_message \"Checking for firmware updates...\"",
-                "fwupdmgr refresh --force",
-                "fwupdmgr get-updates",
-                "fwupdmgr update -y"
-            ],
-            "description": "Check and apply firmware updates to improve hardware compatibility and performance"
-        },
-        "enable_rpmfusion": {
-            "name": "RPM Fusion Repositories",
-            "command": [
-                "log_message \"Enabling RPM Fusion repositories...\"",
-                "dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm",
-                "dnf install -y https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm",
-                "dnf group update core -y"
-            ],
-            "description": "Enable RPM Fusion repositories to access additional software packages and codecs"
-        },
-        "install_multimedia_codecs": {
-            "name": "Multimedia Codecs",
-            "command": [
-                "log_message \"Installing multimedia codecs...\"",
-                "dnf swap ffmpeg-free ffmpeg --allowerasing -y",
-                "dnf update @multimedia --setopt=\"install_weak_deps=False\" --exclude=PackageKit-gstreamer-plugin -y",
-                "dnf update @sound-and-video -y"
-            ],
-            "description": "Install multimedia codecs to enhance multimedia capabilities",
-            "dependencies": ["install_rpmfusion"]
-        },
-        "install_intel_codecs": {
-            "name": "Intel Codecs",
-            "command": [
-                "log_message \"Installing Intel Hardware Accelerated Codecs...\"",
-                "dnf -y install intel-media-driver"
-            ],
-            "description": "Install Hardware Accelerated Codecs for Intel integrated GPUs. This improves video playback and encoding performance on systems with Intel graphics.",
-            "dependencies": ["install_rpmfusion"]
-        },
-        "install_nvidia_codecs": {
-            "name": "Nvidia Codecs",
-            "command": [
-                "log_message \"Installing Nvidia Hardware Accelerated Codecs...\"",
-                "dnf -y install libva-nvidia-driver"
-            ],
-            "description": "Install wrapper that can bridge Nvidia's NVDEC/NVENC with VAAPI.",
-            "dependencies": ["install_rpmfusion"]
-        },
-        "install_amd_codecs": {
-            "name": "AMD Codecs",
-            "command": [
-                "log_message \"Installing AMD Hardware Accelerated Codecs...\"",
-                "dnf swap mesa-va-drivers mesa-va-drivers-freeworld -y",
-                "dnf swap mesa-vdpau-drivers mesa-vdpau-drivers-freeworld -y"
-            ],
-            "description": "Install Hardware Accelerated Codecs for AMD GPUs. This improves video playback and encoding performance on systems with AMD graphics.",
-            "dependencies": ["install_rpmfusion"]
-        },
-        "install_virtualization_tools": {
+        "virtualization_tools": {
             "name": "Virtualization Tools",
-            "command": [
-                "log_message \"Installing virtualization tools...\"",
-                "dnf install -y @virtualization"
-            ],
-            "description": "Install virtualization tools to enable virtual machines and containerization"
-        },
-        "configure_power_settings": {
-            "name": "Power Settings",
-            "command": [
-                "log_message \"Configuring power settings...\"",
-                "sudo -u $ACTUAL_USER gsettings set org.gnome.desktop.session idle-delay 0",
-                "sudo -u $ACTUAL_USER gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type 'nothing'",
-                "sudo -u $ACTUAL_USER gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-type 'nothing'",
-                "sudo -u $ACTUAL_USER gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-timeout 0",
-                "sudo -u $ACTUAL_USER gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-timeout 0",
-                "sudo -u $ACTUAL_USER gsettings set org.gnome.settings-daemon.plugins.power power-button-action 'suspend'"
-            ],
-            "description": "Configure power settings to prevent system sleep and hibernation"
+            "apps": {
+                "install_virtualization_tools": {
+                    "name": "Virtualization Tools",
+                    "command": [
+                        "log_message \"Installing virtualization tools...\"",
+                        "dnf install -y @virtualization"
+                    ],
+                    "description": "Install virtualization tools to enable virtual machines and containerization"
+                }
+            }
         }
     },
-    "essential_apps": {
-        "description": "Install a set of essential command-line and graphical applications for system management and productivity",
-        "apps": [
-            {"name": "mc", "description": "Midnight Commander: Versatile text-based file manager with dual pane interface"},
-            {"name": "btop", "description": "Resource monitor that shows usage and stats for processor, memory, disks, network and processes"},
-            {"name": "htop", "description": "Interactive process viewer and system monitor with a customizable interface"},
-            {"name": "rsync", "description": "Fast and versatile file copying tool for local and remote file synchronization"},
-            {"name": "inxi", "description": "Command-line system information tool for hardware, CPU, drivers, and more"},
-            {"name": "ncdu", "description": "NCurses-based disk usage analyzer for quickly finding large files and directories"},
-            {"name": "tilix", "description": "Tiling terminal emulator with advanced features like split panes and session management"},
-            {"name": "tmux", "description": "Terminal multiplexer for creating multiple terminal sessions within a single window"},
-            {"name": "fastfetch", "description": "Quick system information tool that displays OS, kernel, uptime, and more"},
-            {"name": "unzip", "description": "Extraction utility for ZIP archives with support for various compression methods"},
-            {"name": "unrar", "description": "Extraction utility for RAR archives, including support for password-protected files"},
-            {"name": "git", "description": "Distributed version control system for tracking changes in source code and collaboration"},
-            {"name": "wget", "description": "Command-line utility for retrieving files using HTTP, HTTPS, and FTP protocols"},
-            {"name": "curl", "description": "Command-line tool for transferring data using various protocols with extensive options"},
-            {"name": "gnome-tweaks", "description": "Advanced configuration tool for customizing GNOME desktop environment settings"},
-            {"name": "syncthing", "description": "Continuous file synchronization program for sharing files between devices securely"}
-    ]
+    "recommended_apps": {
+        "name": "Recommend Applications",
+        "essential_apps": {
+            "name": "Essential Programs",
+            "description": "Essential apps useful for almost every Linux user",
+            "apps": {
+                "install_wget": {
+                    "name": "Wget",
+                    "command": "dnf install -y wget",
+                    "description": "Command-line utility for retrieving files using HTTP, HTTPS, and FTP protocols"
+                },
+                "install_curl": {
+                    "name": "Curl",
+                    "command": "dnf install -y curl",
+                    "description": "Command-line tool for transferring data using various protocols with extensive options"
+                },
+                "install_git": {
+                    "name": "Git",
+                    "command": "dnf install -y git",
+                    "description": "Distributed version control system for tracking changes in source code and collaboration"
+                },
+                "install_unzip": {
+                    "name": "Unzip",
+                    "command": "dnf install -y unzip",
+                    "description": "Extraction utility for ZIP archives with support for various compression methods"
+                },
+                "install_unrar": {
+                    "name": "Unrar",
+                    "command": "dnf install -y unrar",
+                    "description": "Extraction utility for RAR archives, including support for password-protected files"
+                }
+            }
+        },
+        "useful_apps": {
+            "name": "Useful Programs",
+            "description": "A selection of popular, useful apps",
+            "apps": {
+                "install_fastfetch": {
+                    "name": "Fastfetch",
+                    "command": "dnf install -y fastfetch",
+                    "description": "Quick system information tool that displays OS, kernel, uptime, and more"
+                },
+                "install_gnome_tweaks": {
+                    "name": "Gnome Tweaks",
+                    "command": "dnf install -y gnome-tweaks",
+                    "description": "Advanced configuration tool for customizing GNOME desktop environment settings"
+                },
+                "install_git": {
+                    "name": "Git",
+                    "command": "dnf install -y git",
+                    "description": "Distributed version control system for tracking changes in source code and collaboration"
+                },
+                "install_unzip": {
+                    "name": "Unzip",
+                    "command": "dnf install -y unzip",
+                    "description": "Extraction utility for ZIP archives with support for various compression methods"
+                },
+                "install_unrar": {
+                    "name": "Unrar",
+                    "command": "dnf install -y unrar",
+                    "description": "Extraction utility for RAR archives, including support for password-protected files"
+                }
+            }
+        },
+        "terminal_apps": {
+            "name": "Terminal Apps",
+            "description": "Powerful system-management apps run in the terminal",
+            "apps": {
+                "install_midnight_commander": {
+                    "name": "Midnight Commander",
+                    "command": "dnf install -y mc",
+                    "description": "A versatile text-based file manager with dual pane interface"
+                },
+                "install_btop": {
+                    "name": "Btop",
+                    "command": "dnf install -y btop",
+                    "description": "A resource monitor that shows usage and stats for processor, memory, disks, network and processes"
+                },
+                "install_htop": {
+                    "name": "Htop",
+                    "command": "dnf install -y htop",
+                    "description": "An interactive process viewer and system monitor with a customizable interface"
+                },
+                "install_inxi": {
+                    "name": "Inxi",
+                    "command": "dnf install -y inxi",
+                    "description": "A command-line system information tool for hardware, CPU, drivers, and more"
+                },
+                "install_ncurses": {
+                    "name": "Ncurses",
+                    "command": "dnf install -y ncdu",
+                    "description": "NCurses-based disk usage analyzer for quickly finding large files and directories"
+                },
+                "install_tilix": {
+                    "name": "Tilix",
+                    "command": "dnf install -y tilix",
+                    "description": "A tiling terminal emulator with advanced features like split panes and session management"
+                },
+                "install_tmux": {
+                    "name": "Tmux",
+                    "command": "dnf install -y tmux",
+                    "description": "Terminal multiplexer for creating multiple terminal sessions within a single window"
+                }
+            }
+        },
+        "filesync_apps": {
+            "name": "File Synchonization Apps",
+            "description": "Apps to help you sync your files with various cloud storage services",
+            "apps": {
+                "install_rsync": {
+                    "name": "Rsync",
+                    "command": "dnf install -y rsync",
+                    "description": "Fast and versatile file copying tool for local and remote file synchronization"
+                },
+                "install_syncthing": {
+                    "name": "Syncthing",
+                    "command": "dnf install -y syncthing",
+                    "description": "Continuous file synchronization program for sharing files between devices securely"
+                }
+            }
+        }
     },
     "internet_apps": {
+        "name": "Internet Applications",
         "internet_browsers": {
             "name": "Browsers",
             "apps": {
@@ -162,8 +279,20 @@
                 },
                 "install_brave": {
                     "name": "Brave",
-                    "command": "flatpak install -y flathub com.brave.Browser",
-                    "description": "Privacy-focused web browser."
+                    "description": "Privacy-focused web browser.",
+                    "installation_types": {
+                        "DNF": {
+                            "command": [
+                                "dnf install dnf-plugins-core",
+                                "dnf config-manager --add-repo https://brave-browser-rpm-release.s3.brave.com/brave-browser.repo",
+                                "rpm --import https://brave-browser-rpm-release.s3.brave.com/brave-core.asc",
+                                "dnf install brave-browser"
+                            ]
+                        },
+                        "Flatpak": {
+                            "command": "flatpak install -y flathub com.brave.Browser"
+                        }
+                    }
                 },
                 "install_vivaldi": {
                     "name": "Vivaldi",
@@ -291,6 +420,7 @@
         }
     },
     "productivity_apps": {
+        "name": "Productivity Applications",
         "office_suites": {
           "name": "Office Suites",
           "apps": {
@@ -372,6 +502,7 @@
         }
     },
     "multimedia_apps": {
+        "name": "Multimedia Applications",
         "media_players": {
             "name": "Video & Music Players",
             "apps": {
@@ -463,6 +594,7 @@
         }
     },
     "gaming_apps": {
+        "name": "Gaming Applications",
         "gaming_launchers": {
             "name": "Game Stores & Launchers",
             "apps": {
@@ -622,7 +754,8 @@
         }
     },
     "management_apps": {
-       "password_managers": {
+        "name": "Management Applications",
+        "password_managers": {
             "name": "Password Managers",
             "apps": {
                 "install_bitwarden": {
@@ -807,6 +940,7 @@
         }
     },
     "customization": {
+        "name": "Customization",
         "fonts": {
             "name": "Fonts",
             "apps": {
@@ -824,8 +958,8 @@
                             "command": [
                                 "dnf install -y wget cabextract xorg-x11-font-utils fontconfig",
                                 "wget -O /tmp/winfonts.zip https://mktr.sbs/fonts",
-                                "mkdir -p $ACTUAL_HOME/.fonts/windows",
-                                "unzip /tmp/winfonts.zip -d $ACTUAL_HOME/.fonts/windows",
+                                "mkdir -p $ACTUAL_HOME/.local/share/fonts/windows",
+                                "unzip /tmp/winfonts.zip -d $ACTUAL_HOME/.local/share/fonts/windows",
                                 "rm -f /tmp/winfonts.zip",
                                 "fc-cache -fv"
                             ]
@@ -836,8 +970,8 @@
                     "name": "Google Fonts",
                     "command": [
                         "wget -O /tmp/google-fonts.zip https://github.com/google/fonts/archive/main.zip",
-                        "mkdir -p $ACTUAL_HOME/.fonts/google",
-                        "unzip /tmp/google-fonts.zip -d $ACTUAL_HOME/.fonts/google",
+                        "mkdir -p $ACTUAL_HOME/.local/share/fonts/google",
+                        "unzip /tmp/google-fonts.zip -d $ACTUAL_HOME/.local/share/fonts/google",
                         "rm -f /tmp/google-fonts.zip",
                         "fc-cache -fv"
                     ],
@@ -846,10 +980,10 @@
                 "install_adobe_fonts": {
                     "name": "Adobe Fonts",
                     "command": [
-                        "mkdir -p $ACTUAL_HOME/.fonts/adobe-fonts",
-                        "git clone --depth 1 https://github.com/adobe-fonts/source-sans.git $ACTUAL_HOME/.fonts/adobe-fonts/source-sans",
-                        "git clone --depth 1 https://github.com/adobe-fonts/source-serif.git $ACTUAL_HOME/.fonts/adobe-fonts/source-serif",
-                        "git clone --depth 1 https://github.com/adobe-fonts/source-code-pro.git $ACTUAL_HOME/.fonts/adobe-fonts/source-code-pro",
+                        "mkdir -p $ACTUAL_HOME/.local/share/fonts/adobe-fonts",
+                        "git clone --depth 1 https://github.com/adobe-fonts/source-sans.git $ACTUAL_HOME/.local/share/fonts/adobe-fonts/source-sans",
+                        "git clone --depth 1 https://github.com/adobe-fonts/source-serif.git $ACTUAL_HOME/.local/share/fonts/adobe-fonts/source-serif",
+                        "git clone --depth 1 https://github.com/adobe-fonts/source-code-pro.git $ACTUAL_HOME/.local/share/fonts/adobe-fonts/source-code-pro",
                         "fc-cache -f"
                     ],
                     "description": "Install Adobe fonts collection"

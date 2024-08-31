@@ -19,6 +19,7 @@ import streamlit as st
 from typing import Dict, Any
 import session_config
 import builder
+import logging
 
 # Constants
 script_template = 'template.sh'
@@ -50,23 +51,35 @@ def load_template() -> str:
     with open(script_template, 'r') as file:
         return file.read()
 
+def add_selected_key(data: Dict[str, Any]) -> Dict[str, Any]:
+    # Iterate over the dictionary
+    for key, value in data.items():
+        if isinstance(value, dict):
+            # If the current dictionary contains 'apps', add 'selected' key to each app
+            if 'apps' in value:
+                for app_key, app_value in value['apps'].items():
+                    # Ensure that each app entry has a 'selected' key
+                    if 'selected' not in app_value:
+                        app_value['selected'] = False  # Default value
+            else:
+                # Recursively apply to nested dictionaries
+                add_selected_key(value)
+    return data
+
 def render_sidebar() -> Dict[str, Any]:
-    # Add centered, clickable logo to the top of the sidebar using HTML
-    st.sidebar.markdown(
-        """
+    # Centered, clickable logo to reload the page
+    st.sidebar.markdown("""
         <div style="display: flex; justify-content: center; align-items: center; padding: 10px;">
             <a href="/" target="_self">
                 <img src="https://github.com/papercutter0324/F-PASS/blob/master/assets/logo.png?raw=true" width="240" alt="Logo">
             </a>
         </div>
-        """,
-        unsafe_allow_html=True
-    )
+        """, unsafe_allow_html=True)
     st.sidebar.header("Configuration Options")
-    options = {"system_config": {}, "essential_apps": {}, "internet_apps": {}, "productivity_apps": {}, "multimedia_apps": {}, "gaming_apps": {}, "management_apps": {}, "customization": {}}
-    supported_distros = {"Fedora 40": 'fedora_data.json'}
 
-    selected_distro = st.sidebar.selectbox("Choose a Distribution", list(supported_distros.keys()), help="Load the options supported for your distro.")
+    # Create a dictionary of supported distros, their matching json files
+    supported_distros = {"Fedora 40": 'fedora_data.json'}
+    selected_distro = st.sidebar.selectbox("Choose a Distribution", list(supported_distros.keys()), help="Load the list of options for your distro.")
 
     if selected_distro:
         distro_file = supported_distros[selected_distro]
@@ -75,8 +88,13 @@ def render_sidebar() -> Dict[str, Any]:
         distro_file = supported_distros["Fedora 40"]
         session_config.set_distro_name("Fedora 40")
 
-    # Load the distro data and store it in the session state
+    # Load the distro data
     distro_data = builder.load_app_data(distro_file)
+
+    # Ensure all app entries have a 'selected' key
+    distro_data = add_selected_key(distro_data)
+
+    # Store it in the session state
     session_config.set_distro_data(distro_data)
 
     # output_mode = st.sidebar.radio("Output Mode", ["Quiet", "Verbose"], index=0, help="Select the output mode for the script.")
@@ -86,58 +104,10 @@ def render_sidebar() -> Dict[str, Any]:
         help="Determines how much information the terminal will display as the script runs."
     )
 
-    # Generate the sidebar and valid options based on the loaded data set
-    all_options = builder.generate_options()
-
-    # System Configuration section
-    with st.sidebar.expander("System Configuration"):
-        for option in all_options["system_config"]:
-            # Special handling for RPM Fusion
-            if option == "enable_rpmfusion":
-                rpm_fusion_checkbox = st.checkbox(
-                    distro_data["system_config"][option]["name"],
-                    key=f"system_config_{option}",
-                    help=distro_data["system_config"][option]["description"]
-                )
-                options["system_config"][option] = rpm_fusion_checkbox
-            else:
-                options["system_config"][option] = st.checkbox(
-                    distro_data["system_config"][option]["name"],
-                    key=f"system_config_{option}",
-                    help=distro_data["system_config"][option]["description"]
-                )
-            
-            if option == "set_hostname" and options["system_config"][option]:
-                options["hostname"] = st.text_input("Enter the new hostname:")
-
-        # Check if any codec option is selected and update RPM Fusion checkbox
-        codec_options = ["install_multimedia_codecs", "install_intel_codecs", "install_amd_codecs", "install_nvidia_codecs"]
-        if any(options["system_config"].get(option, False) for option in codec_options):
-            options["system_config"]["enable_rpmfusion"] = True
-            if not rpm_fusion_checkbox:
-                st.sidebar.markdown("""
-                    ```
-                    RPM Fusion has been automatically  
-                    added due to codec choices.
-                    ```
-                """)
-
-    # Essential Apps section
-    with st.sidebar.expander("Essential Applications"):
-        essential_apps = distro_data["essential_apps"]["apps"]
-        for app in essential_apps:
-            options["essential_apps"][app["name"]] = st.checkbox(
-                app["name"],
-                key=f"essential_app_{app['name']}",
-                help=app["description"]
-            )
-
-    options = render_app_section("internet_apps", "Internet", distro_data, options)
-    options = render_app_section("productivity_apps", "Productivity", distro_data, options)
-    options = render_app_section("multimedia_apps", "Multimedia", distro_data, options)
-    options = render_app_section("gaming_apps", "Gaming", distro_data, options)
-    options = render_app_section("management_apps", "Management", distro_data, options)
-    options = render_app_section("customization", "Customization", distro_data, options)
+    # Generate the sidebar sections for the selected distro
+    for options_category, disto_category_keys in distro_data.items():
+        if distro_data.items() != "name":
+            render_app_section(distro_data, options_category)
 
     # Advanced section for custom script
     with st.sidebar.expander("Advanced"):
@@ -145,7 +115,7 @@ def render_sidebar() -> Dict[str, Any]:
                    Use with care!""")
         
         default_custom_text = '# Each command goes on a new line.'
-        options["custom_script"] = st.text_area(
+        distro_data["custom_script"] = st.text_area(
             "Custom Commands:",
             value=default_custom_text,
             help="Enter any additional shell commands you want to run at the end of the script.",
@@ -153,7 +123,7 @@ def render_sidebar() -> Dict[str, Any]:
             key="custom_script_input"
         )
         
-        if options["custom_script"].strip() != default_custom_text:
+        if distro_data["custom_script"].strip() != default_custom_text:
             st.info("Remember to review your custom commands in the script preview before downloading.")
 
     
@@ -198,85 +168,136 @@ def render_sidebar() -> Dict[str, Any]:
     </div>
     """, unsafe_allow_html=True)
 
-    return options, output_mode
+    return distro_data, output_mode
 
-def render_app_section(app_category_key: str, app_category_name: str, distro_data: str, options: Dict[str, Any]) -> Dict[str, Any]:
-    with st.sidebar.expander(f"{app_category_name} Applications"):
-        for category, category_data in distro_data[app_category_key].items():
-            st.subheader(category_data["name"])
-            options[app_category_key][category] = {}
+def render_app_section(distro_data: Dict[str, Any], options_category: str) -> Dict[str, Any]:
+    with st.sidebar.expander(distro_data[options_category]['name']):
+        # Iterate over a copy of the dictionary items to avoid modification issues
+        subcategories = list(distro_data[options_category].items())
+
+        # Create a list of apps that require special handling
+        special_case_apps = [
+            "enable_rpmfusion", "set_hostname", "install_multimedia_codecs",
+            "install_intel_codecs", "install_amd_codecs", "install_nvidia_codecs",
+            "install_virtualbox", "install_microsoft_fonts"
+        ]
+
+        for options_subcategory, subcategory_data in subcategories:
+            if options_subcategory == "name":
+                continue  # Skip 'name' keys
+
+            st.subheader(subcategory_data['name']) # Generate menus for subcategories
             
-            for app_id, app_info in category_data["apps"].items():
-                app_selected = st.checkbox(app_info['name'], key=f"app_{category}_{app_id}", help=app_info['description'])
-                options[app_category_key][category][app_id] = {'selected': app_selected}
-                
-                # Handling for special cases
-                if app_id == "install_virtualbox" and options["management_apps"][category][app_id]['selected'] == True:
-                    options[app_category_key][category][app_id] = {
-                        'selected': True,
-                        'installation_type': st.radio(
+            for options_app, app_data in subcategory_data['apps'].items():
+                if options_app not in special_case_apps:
+                    # Create a checkbox for standard options
+                    app_selected = st.checkbox(
+                        app_data['name'],
+                        key=f"{options_category}_{options_subcategory}_{options_app}",
+                        help=app_data.get('description', '')
+                    )
+                    app_data['selected'] = app_selected # Update the selected status in the data
+
+                    if app_selected and 'installation_types' in app_data:
+                        installation_type = st.radio(
+                            f"Installation type:",
+                            list(app_data['installation_types'].keys()),
+                            key=f"{options_category}_{options_subcategory}_{options_app}_install_type"
+                        )
+                        subcategory_data['apps'][options_app]['installation_type'] = installation_type
+                else:
+                    app_selected = st.checkbox(
+                        app_data['name'],
+                        key=f"{options_category}_{options_subcategory}_{options_app}",
+                        help=app_data.get('description', '')
+                    )
+                    app_data['selected'] = app_selected
+                    
+                    if options_category == "system_config":
+                        if options_subcategory == "recommended_settings":
+                            if options_app == "enable_rpmfusion":
+                                distro_data["system_config"]["recommended_settings"][options_app] = app_selected
+                            elif options_app == "set_hostname" and app_selected:
+                                hostname = st.text_input("Enter the new hostname:")
+                                distro_data["system_config"]["recommended_settings"]["hostname"] = hostname
+                        elif options_subcategory == "additional_codecs":
+                            codec_options = ["install_multimedia_codecs", "install_intel_codecs", "install_amd_codecs", "install_nvidia_codecs"]
+                            for codec_option in codec_options:
+                                if codec_option in distro_data["system_config"]["additional_codecs"]:
+                                    codec_selected = st.checkbox(
+                                        distro_data["system_config"]["additional_codecs"][codec_option]['name'],
+                                        key=f"system_config_additional_codecs_{codec_option}",
+                                        help=distro_data["system_config"]["additional_codecs"][codec_option]['description']
+                                    )
+                                    distro_data["system_config"]["additional_codecs"][codec_option]['selected'] = codec_selected
+                            if any(distro_data["system_config"]["additional_codecs"].get(option, {}).get('selected', False) for option in codec_options):
+                                distro_data["system_config"]["recommended_settings"]["enable_rpmfusion"] = True
+                                if not app_selected:
+                                    st.sidebar.markdown("""
+                                        ```
+                                        RPM Fusion has been automatically  
+                                        added due to codec choices.
+                                        ```
+                                    """)
+                    elif options_category == "management_apps" and options_app == "install_virtualbox" and app_selected:
+                        installation_type = st.radio(
                             "Extension Pack",
                             ('with_extension', 'without_extension'),
                             format_func=lambda x: "Download" if x == "with_extension" else "Ignore",
-                            key=f"app_{category}_{app_id}_install_type",
-                            help="Selected if you wish to download the VirtualBox Extension Pack."
+                            key=f"{options_category}_{options_subcategory}_{options_app}_install_type",
+                            help="Select if you wish to download the VirtualBox Extension Pack."
                         )
-                    }
-
-                    # Inform user of download destination
-                    if options["management_apps"][category][app_id]['installation_type'] == 'with_extension':
-                        st.warning("⚠️ The extension pack will be save in your downloads folder. You will still need to manually install it as normal.")
-                elif app_id == "install_microsoft_fonts" and options["customization"][category][app_id]['selected'] == True:
-                    options["customization"][category][app_id] = {
-                        'selected': True,
-                        'installation_type': st.radio(
+                        subcategory_data['apps'][options_app]['installation_type'] = installation_type
+                        if installation_type == 'with_extension':
+                            st.warning("⚠️ The extension pack will be saved in your downloads folder. You will still need to manually install it as normal.")
+                    elif options_category == "customization" and options_app == "install_microsoft_fonts" and app_selected:
+                        installation_type = st.radio(
                             "Windows Fonts Installation Method",
                             ('core', 'windows'),
                             format_func=lambda x: "Core Fonts" if x == "core" else "Windows Fonts",
-                            key=f"customization_{app_id}_install_type",
+                            key=f"{options_category}_{options_subcategory}_{options_app}_install_type",
                             help="Choose how to install Windows fonts."
                         )
-                    }
-                    
-                    if options["customization"][category][app_id]['installation_type'] == 'windows':
-                        st.warning("⚠️ This method requires a valid Windows license. "
-                                "Please ensure you comply with Microsoft's licensing terms.")
-                        st.markdown("[Learn more about Windows fonts licensing](https://learn.microsoft.com/en-us/typography/fonts/font-faq)")
-                
-                elif app_selected and 'installation_types' in app_info:
-                    installation_type = st.radio(
-                        f"Choose {app_info['name']} installation type:",
-                        list(app_info['installation_types'].keys()),
-                        key=f"{category}_{app_id}_install_type"
-                    )
-                    options[app_category_key][category][app_id]['installation_type'] = installation_type
-                
-                # Special handling for when GPG keys need to be imported
-                if app_id == "install_enpass" and options["management_apps"][category][app_id]['selected'] == True:
-                    st.warning("⚠️ During installation, Enpass's YUM repository will automatically be imported.")
-                elif app_id == "install_docker_engine" and options["management_apps"][category][app_id]['selected'] == True:
-                    st.warning("⚠️ During installation, Enpass's GPG key will automatically be imported.")
-                    st.markdown("[You can verify Docker's GPG key here](https://docs.docker.com/engine/install/fedora/)")
-                    
-    return options
+                        subcategory_data['apps'][options_app]['installation_type'] = installation_type
+                        if installation_type == 'windows':
+                            st.warning("⚠️ This method requires a valid Windows license. "
+                                       "Please ensure you comply with Microsoft's licensing terms.")
+                            st.markdown("[Learn more about Windows fonts licensing](https://learn.microsoft.com/en-us/typography/fonts/font-faq)")
+                    elif app_selected and 'installation_types' in app_data:
+                        installation_type = st.radio(
+                            f"Choose {app_data['name']} installation type:",
+                            list(app_data['installation_types'].keys()),
+                            key=f"{options_category}_{options_subcategory}_{options_app}_install_type"
+                        )
+                        subcategory_data['apps'][options_app]['installation_type'] = installation_type
 
-def build_script(options: Dict[str, Any], output_mode: str) -> str:
-    if options["custom_script"] != "# Each command goes on a new line.":
+                # Special handling for GPG keys
+                if options_app == "install_enpass" and app_selected:
+                    st.warning("⚠️ During installation, Enpass's YUM repository will automatically be imported.")
+                elif options_app == "install_docker_engine" and app_selected:
+                    st.warning("⚠️ During installation, Docker's GPG key will automatically be imported.")
+                    st.markdown("[You can verify Docker's GPG key here](https://docs.docker.com/engine/install/fedora/)")
+
+    return distro_data
+
+def build_script(distro_data: Dict[str, Any], output_mode: str) -> str:
+    if distro_data["custom_script"] == "# Each command goes on a new line.":
         script_parts = {
-            "system_upgrade": builder.build_system_upgrade(options, output_mode),
-            "system_config": builder.build_system_config(options, output_mode),
-            "app_install": builder.build_app_install(options, output_mode),
-            "custom_script": builder.build_custom_script(options, output_mode),
+            "system_upgrade": builder.build_system_upgrade(distro_data, output_mode),
+            "system_config": builder.build_system_config(distro_data, output_mode),
+            "app_install": builder.build_app_install(distro_data, output_mode),
         }
     else: 
         script_parts = {
-            "system_upgrade": builder.build_system_upgrade(options, output_mode),
-            "system_config": builder.build_system_config(options, output_mode),
-            "app_install": builder.build_app_install(options, output_mode),
+            "system_upgrade": builder.build_system_upgrade(distro_data, output_mode),
+            "system_config": builder.build_system_config(distro_data, output_mode),
+            "app_install": builder.build_app_install(distro_data, output_mode),
+            "custom_script": builder.build_custom_script(distro_data, output_mode),
         }
     
     preview_script = f"(...)  # Script header\n\n# Selected distro: {session_config.get_distro_name()}\n# Output Mode: {output_mode}\n\n"
     
+    # Rework this. Customization currently gets an App Install label
     for placeholder, content in script_parts.items():
         if content and content.strip():  # Check if content is not None and not empty
             preview_script += f"# {placeholder.replace('_', ' ').title()}\n"
@@ -285,25 +306,25 @@ def build_script(options: Dict[str, Any], output_mode: str) -> str:
     preview_script += "(...)  # Script footer"
     
     # Replace the hostname placeholder if it exists
-    if "hostname" in options:
-        preview_script = preview_script.replace("{hostname}", options["hostname"])
+    if "hostname" in distro_data:
+        preview_script = preview_script.replace("{hostname}", distro_data["hostname"])
     
     return preview_script
 
-def build_full_script(template: str, options: Dict[str, Any], output_mode: str) -> str:
+def build_full_script(template: str, distro_data: Dict[str, Any], output_mode: str) -> str:
     script_parts = {
-        "system_upgrade": builder.build_system_upgrade(options, output_mode),
-        "system_config": builder.build_system_config(options, output_mode),
-        "app_install": builder.build_app_install(options, output_mode),
-        "custom_script": builder.build_custom_script(options, output_mode),
+        "system_upgrade": builder.build_system_upgrade(distro_data, output_mode),
+        "system_config": builder.build_system_config(distro_data, output_mode),
+        "app_install": builder.build_app_install(distro_data, output_mode),
+        "custom_script": builder.build_custom_script(distro_data, output_mode),
     }
     
     for placeholder, content in script_parts.items():
         template = template.replace(f"{{{{{placeholder}}}}}", content)
     
     # Replace the hostname placeholder if it exists
-    if "hostname" in options:
-        template = template.replace("{hostname}", options["hostname"])
+    if "hostname" in distro_data:
+        template = template.replace("{hostname}", distro_data["hostname"])
     
     return template
 
@@ -358,15 +379,15 @@ def main():
         st.session_state.script_built = False
 
     template = load_template()
-    options, output_mode = render_sidebar()
+    distro_data, output_mode = render_sidebar()
 
     script_preview = st.empty()
 
-    updated_script = build_script(options, output_mode)
+    updated_script = build_script(distro_data, output_mode)
     script_preview.code(updated_script, language="bash")
 
     if st.button("Build Your Script"):
-        full_script = build_full_script(template, options, output_mode)
+        full_script = build_full_script(template, distro_data, output_mode)
         st.session_state.full_script = full_script
         st.session_state.script_built = True
 
