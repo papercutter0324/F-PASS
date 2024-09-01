@@ -24,6 +24,11 @@ import json
 
 # Constants
 script_template = 'template.sh'
+dnf_or_flatpak_options = [('dnf', 'DNF'), ('flatpak', 'Flatpak')]
+dnf_flatpak_or_appimage_options = [('dnf', 'DNF'), ('flatpak', 'Flatpak'), ('appimage', 'AppImage')]
+virtualbox_options = [('without_extension', 'VirtualBox Only'), ('with_extension', 'VirtualBox & Extenstion Pack')]
+docker_options = [('install_standard', 'Docker Only'), ('install_portainer', 'Docker & Portainer'), ('install_nvidia_toolkit', 'Docker & Nvidia Toolkit'), ('install_portainer_and_nvidia_toolkit', 'Docker & Both')]
+font_options = [('core', 'Core Fonts'), ('windows', 'Windows Fonts')]
 
 st.set_page_config(
     page_title="F-Pass Creator",
@@ -46,6 +51,13 @@ st.set_page_config(
         GitHub: https://github.com/papercutter0324/F-PASS
         """
     }
+)
+
+# Configure logging
+logging.basicConfig(
+    level=logging.WARNING,  # Change to INFO in production
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
 )
 
 def load_template() -> str:
@@ -184,98 +196,41 @@ def render_sidebar() -> Dict[str, Any]:
 
 def render_app_section(distro_data: Dict[str, Any], options_category: str) -> Dict[str, Any]:
     with st.sidebar.expander(distro_data[options_category]['name']):
-        # Iterate over a copy of the dictionary items to avoid modification issues
         subcategories = list(distro_data[options_category].items())
-
-        # Create a list of apps that require special handling
-        special_case_apps = [
-            "enable_rpmfusion", "set_hostname", "install_multimedia_codecs",
-            "install_intel_codecs", "install_amd_codecs", "install_nvidia_codecs",
-            "install_virtualbox", "install_microsoft_fonts"
-        ]
-
+        special_case_apps = {
+            "set_hostname": handle_hostname,
+            "enable_rpmfusion": handle_rpmfusion,
+            "install_virtualbox": handle_special_installation_types,
+            "install_docker_engine": handle_special_installation_types,
+            "install_microsoft_fonts": handle_special_installation_types
+        }
+        
         for options_subcategory, subcategory_data in subcategories:
             if options_subcategory == "name":
-                continue  # Skip 'name' keys
-
-            st.subheader(subcategory_data['name']) # Generate menus for subcategories
+                continue
+            
+            st.subheader(subcategory_data['name'])
             
             for options_app, app_data in subcategory_data['apps'].items():
-                if options_app not in special_case_apps:
-                    # Create a checkbox for standard options
-                    app_selected = st.checkbox(
-                        app_data['name'],
-                        key=f"{options_category}_{options_subcategory}_{options_app}",
-                        help=app_data.get('description', '')
-                    )
-                    app_data['selected'] = app_selected # Update the selected status in the data
+                app_selected = st.checkbox(
+                    app_data['name'],
+                    key=f"{options_category}_{options_subcategory}_{options_app}",
+                    help=app_data.get('description', '')
+                )
+                app_data['selected'] = app_selected
 
-                    if app_selected and 'installation_types' in app_data:
-                        installation_type = st.radio(
-                            f"Installation type:",
-                            list(app_data['installation_types'].keys()),
-                            key=f"{options_category}_{options_subcategory}_{options_app}_install_type"
-                        )
-                        subcategory_data['apps'][options_app]['installation_type'] = installation_type
-                else:
-                    app_selected = st.checkbox(
-                        app_data['name'],
-                        key=f"{options_category}_{options_subcategory}_{options_app}",
-                        help=app_data.get('description', '')
+                # Handle special cases
+                if options_app in special_case_apps:
+                    special_case_apps[options_app](
+                        app_selected,
+                        subcategory_data=subcategory_data,
+                        options_category=options_category,
+                        options_subcategory=options_subcategory,
+                        options_app=options_app,
+                        distro_data=distro_data
                     )
-                    app_data['selected'] = app_selected
-                    
-                    if options_category == "system_config":
-                        if options_subcategory == "recommended_settings":
-                            if options_app == "enable_rpmfusion":
-                                distro_data["system_config"]["recommended_settings"][options_app] = app_selected
-                            elif options_app == "set_hostname" and app_selected:
-                                hostname = st.text_input("Enter the new hostname:")
-                                distro_data["system_config"]["recommended_settings"]["hostname"] = hostname
-                        elif options_subcategory == "additional_codecs":
-                            codec_options = ["install_multimedia_codecs", "install_intel_codecs", "install_amd_codecs", "install_nvidia_codecs"]
-                            for codec_option in codec_options:
-                                if codec_option in distro_data["system_config"]["additional_codecs"]:
-                                    codec_selected = st.checkbox(
-                                        distro_data["system_config"]["additional_codecs"][codec_option]['name'],
-                                        key=f"system_config_additional_codecs_{codec_option}",
-                                        help=distro_data["system_config"]["additional_codecs"][codec_option]['description']
-                                    )
-                                    distro_data["system_config"]["additional_codecs"][codec_option]['selected'] = codec_selected
-                            if any(distro_data["system_config"]["additional_codecs"].get(option, {}).get('selected', False) for option in codec_options):
-                                distro_data["system_config"]["recommended_settings"]["enable_rpmfusion"] = True
-                                if not app_selected:
-                                    st.sidebar.markdown("""
-                                        ```
-                                        RPM Fusion has been automatically  
-                                        added due to codec choices.
-                                        ```
-                                    """)
-                    elif options_category == "management_apps" and options_app == "install_virtualbox" and app_selected:
-                        installation_type = st.radio(
-                            "Extension Pack",
-                            ('with_extension', 'without_extension'),
-                            format_func=lambda x: "Download" if x == "with_extension" else "Ignore",
-                            key=f"{options_category}_{options_subcategory}_{options_app}_install_type",
-                            help="Select if you wish to download the VirtualBox Extension Pack."
-                        )
-                        subcategory_data['apps'][options_app]['installation_type'] = installation_type
-                        if installation_type == 'with_extension':
-                            st.warning("⚠️ The extension pack will be saved in your downloads folder. You will still need to manually install it as normal.")
-                    elif options_category == "customization" and options_app == "install_microsoft_fonts" and app_selected:
-                        installation_type = st.radio(
-                            "Windows Fonts Installation Method",
-                            ('core', 'windows'),
-                            format_func=lambda x: "Core Fonts" if x == "core" else "Windows Fonts",
-                            key=f"{options_category}_{options_subcategory}_{options_app}_install_type",
-                            help="Choose how to install Windows fonts."
-                        )
-                        subcategory_data['apps'][options_app]['installation_type'] = installation_type
-                        if installation_type == 'windows':
-                            st.warning("⚠️ This method requires a valid Windows license. "
-                                       "Please ensure you comply with Microsoft's licensing terms.")
-                            st.markdown("[Learn more about Windows fonts licensing](https://learn.microsoft.com/en-us/typography/fonts/font-faq)")
-                    elif app_selected and 'installation_types' in app_data:
+                else:
+                    if app_selected and 'installation_types' in app_data:
                         installation_type = st.radio(
                             f"Choose {app_data['name']} installation type:",
                             list(app_data['installation_types'].keys()),
@@ -283,14 +238,82 @@ def render_app_section(distro_data: Dict[str, Any], options_category: str) -> Di
                         )
                         subcategory_data['apps'][options_app]['installation_type'] = installation_type
 
-                # Special handling for GPG keys
-                if options_app == "install_enpass" and app_selected:
-                    st.warning("⚠️ During installation, Enpass's YUM repository will automatically be imported.")
-                elif options_app == "install_docker_engine" and app_selected:
-                    st.warning("⚠️ During installation, Docker's GPG key will automatically be imported.")
-                    st.markdown("[You can verify Docker's GPG key here](https://docs.docker.com/engine/install/fedora/)")
+                # Display notice and warning messages
+                if app_selected:
+                    handle_warnings_and_messages(options_app, distro_data)
 
     return distro_data
+
+def handle_hostname(app_selected: bool, **kwargs):
+    distro_data = kwargs['distro_data']
+
+    if app_selected:
+        hostname = st.text_input("Enter the new hostname:")
+        distro_data["system_config"]["recommended_settings"]["hostname"] = hostname
+
+def handle_rpmfusion(app_selected: bool, **kwargs):
+    distro_data = kwargs['distro_data']
+    options_app = kwargs['options_app']
+
+    if app_selected:
+        distro_data["system_config"]["recommended_settings"][options_app] = app_selected
+
+def handle_special_installation_types(app_selected: bool, **kwargs):
+    subcategory_data = kwargs['subcategory_data']
+    options_category = kwargs['options_category']
+    options_subcategory = kwargs['options_subcategory']
+    options_app = kwargs['options_app']
+
+    if options_app == "install_virtualbox":
+        install_type_title = "VirtualBox Extension Pack"
+        install_options = virtualbox_options
+        help_text = "Select if you wish to download the VirtualBox Extension Pack."
+    elif options_app == "install_docker_engine":
+        install_type_title = "VirtualBox Extension Pack"
+        install_options = docker_options
+        help_text = "Select if you wish to install Portainer and/or the Nvidia container toolkit."
+    elif options_app == "install_microsoft_fonts":
+        install_type_title = "VirtualBox Extension Pack"
+        install_options = font_options
+        help_text = "Choose how to install Windows fonts."
+    
+    if app_selected:
+        app_key = f"{options_category}_{options_subcategory}_{options_app}_install_type"
+        installation_type = render_installation_type_selector(install_type_title, install_options, app_key, help_text)
+        subcategory_data['apps'][options_app]['installation_type'] = installation_type
+
+def render_installation_type_selector(install_type_title: str, install_options: list, app_key:str, help_text: str) -> str:
+    return st.radio(
+        install_type_title,
+        [opt[0] for opt in install_options],  # Extract the values for the radio buttons
+        format_func=lambda x: dict(install_options).get(x, x),  # Format the label based on the selected value
+        key=app_key,
+        help=help_text
+    )
+
+def handle_warnings_and_messages(options_app: str, distro_data: Dict[str, Any]):
+    if options_app in ["install_multimedia_codecs", "install_intel_codecs", "install_nvidia_codecs", "install_amd_codecs"]:
+        if not distro_data["system_config"]["recommended_settings"]["apps"]["enable_rpmfusion"]["selected"]:
+            st.markdown("""
+                ```
+                RPM Fusion has been enabled  
+                due to codec dependencies.
+                ```
+            """)
+            distro_data["system_config"]["recommended_settings"]["apps"]["enable_rpmfusion"]["selected"] = True
+    elif options_app == "install_virtualbox":
+        if distro_data['virtualization_apps']['virtualization_apps']['apps']['install_virtualbox']['installation_type'] == "with_extension":
+            st.warning("⚠️ The extension pack will be saved in your downloads folder. You will still need to manually install it as normal.")
+    elif options_app == "install_docker_engine":
+            st.warning("⚠️ During installation, Docker's GPG key will automatically be imported.")
+            st.markdown("[You can verify Docker's GPG key here](https://docs.docker.com/engine/install/fedora/)")
+    elif options_app == "install_enpass":
+        st.warning("⚠️ During installation, Enpass's YUM repository will automatically be imported.")
+    elif options_app == "install_microsoft_fonts":
+        if distro_data['customization']['fonts']['apps']['install_microsoft_fonts']['installation_type'] == "windows":
+            st.warning("⚠️ This method requires a valid Windows license. "
+                       "Please ensure you comply with Microsoft's licensing terms.")
+            st.markdown("[Learn more about Windows fonts licensing](https://learn.microsoft.com/en-us/typography/fonts/font-faq)")
 
 def build_script(distro_data: Dict[str, Any], output_mode: str) -> str:
     if distro_data["custom_script"] == "# Each command goes on a new line.":

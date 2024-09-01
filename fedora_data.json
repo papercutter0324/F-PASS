@@ -18,8 +18,7 @@
                         "log_message \"Configuring DNF Package Manager...\"",
                         "backup_file \"/etc/dnf/dnf.conf\"",
                         "echo \"max_parallel_downloads=10\" | tee -a /etc/dnf/dnf.conf > /dev/null",
-                        "echo \"fastestmirror=True\" | tee -a /etc/dnf/dnf.conf > /dev/null",
-                        "dnf -y install dnf-plugins-core"
+                        "echo \"fastestmirror=True\" | tee -a /etc/dnf/dnf.conf > /dev/null"
                     ],
                     "description": "Optimize DNF package manager for faster downloads and efficient updates"
                 },
@@ -274,7 +273,6 @@
                     "installation_types": {
                         "DNF": {
                             "command": [
-                                "dnf install dnf-plugins-core",
                                 "dnf config-manager --add-repo https://brave-browser-rpm-release.s3.brave.com/brave-browser.repo",
                                 "rpm --import https://brave-browser-rpm-release.s3.brave.com/brave-core.asc",
                                 "dnf install brave-browser"
@@ -534,18 +532,63 @@
             "apps": {
                 "install_docker_engine": {
                     "name": "Docker Engine",
-                    "command": [
-                        "dnf remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-selinux docker-engine-selinux docker-engine -y",
-                        "dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo",
-                        "dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin",
-                        "systemctl start docker",
-                        "systemctl enable docker.service",
-                        "systemctl enable containerd.service",
-                        "docker volume create portainer_data",
-                        "docker run -d -p 8000:8000 -p 9443:9443 --privileged --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest",
-                        "xdg-open http://localhost:9443/"
-                    ],
-                    "description": "A feature-rich cooling device control application for Linux"
+                    "description": "A feature-rich cooling device control application for Linux",
+                    "installation_types": {
+                        "install_standard": {
+                            "command": [
+                                "dnf remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-selinux docker-engine-selinux docker-engine -y",
+                                "dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo",
+                                "dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin",
+                                "systemctl start docker",
+                                "systemctl enable docker.service",
+                                "systemctl enable containerd.service"
+                            ]
+                        },
+                        "install_portainer": {
+                            "command": [
+                                "dnf remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-selinux docker-engine-selinux docker-engine -y",
+                                "dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo",
+                                "dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin",
+                                "systemctl start docker",
+                                "systemctl enable docker.service",
+                                "systemctl enable containerd.service",
+                                "docker volume create portainer_data",
+                                "docker run -d -p 8000:8000 -p 9443:9443 --privileged --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest",
+                                "xdg-open http://localhost:9443/"
+                            ]
+                        },
+                        "install_nvidia_toolkit": {
+                            "command": [
+                                "dnf remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-selinux docker-engine-selinux docker-engine -y",
+                                "dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo",
+                                "dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin",
+                                "systemctl start docker",
+                                "systemctl enable docker.service",
+                                "systemctl enable containerd.service",
+                                "curl -s -L https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-container-toolkit.repo | tee /etc/yum.repos.d/nvidia-container-toolkit.repo",
+                                "yum install -y nvidia-container-toolkit",
+                                "nvidia-ctk runtime configure --runtime=docker",
+                                "sudo systemctl restart docker"
+                            ]
+                        },
+                        "install_portainer_and_nvidia_toolkit": {
+                            "command": [
+                                "dnf remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-selinux docker-engine-selinux docker-engine -y",
+                                "dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo",
+                                "dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin",
+                                "systemctl start docker",
+                                "systemctl enable docker.service",
+                                "systemctl enable containerd.service",
+                                "curl -s -L https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-container-toolkit.repo | tee /etc/yum.repos.d/nvidia-container-toolkit.repo",
+                                "yum install -y nvidia-container-toolkit",
+                                "nvidia-ctk runtime configure --runtime=docker",
+                                "sudo systemctl restart docker",
+                                "docker volume create portainer_data",
+                                "docker run -d -p 8000:8000 -p 9443:9443 --privileged --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest",
+                                "xdg-open http://localhost:9443/"
+                            ]
+                        }
+                    }
                 },
                 "install_podman": {
                     "name": "Podman",

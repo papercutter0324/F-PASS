@@ -18,8 +18,9 @@ def build_system_upgrade(options: Dict[str, Any], output_mode: str) -> str:
     quiet_redirect = " > /dev/null 2>&1" if output_mode == "Quiet" else ""
     
     upgrade_commands = [
-        "log_message \"Performing system upgrade... This may take a while...\"",
-        f"dnf upgrade -y{quiet_redirect}",
+        "log_message \"Installing dnf-plugins-core and performing system upgrade... This may take a while...\"",
+        f"dnf -y install dnf-plugins-core{quiet_redirect}",
+        f"dnf -y upgrade{quiet_redirect}",
         ""  # Add an empty line for readability
     ]
     
@@ -43,6 +44,7 @@ def check_dependencies(distro_data: Dict[str, Any]) -> Dict[str, Any]:
     if any([
         distro_data["system_config"]["additional_codecs"]["apps"].get("install_multimedia_codecs", {}).get("selected", False),
         distro_data["system_config"]["additional_codecs"]["apps"].get("install_intel_codecs", {}).get("selected", False),
+        distro_data["system_config"]["additional_codecs"]["apps"].get("install_nvidia_codecs", {}).get("selected", False),
         distro_data["system_config"]["additional_codecs"]["apps"].get("install_amd_codecs", {}).get("selected", False)
     ]):
         # Ensure RPM Fusion is enabled
@@ -136,8 +138,6 @@ def build_app_install(distro_data: Dict[str, Any], output_mode: str) -> str:
                         
                         # Handle if there are multiple installation types
                         if 'installation_types' in app_data and app_data.get('installation_type'):
-                            logging.warning(f"{app_id} install-types present")
-                            logging.warning(f"{app_data.get('installation_type')}")
                             install_type = app_data.get('installation_type')
                             if install_type and install_type in app_data['installation_types']:
                                 commands = app_data['installation_types'][install_type]['command']
