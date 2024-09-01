@@ -9,14 +9,18 @@ A web application, powered by Streamlit for generating a customized shell script
 ## Latest Changes
 *(As of 2024-09-01)*
 
-We're grateful for the valuable feedback and suggestions from the r/Fedora community. Recent updates include:
-
-- Added VSCodium as an alternative to VS Code
-- Included multimedia, Intel and AMD codecs from the RPM Fusion repository
-- Replaced `bpytop` with `btop`
-- Expanded the list of additional applications and configurations
-- Introduced virtualization tools
-- Addressed inconsistent naming conventions across the project
+- Support for different distros via json files
+  - Currently only Fedora 40 is officially supported
+  - Should work with other Fedora releases
+  - Should also work with other distros that are based on Fedora or use dnf and yum
+- Automatic sidebar and menu generation based on the selected distro/json file
+- Much of the code has been greatly rewritten
+  - Variable and dictionary naming has been standardized (might be more such changes coming)
+  - Code has been simplified in many areas, reducing redundancy and improving functionality
+- Improvements to the json file
+  - Reworked and standardized the structure of the data
+  - New apps added
+  - Initial work to better organize and categorize apps
 
 ## Features
 
@@ -109,15 +113,23 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 
 ## Roadmap
 
+**In-Progress and Completed
+- ✅ Intuitive interface options
+- ✅ Advanced Section for custom shell commands
+- ✅ Support for other distros (Some work and additional json files needed)
+- ✅ Automatically generated menus based on the chosen distro
+- Improved dependency checks (for those not handled automatically by dnf)
+- Better organization and categorization of apps
+- Expand the Docker and virtualization options
+- More applications and configuration options
+
 Future plans for this project include:
-- ✅ Enhancing user experience with more intuitive interface options
-- ✅ Adding Advanced Section for a custom Shell Commands
-- Implementing predefined configuration Profiles
-- Further organizing the code, improving readability
-- Improving the Quiet Mode code logic
-- Implementing a feature to save and load custom profiles 
-- Developing versions for other Linux distributions (e.g., Debian/Ubuntu)
-- Adding more applications and configuration options
+- Support for installing other desktop environments
+- Customization, theme, and icon options for Gnome and KDE
+- Common file templates (Useful when right-clicking and creating a new file)
+- Recommended and predefined configuration profile support
+- Adding more swap space
+- Post-reboot script support
 
 ## FAQ
 
@@ -147,7 +159,7 @@ Yes, the script includes options for configuring DNF (Fedora's package manager) 
 
 ### Can I run the script multiple times?
 
-While the script is designed to be somewhat idempotent (can be run multiple times without causing issues), it's not guaranteed for all operations. It's best to run it once on a fresh Fedora installation. If you need to make changes later, it's safer to generate a new script with only the additional changes you need.
+While in theory this should be fine, it's not recommened. With all the options available, it's not guaranteed that all option can safely be re-run. It's best to run it once on a fresh Fedora installation. If you need to make changes later, generate a new script with only the additional changes you need.
 
 ### How can I contribute to this project?
 
@@ -155,7 +167,4 @@ We welcome contributions! You can contribute by suggesting new features, reporti
 
 ### Why not use Ansible instead of a shell script?
 
-While Ansible is a powerful tool for configuration management, our project prioritizes simplicity and transparency for end-users. The shell script approach allows users to easily see and understand exactly what commands will be executed on their system. It doesn't require additional software installation and is more approachable for users who may not be familiar with Ansible. However, for more complex setups or managing multiple systems, Ansible could be a viable alternative.
-
-
-Created with ❤️ for Open Source
+This is designed to be a simple, user-friendly app for newbies and experienced users. While Ansible is a powerful tool for configuration management, it's not easily used by less-experienced users.
