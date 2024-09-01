@@ -1,5 +1,4 @@
 import session_config
-import json
 from typing import Dict, Any
 import logging
 
@@ -14,17 +13,6 @@ logging.basicConfig(
 PLACEHOLDERS = {
     "hostname": "Fedora40",
 }
-
-def load_app_data(file_name: str) -> dict:
-    try:
-        with open(file_name, 'r') as f:
-            return json.load(f)
-    except FileNotFoundError:
-        logging.error(f"{file_name} not found!")
-        return {}
-    except json.JSONDecodeError:
-        logging.error(f"{file_name} is not a valid JSON file!")
-        return {}
 
 def build_system_upgrade(options: Dict[str, Any], output_mode: str) -> str:
     quiet_redirect = " > /dev/null 2>&1" if output_mode == "Quiet" else ""

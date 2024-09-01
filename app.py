@@ -20,6 +20,7 @@ from typing import Dict, Any
 import session_config
 import builder
 import logging
+import json
 
 # Constants
 script_template = 'template.sh'
@@ -66,6 +67,17 @@ def add_selected_key(data: Dict[str, Any]) -> Dict[str, Any]:
                 add_selected_key(value)
     return data
 
+def load_app_data(file_name: str) -> dict:
+    try:
+        with open(file_name, 'r') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        logging.error(f"{file_name} not found!")
+        return {}
+    except json.JSONDecodeError:
+        logging.error(f"{file_name} is not a valid JSON file!")
+        return {}
+
 def render_sidebar() -> Dict[str, Any]:
     # Centered, clickable logo to reload the page
     st.sidebar.markdown("""
@@ -89,7 +101,7 @@ def render_sidebar() -> Dict[str, Any]:
         session_config.set_distro_name("Fedora 40")
 
     # Load the distro data
-    distro_data = builder.load_app_data(distro_file)
+    distro_data = load_app_data(distro_file)
 
     # Ensure all app entries have a 'selected' key
     distro_data = add_selected_key(distro_data)
