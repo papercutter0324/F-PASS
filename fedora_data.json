@@ -155,16 +155,6 @@
                     "name": "Git",
                     "command": "dnf install -y git",
                     "description": "Distributed version control system for tracking changes in source code and collaboration"
-                },
-                "install_unzip": {
-                    "name": "Unzip",
-                    "command": "dnf install -y unzip",
-                    "description": "Extraction utility for ZIP archives with support for various compression methods"
-                },
-                "install_unrar": {
-                    "name": "Unrar",
-                    "command": "dnf install -y unrar",
-                    "description": "Extraction utility for RAR archives, including support for password-protected files"
                 }
             }
         },
@@ -186,7 +176,13 @@
                     "name": "Git",
                     "command": "dnf install -y git",
                     "description": "Distributed version control system for tracking changes in source code and collaboration"
-                },
+                }
+            }
+        },
+        "archival_apps": {
+            "name": "Archive Tools",
+            "description": "Tools to creating and handling popular file archive formats",
+            "apps": {
                 "install_unzip": {
                     "name": "Unzip",
                     "command": "dnf install -y unzip",
@@ -196,11 +192,16 @@
                     "name": "Unrar",
                     "command": "dnf install -y unrar",
                     "description": "Extraction utility for RAR archives, including support for password-protected files"
+                },
+                "install_peazip": {
+                    "name": "PeaZip",
+                    "command": "flatpak install -y flathub io.github.peazip.PeaZip",
+                    "description": "A free file archiver utility, based on Open Source technologies of 7-Zip, p7zip, Brotli, FreeArc, PAQ, Zstandard, and PEA projects"
                 }
             }
         },
         "terminal_apps": {
-            "name": "Terminal Apps",
+            "name": "Terminal-Based Resource Monitors",
             "description": "Powerful system-management apps run in the terminal",
             "apps": {
                 "install_midnight_commander": {
@@ -227,16 +228,6 @@
                     "name": "Ncurses",
                     "command": "dnf install -y ncdu",
                     "description": "NCurses-based disk usage analyzer for quickly finding large files and directories"
-                },
-                "install_tilix": {
-                    "name": "Tilix",
-                    "command": "dnf install -y tilix",
-                    "description": "A tiling terminal emulator with advanced features like split panes and session management"
-                },
-                "install_tmux": {
-                    "name": "Tmux",
-                    "command": "dnf install -y tmux",
-                    "description": "Terminal multiplexer for creating multiple terminal sessions within a single window"
                 }
             }
         },
@@ -404,6 +395,51 @@
                 }
             }
         },
+        "remote_networking": {
+            "name": "VPNs & Remote Networking",
+            "apps": {
+                "install_remmina": {
+                    "name": "Remmina",
+                    "command": "flatpak install -y flathub org.remmina.Remmina",
+                    "description": "A remote-desktop client written in GTK, to use other desktops remotely, from a tiny screen or large monitors"
+                },
+                "install_nomachine": {
+                    "name": "NoMachine",
+                    "command": [
+                        "wget https://download.nomachine.com/download/8.13/Linux/nomachine_8.13.1_1_x86_64.rpm",
+                        "dnf install -y ./nomachine_8.13.1_1_x86_64.rpm",
+                        "rm -f ./nomachine_8.13.1_1_x86_64.rpm"
+                    ],
+                    "description": "A remote desktop software, that enables fast and secure access to your remote PC or desktop computer"
+                },
+                "install_anydesk": {
+                    "name": "AnyDesk",
+                    "command": "flatpak install -y flathub com.anydesk.AnyDesk",
+                    "description": "Ensures secure and reliable remote desktop connections for IT professionals and on-the-go individuals alike"
+                },
+                "install_proton_vpn": {
+                    "name": "Proton VPN",
+                    "command": "flatpak install -y flathub com.protonvpn.www",
+                    "description": "A VPN client, that provides a secure and private connection to the internet"
+                },
+                "install_mullvad_vpn": {
+                    "name": "Mullvad VPN",
+                    "command": [
+                        "dnf config-manager --add-repo https://repository.mullvad.net/rpm/stable/mullvad.repo",
+                        "dnf install -y mullvad-vpn"
+                    ],
+                    "description": "A VPN client, that provides a secure and private connection to the internet"
+                },
+                "install_zerotier": {
+                    "name": "ZeroTier",
+                    "command": [
+                        "curl -s 'https://raw.githubusercontent.com/zerotier/ZeroTierOne/main/doc/contact%40zerotier.com.gpg' | gpg --import &&",
+                        "if z=$(curl -s 'https://install.zerotier.com' | gpg); then echo \"$z\" | sudo bash; fi"
+                    ],
+                    "description": "A secure network overlay that allows you to manage all of your network resources as if they were on the same LAN"
+                }
+            }
+        },
         "internet_other": {
             "name": "Other Useful Apps",
             "apps": {
@@ -465,8 +501,63 @@
                     "description": "A note-taking app with a focus on privacy and security"
                 }
             }
+        }
+    },
+    "virtualization_apps": {
+        "name": "Virtualization & Containers",
+        "virtualization_apps": {
+            "name": "Virtualization Apps",
+            "apps": {
+                "install_virtualbox": {
+                    "name": "VirtualBox",
+                    "description": "A powerful virtualization product for enterprise as well as home use",
+                    "installation_types": {
+                        "with_extension": {
+                            "command": [
+                                "wget -O /etc/yum.repos.d/virtualbox.repo https://download.virtualbox.org/virtualbox/rpm/fedora/virtualbox.repo",
+                                "yum install -y VirtualBox",
+                                "wget -O $ACTUAL_HOME/Downloads/Oracle_VM_VirtualBox_Extension_Pack-7.0.20.vbox-extpack https://download.virtualbox.org/virtualbox/7.0.20/Oracle_VM_VirtualBox_Extension_Pack-7.0.20.vbox-extpack"
+                            ]
+                        },
+                        "without_extension": {
+                            "command": [
+                                "wget -O /etc/yum.repos.d/virtualbox.repo https://download.virtualbox.org/virtualbox/rpm/fedora/virtualbox.repo",
+                                "yum install -y VirtualBox"
+                            ]
+                        }
+                    }
+                }
+            }
         },
-        "programming_ide": {
+        "container_apps": {
+            "name": "Container Apps",
+            "apps": {
+                "install_docker_engine": {
+                    "name": "Docker Engine",
+                    "command": [
+                        "dnf remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-selinux docker-engine-selinux docker-engine -y",
+                        "dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo",
+                        "dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin",
+                        "systemctl start docker",
+                        "systemctl enable docker.service",
+                        "systemctl enable containerd.service",
+                        "docker volume create portainer_data",
+                        "docker run -d -p 8000:8000 -p 9443:9443 --privileged --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest",
+                        "xdg-open http://localhost:9443/"
+                    ],
+                    "description": "A feature-rich cooling device control application for Linux"
+                },
+                "install_podman": {
+                    "name": "Podman",
+                    "command": "dnf install -y podman",
+                    "description": "A tool for managing containers and pods"
+                }
+            }
+        }
+    },
+    "programming_apps": {
+        "name": "Programming Applications",
+        "programming_ides": {
             "name": "Programming Editors & IDEs",
             "apps": {
                 "install_vscode": {
@@ -497,6 +588,81 @@
                     "name": "Bluefish",
                     "command": "flatpak install -y flathub nl.openoffice.bluefish",
                     "description": "Text editor with many web and software development extras"
+                }
+            }
+        },
+        "code_management": {
+            "name": "Management & Automation",
+            "apps": {
+                "install_github_desktop": {
+                    "name": "GitHub Desktop",
+                    "command": "flatpak install flathub io.github.shiftey.Desktop",
+                    "description": "A powerful desktop client for GitHub"
+                },
+                "install_gitkraken": {
+                    "name": "GitKraken",
+                    "command": "flatpak install flathub com.axosoft.GitKraken",
+                    "description": "A tool for repo management, in-app code editing & issue tracking"
+                },
+                "install_ansible": {
+                    "name": "Ansible",
+                    "command": "dnf install -y ansible",
+                    "description": "A powerful automation tool for IT"
+                }
+            }
+        },
+        "env_and_terminals": {
+            "name": "Dev. Environments & Terminals",
+            "apps": {
+                "install_zsh_oh_my_zsh": {
+                    "name": "Zsh and Oh My Zsh",
+                    "command": [
+                        "dnf install -y zsh",
+                        "sudo -u $ACTUAL_USER sh -c \"RUNZSH=no $(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)\" \"\" --unattended",
+                        "chsh -s $(which zsh) $ACTUAL_USER",
+                        "sudo -u $ACTUAL_USER bash << EOF",
+                        "git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-$ACTUAL_HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions",
+                        "git clone https://github.com/marlonrichert/zsh-autocomplete.git ${ZSH_CUSTOM:-$ACTUAL_HOME/.oh-my-zsh/custom}/plugins/zsh-autocomplete",
+                        "git clone https://github.com/zsh-users/zsh-history-substring-search ${ZSH_CUSTOM:-$ACTUAL_HOME/.oh-my-zsh/custom}/plugins/zsh-history-substring-search",
+                        "git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-$ACTUAL_HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting",
+                        "sed -i 's/plugins=(git)/plugins=(dnf aliases genpass git zsh-autosuggestions zsh-autocomplete zsh-history-substring-search z zsh-syntax-highlighting)/' $ACTUAL_HOME/.zshrc",
+                        "sed -i 's/ZSH_THEME=\"robbyrussell\"/ZSH_THEME=\"jonathan\"/' $ACTUAL_HOME/.zshrc",
+                        "EOF"
+                    ],
+                    "description": "Install Zsh shell and Oh My Zsh framework"
+                },
+                "install_miniconda": {
+                    "name": "Miniconda",
+                    "command": [
+                        "sudo -u $ACTUAL_USER bash << EOF",
+                        "mkdir -p $ACTUAL_HOME/.miniconda3",
+                        "wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O $ACTUAL_HOME/.miniconda3/miniconda.sh",
+                        "bash $ACTUAL_HOME/.miniconda3/miniconda.sh -b -u -p $ACTUAL_HOME/.miniconda3",
+                        "rm -rf $ACTUAL_HOME/.miniconda3/miniconda.sh",
+                        "$ACTUAL_HOME/.miniconda3/bin/conda init bash",
+                        "$ACTUAL_HOME/.miniconda3/bin/conda init zsh",
+                        "EOF"
+                    ],
+                    "description": "Install Miniconda Python distribution"
+                },
+                "install_tabby": {
+                    "name": "Tabby",
+                    "command": [
+                        "wget https://github.com/Eugeny/tabby/releases/download/v1.0.211/tabby-1.0.211-linux-x64.rpm",
+                        "dnf install -y ./tabby-1.0.211-linux-x64.rpm",
+                        "rm -f ./tabby-1.0.211-linux-x64.rpm"
+                    ],
+                    "description": "A terminal for a more modern age"
+                },
+                "install_tilix": {
+                    "name": "Tilix",
+                    "command": "dnf install -y tilix",
+                    "description": "A tiling terminal emulator with advanced features like split panes and session management"
+                },
+                "install_tmux": {
+                    "name": "Tmux",
+                    "command": "dnf install -y tmux",
+                    "description": "Terminal multiplexer for creating multiple terminal sessions within a single window"
                 }
             }
         }
@@ -656,97 +822,97 @@
                     "description": "A program which allows you to run certain classic graphical adventure and role-playing games"
                 },
                 "install_duckstation": {
-                    "name": "DuckStation",
+                    "name": "DuckStation (PSX)",
                     "command": "flatpak install -y flathub org.duckstation.DuckStation",
                     "description": "An simulator/emulator of the Sony PlayStation(TM) console"
                 },
                 "install_ppsspp": {
-                    "name": "PPSSPP",
+                    "name": "PPSSPP (PSP)",
                     "command": "flatpak install -y flathub org.ppsspp.PPSSPP",
                     "description": "A PSP emulator that can run games in full HD resolution"
                 },
                 "install_pcsx2": {
-                    "name": "PCSX2",
+                    "name": "PCSX2 (PS2)",
                     "command": "flatpak install -y flathub net.pcsx2.PCSX2",
                     "description": "A free and open-source PlayStation 2 emulator"
                 },
                 "install_rpcs3": {
-                    "name": "RPCS3",
+                    "name": "RPCS3 (PS3)",
                     "command": "flatpak install -y flathub net.rpcs3.RPCS3",
                     "description": "An experimental open-source Sony PlayStation 3 emulator and debugger written in C++"
                 },
                 "install_nestopia": {
-                    "name": "Nestopia",
+                    "name": "Nestopia (NES)",
                     "command": "dnf install -y Nestopia",
                     "description": "A cycle-accurate NES/Famicom emulator"
                 },
                 "install_bsnes": {
-                    "name": "bsnes",
+                    "name": "bsnes (SNES)",
                     "command": "flatpak install -y flathub dev.bsnes.bsnes",
                     "description": "bsnes is a Super Nintendo (SNES) emulator focused on performance, features, and ease of use"
                 },
                 "install_snes9x": {
-                    "name": "Snes9x",
+                    "name": "Snes9x (SNES)",
                     "command": "dnf install -y snes9x",
                     "description": "A portable Super Nintendo Entertainment System emulator"
                 },
                 "install_parallel_launcher": {
-                    "name": "Parallel Launcher",
+                    "name": "Parallel Launcher (N64)",
                     "command": "flatpak install -y flathub ca.parallel_launcher.ParallelLauncher",
                     "description": "Aims to make playing N64 games, both retail and homebrew, as simple and as accessible as possible"
                 },
                 "install_dolphin": {
-                    "name": "Dolphin",
+                    "name": "Dolphin (GameCube & Wii)",
                     "command": "flatpak install -y flathub org.DolphinEmu.dolphin-emu",
                     "description": "An emulator for two recent Nintendo video game consoles: the GameCube and the Wii"
                 },
                 "install_cemu": {
-                    "name": "Cemu",
+                    "name": "Cemu (WiiU)",
                     "command": "flatpak install -y flathub info.cemu.Cemu",
                     "description": "Nintendo Wii U emulator that is able to run most Wii U games and homebrew in a playable state"
                 },
                 "install_ryujinx": {
-                    "name": "Ryujinx",
+                    "name": "Ryujinx (Switch)",
                     "command": "flatpak install -y flathub org.ryujinx.Ryujinx",
                     "description": "An open-source Nintendo Switch emulator written in C#"
                 },
                 "install_sameboy": {
-                    "name": "SameBoy",
+                    "name": "SameBoy (GB & GBC)",
                     "command": "flatpak install -y flathub io.github.sameboy.SameBoy",
                     "description": "An open source Game Boy (DMG) and Game Boy Color (CGB) emulator, written in portable C"
                 },
                 "install_mgba": {
-                    "name": "mGBA",
+                    "name": "mGBA (GBA)",
                     "command": "flatpak install -y flathub io.mgba.mGBA",
                     "description": "Aims to be faster and more accurate than many existing Game Boy Advance emulators"
                 },
                 "install_visualboyadvance-m": {
-                    "name": "VisualBoyAdvance-M",
+                    "name": "VisualBoyAdvance-M (GBA)",
                     "command": "flatpak install -y flathub com.vba_m.visualboyadvance-m",
                     "description": "A Nintendo Game Boy Emulator with high compatibility with commercial games"
                 },
                 "install_melonds": {
-                    "name": "melonDS",
+                    "name": "melonDS (nDS)",
                     "command": "flatpak install -y flathub net.kuribo64.melonDS",
                     "description": "Aims at providing fast and accurate Nintendo DS emulation"
                 },
                 "install_lime3ds": {
-                    "name": "Lime3DS",
+                    "name": "Lime3DS (3DS)",
                     "command": "flatpak install -y flathub net.kuribo64.melonDS",
                     "description": "A fork of Citra, a popular open-source Nintendo 3DS emulator which ceased development"
                 },
                 "install_xemu": {
-                    "name": "xemu",
+                    "name": "xemu (Xbox)",
                     "command": "flatpak install -y flathub app.xemu.xemu",
                     "description": "A free and open-source application that emulates the original Microsoft Xbox game console"
                 },
                 "install_stella": {
-                    "name": "Stella",
+                    "name": "Stella (Atari 2600)",
                     "command": "flatpak install -y flathub io.github.stella_emu.Stella",
                     "description": "A multi-platform Atari 2600 VCS emulator"
                 },
                 "install_vice": {
-                    "name": "Vice",
+                    "name": "Vice (Commodore)",
                     "command": "flatpak install -y flathub net.sf.VICE",
                     "description": "A free and cross platform emulator for Commodore's 8-bit computers"
                 }
@@ -770,6 +936,11 @@
                         "yum install -y enpass"
                     ],
                     "description": "A secure and free password manager for all of your devices"
+                },
+                "install_keepassxc": {
+                    "name": "KeePassXC",
+                    "command": "dnf install -y keepassxc",
+                    "description": "A free, open-source, and easy-to-use password manager"
                 }
             }
         },
@@ -804,11 +975,6 @@
                         "rm -f ./appimagelauncher-2.2.0-gha111.d9d4c73.x86_64.rpm"
                     ],
                     "description": "An AppImage launcher and integration tool"
-                },
-                "install_peazip": {
-                    "name": "PeaZip",
-                    "command": "flatpak install -y flathub io.github.peazip.PeaZip",
-                    "description": "A free file archiver utility, based on Open Source technologies of 7-Zip, p7zip, Brotli, FreeArc, PAQ, Zstandard, and PEA projects"
                 }
             }
         },
@@ -854,87 +1020,18 @@
                 }
             }
         },
-        "virtualization_apps": {
-            "name": "Virtualization Apps",
+        "backup_apps": {
+            "name": "Backup Utilities",
             "apps": {
-                "install_docker_engine": {
-                    "name": "Docker Engine",
-                    "command": [
-                        "dnf remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-selinux docker-engine-selinux docker-engine -y",
-                        "dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo",
-                        "dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin",
-                        "systemctl start docker",
-                        "systemctl enable docker.service",
-                        "systemctl enable containerd.service",
-                        "docker volume create portainer_data",
-                        "docker run -d -p 8000:8000 -p 9443:9443 --privileged --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest",
-                        "xdg-open http://localhost:9443/"
-                    ],
-                    "description": "A feature-rich cooling device control application for Linux"
+                "install_deja_dup": {
+                    "name": "Deja Dup (Designed for Gnome)",
+                    "command": "flatpak install -y flathub org.gnome.DejaDup",
+                    "description": "A GNOME archive manager"
                 },
-                "install_virtualbox": {
-                    "name": "VirtualBox",
-                    "description": "A powerful virtualization product for enterprise as well as home use",
-                    "installation_types": {
-                        "with_extension": {
-                            "command": [
-                                "wget -O /etc/yum.repos.d/virtualbox.repo https://download.virtualbox.org/virtualbox/rpm/fedora/virtualbox.repo",
-                                "yum install -y VirtualBox",
-                                "wget -O $ACTUAL_HOME/Downloads/Oracle_VM_VirtualBox_Extension_Pack-7.0.20.vbox-extpack https://download.virtualbox.org/virtualbox/7.0.20/Oracle_VM_VirtualBox_Extension_Pack-7.0.20.vbox-extpack"
-                            ]
-                        },
-                        "without_extension": {
-                            "command": [
-                                "wget -O /etc/yum.repos.d/virtualbox.repo https://download.virtualbox.org/virtualbox/rpm/fedora/virtualbox.repo",
-                                "yum install -y VirtualBox"
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "remote_networking": {
-            "name": "Remote Networking",
-            "apps": {
-                "install_remmina": {
-                    "name": "Remmina",
-                    "command": "flatpak install -y flathub org.remmina.Remmina",
-                    "description": "A remote-desktop client written in GTK, to use other desktops remotely, from a tiny screen or large monitors"
-                },
-                "install_nomachine": {
-                    "name": "NoMachine",
-                    "command": [
-                        "wget https://download.nomachine.com/download/8.13/Linux/nomachine_8.13.1_1_x86_64.rpm",
-                        "dnf install -y ./nomachine_8.13.1_1_x86_64.rpm",
-                        "rm -f ./nomachine_8.13.1_1_x86_64.rpm"
-                    ],
-                    "description": "A remote desktop software, that enables fast and secure access to your remote PC or desktop computer"
-                },
-                "install_anydesk": {
-                    "name": "AnyDesk",
-                    "command": "flatpak install -y flathub com.anydesk.AnyDesk",
-                    "description": "Ensures secure and reliable remote desktop connections for IT professionals and on-the-go individuals alike"
-                },
-                "install_proton_vpn": {
-                    "name": "Proton VPN",
-                    "command": "flatpak install -y flathub com.protonvpn.www",
-                    "description": "A VPN client, that provides a secure and private connection to the internet"
-                },
-                "install_mullvad_vpn": {
-                    "name": "Mullvad VPN",
-                    "command": [
-                        "dnf config-manager --add-repo https://repository.mullvad.net/rpm/stable/mullvad.repo",
-                        "dnf install -y mullvad-vpn"
-                    ],
-                    "description": "A VPN client, that provides a secure and private connection to the internet"
-                },
-                "install_zerotier": {
-                    "name": "ZeroTier",
-                    "command": [
-                        "curl -s 'https://raw.githubusercontent.com/zerotier/ZeroTierOne/main/doc/contact%40zerotier.com.gpg' | gpg --import &&",
-                        "if z=$(curl -s 'https://install.zerotier.com' | gpg); then echo \"$z\" | sudo bash; fi"
-                    ],
-                    "description": "A secure network overlay that allows you to manage all of your network resources as if they were on the same LAN"
+                "install_pika_backup": {
+                    "name": "Pika Backup (Designed for Gnome)",
+                    "command": "flatpak install -y flathub org.gnome.World.PikaBackup",
+                    "description": "A simple backup tool for Linux"
                 }
             }
         }
@@ -1018,37 +1115,7 @@
         "other": {
             "name": "Other",
             "apps": {
-                "install_zsh_oh_my_zsh": {
-                    "name": "Zsh and Oh My Zsh",
-                    "command": [
-                        "dnf install -y zsh",
-                        "sudo -u $ACTUAL_USER sh -c \"RUNZSH=no $(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)\" \"\" --unattended",
-                        "chsh -s $(which zsh) $ACTUAL_USER",
-                        "sudo -u $ACTUAL_USER bash << EOF",
-                        "git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-$ACTUAL_HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions",
-                        "git clone https://github.com/marlonrichert/zsh-autocomplete.git ${ZSH_CUSTOM:-$ACTUAL_HOME/.oh-my-zsh/custom}/plugins/zsh-autocomplete",
-                        "git clone https://github.com/zsh-users/zsh-history-substring-search ${ZSH_CUSTOM:-$ACTUAL_HOME/.oh-my-zsh/custom}/plugins/zsh-history-substring-search",
-                        "git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-$ACTUAL_HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting",
-                        "sed -i 's/plugins=(git)/plugins=(dnf aliases genpass git zsh-autosuggestions zsh-autocomplete zsh-history-substring-search z zsh-syntax-highlighting)/' $ACTUAL_HOME/.zshrc",
-                        "sed -i 's/ZSH_THEME=\"robbyrussell\"/ZSH_THEME=\"jonathan\"/' $ACTUAL_HOME/.zshrc",
-                        "EOF"
-                    ],
-                    "description": "Install Zsh shell and Oh My Zsh framework"
-                },
-                "install_miniconda": {
-                    "name": "Miniconda",
-                    "command": [
-                        "sudo -u $ACTUAL_USER bash << EOF",
-                        "mkdir -p $ACTUAL_HOME/.miniconda3",
-                        "wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O $ACTUAL_HOME/.miniconda3/miniconda.sh",
-                        "bash $ACTUAL_HOME/.miniconda3/miniconda.sh -b -u -p $ACTUAL_HOME/.miniconda3",
-                        "rm -rf $ACTUAL_HOME/.miniconda3/miniconda.sh",
-                        "$ACTUAL_HOME/.miniconda3/bin/conda init bash",
-                        "$ACTUAL_HOME/.miniconda3/bin/conda init zsh",
-                        "EOF"
-                    ],
-                    "description": "Install Miniconda Python distribution"
-                }
+                
             }
         }
     }
