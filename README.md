@@ -1,15 +1,13 @@
-# Forked NATTD!
+# F-Pass - Fedora Post-install Automated Setup Script
 
-![Fedora Workstation NATTD](./assets/cover.png)
-
-**Initial System Setup Shell Script Builder for Fedora Workstation**
+![F-PASS](./assets/cover.png)
 
 ## Overview
 
-This project offers a Streamlit-based web application for generating a tailored shell script to set up a new Fedora Workstation installation. The app provides an intuitive interface for choosing system configurations, applications, and customization options. It is currently open for testing and is generally suitable for production use, although minor bug fixes and code improvements are ongoing.
+A web application, powered by Streamlit for generating a customized shell script to automated Fedora Workstation installation. The app provides an intuitive interface for choosing system configurations, applications, and customization options. It is currently open for testing and is generally suitable for production use, although minor bug fixes and code improvements are ongoing.
 
 ## Latest Changes
-*(As of 2024-08-20)*
+*(As of 2024-09-01)*
 
 We're grateful for the valuable feedback and suggestions from the r/Fedora community. Recent updates include:
 
@@ -22,25 +20,21 @@ We're grateful for the valuable feedback and suggestions from the r/Fedora commu
 
 ## Features
 
-- **System Configuration**: Set hostname, configure DNF, enable auto-updates, install SSH, check for firmware updates, and enable RPM Fusion repositories.
-- **Essential Apps**: Install popular command-line tools and utilities with detailed descriptions.
-- **Additional Apps**: Choose from a wide range of applications categorized by purpose:
-  - Internet & Communication (browsers, email clients, messaging apps)
-  - Office & Productivity
-  - Media & Graphics
-  - Gaming & Emulation
-  - System Tools
-  - Remote Access & Networking
-  - File Sharing & Download
-- **Customization**: 
-  - Install fonts (Windows, Google, Adobe Source)
-  - Install themes (e.g., Tela Icon Theme)
-  - Configure power settings
-  - Set up development environments (Zsh, Oh My Zsh, Miniconda)
-- **Advanced Options**: Add custom shell commands to be included in the generated script.
+**Features**
 - **Script Preview**: View a preview of the generated script before downloading.
 - **One-Click Download**: Generate and download the customized script with a single click.
 - **Output Mode Selection**: Choose between Quiet (hide command output) and Verbose (show full output) modes.
+
+**Menu Categories**
+- **System Configuration**: Set hostname, configure DNF, enable auto-updates, and other useful setup options.
+- **Recommended Apps**: A range of essetial and/or popular command-line tools and utilities.
+- **Internet Apps**: A selection of popular browsers, messaging clients, download apps, and more.
+- **Productivity Apps**: Office suites, notetaking apps, and programming IDEs.
+- **Mulitmedia Apps**: Video, music, and image players and editors.
+- **Gaming Apps**: A collection of popular game stores, launchers, and emulators.
+- **Management Apps**: Password managers, system management, hardware support, and more.
+- **Customization**: Additional fonts, themes, and more.
+- **Advanced Options**: Add custom shell commands to be included in the generated script.
 
 ## Requirements
 
