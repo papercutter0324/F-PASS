@@ -63,18 +63,19 @@ We're grateful for the valuable feedback and suggestions from the r/Fedora commu
    ```
 
 2. Open your web browser and navigate to the URL provided by Streamlit (usually `http://localhost:8501`) or use [our official public instance](https://nattdf.streamlit.app)
+  - One may open automatically.
 
-3. Use the sidebar to select your desired configuration options.
+3. In the sidebar, select your distro and output mode (Quiet or Verbose) to control the amount of details shown while the script is running.
 
-5. Choose the Output Mode (Quiet or Verbose) to control the level of detail in the generated script.
+4. Choose your desire settings, apps, and customizations from the sub-menus.
 
-6. (Optional) Add custom shell commands in the Advanced section.
+5. (Optional) Insert custom shell commands in the Advanced section.
 
-7. Click the "Build Your Script" button to create your customized script.
+6. Review the script in the preview window and click "Build Your Script".
 
-8. Review the script preview and click "Download Your Script" to save it.
+7. Click "Download Your Script" and follow the provided instructions to make the script executable.
 
-9. Follow the instructions provided after generating the script to make it executable and run it on your Fedora system.
+8. Navigate to where you saved the script and run it (as shown in the instructions).
 
 ## Script Template
 
@@ -103,8 +104,8 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 ## Acknowledgements
 
 - Original Version: [Fedora Workstation: Not Another 'Things To Do'!](https://github.com/k-mktr/fedora-things-to-do)
-- Streamlit for their intuitive app framework
-- All contributors of Open Source Software
+- Streamlit
+- Contributors
 
 ## Roadmap
 
