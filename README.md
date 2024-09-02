@@ -42,7 +42,7 @@ A web application, powered by Streamlit for generating a customized shell script
 
 ## Requirements
 
-- Python 3.7+
+- Python 3.9+
 - Streamlit
 - A modern web browser
 
@@ -151,7 +151,7 @@ Absolutely! The generated script is just a starting point. You're free to modify
 
 ### What if I encounter an error while running the script?
 
-The script includes error handling to log issues it encounters. If you run into problems, check the log file (default location: `/var/log/fedora_things_to_do.log`) for more information. If you can't resolve the issue, feel free to open an issue on our GitHub repository with the error details.
+The script includes error handling to log issues it encounters. If you run into problems, check the log file (default location: `/var/log/F-PASS.log`) for more information. If you can't resolve the issue, feel free to open an issue on our GitHub repository with the error details.
 
 ### Does this script handle system updates?
 

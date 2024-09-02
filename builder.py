@@ -27,141 +27,123 @@ def build_system_upgrade(options: Dict[str, Any], output_mode: str) -> str:
     return "\n".join(upgrade_commands)
 
 def should_quiet_redirect(cmd: str) -> bool:
-    no_redirect_patterns = [
-        "log_message",
-        "echo",
-        "printf",
-        "read",
-        "prompt_",
-        "EOF"
-    ]
+    no_redirect_patterns = ["log_message", "echo", "printf", "read", "prompt_", "EOF"]
     # Check if the command starts with any of the patterns or contains "EOF"
     return not any(cmd.startswith(pattern) or "EOF" in cmd for pattern in no_redirect_patterns)
 
-# Add this function to check dependencies
 def check_dependencies(distro_data: Dict[str, Any]) -> Dict[str, Any]:
-    # Check if multimedia codecs or GPU codecs are selected
+    additional_codecs = distro_data["system_config"]["additional_codecs"]["apps"]
     if any([
-        distro_data["system_config"]["additional_codecs"]["apps"].get("install_multimedia_codecs", {}).get("selected", False),
-        distro_data["system_config"]["additional_codecs"]["apps"].get("install_intel_codecs", {}).get("selected", False),
-        distro_data["system_config"]["additional_codecs"]["apps"].get("install_nvidia_codecs", {}).get("selected", False),
-        distro_data["system_config"]["additional_codecs"]["apps"].get("install_amd_codecs", {}).get("selected", False)
+        additional_codecs.get("install_multimedia_codecs", {}).get("selected", False),
+        additional_codecs.get("install_intel_codecs", {}).get("selected", False),
+        additional_codecs.get("install_nvidia_codecs", {}).get("selected", False),
+        additional_codecs.get("install_amd_codecs", {}).get("selected", False)
     ]):
-        # Ensure RPM Fusion is enabled
         distro_data["system_config"]["recommended_settings"]["apps"]["enable_rpmfusion"]["selected"] = True
     
     return distro_data
 
-# Modify the build_system_config function
 def build_system_config(distro_data: Dict[str, Any], output_mode: str) -> str:
+    def get_commands(app_data: dict) -> list[str]:
+        # Extract commands from app_data, handling installation types and redirection.
+        install_type = app_data.get("installation_type")
+        commands = app_data.get("installation_types", {}).get(install_type, {}).get("command", app_data.get("command", ""))
+        if isinstance(commands, str):
+            commands = [commands]
+        return commands
+    
+    def process_command(distro_data: Dict, output_mode: str, quiet_redirect: str, cmd: str, app_key: str) -> str:
+        # Prepare command by adding hostname and quiet redirection if needed.
+        if app_key == "set_hostname" and "hostnamectl set-hostname" in cmd:
+            hostname = (
+                distro_data["system_config"]["recommended_settings"]["apps"]["set_hostname"].get("entered_name")
+                or PLACEHOLDERS.get("hostname", "localhost")
+            )
+            cmd = f"{cmd} {hostname}"
+        if output_mode == "Quiet" and should_quiet_redirect(cmd):
+            cmd += quiet_redirect
+        return cmd
+    
     distro_data = check_dependencies(distro_data)
     config_commands = []
     quiet_redirect = " > /dev/null 2>&1" if output_mode == "Quiet" else ""
 
-    system_config = distro_data.get("system_config", {}) # Extract just the system_config section of distro_data
+    system_config = distro_data.get("system_config", {})
 
-    for subcategory_key, subcategory_value in system_config.items(): # Iterate through each subcategory in system_config
+    for subcategory_value in system_config.values(): # Iterate through each subcategory in system_config
         if isinstance(subcategory_value, dict):
-            # Get the "apps" dictionary within the subcategory
             apps = subcategory_value.get("apps", {})
+            for app_key, app_data in apps.items():
+                if isinstance(app_data, dict) and app_data.get("selected", False):
+                    description = app_data.get("description", "")
+                    config_commands.append(f"# {description}")
 
-            for app_key, app_data in apps.items(): # Iterate through each app in the apps dictionary
-                if isinstance(app_data, dict):
-                    if app_data.get("selected", False): # Check if the app is selected
-                        description = app_data.get("description", "")
-                        config_commands.append(f"# {description}")
+                    commands = get_commands(app_data)
+                    for cmd in commands:
+                        cmd = process_command(distro_data, output_mode, quiet_redirect, cmd, app_key)
+                        config_commands.append(cmd)
 
-                        # Handle commands based on installation type
-                        install_type = app_data.get("installation_type")
-                        commands = app_data.get("installation_types", {}).get(install_type, {}).get("command", None)
-
-                        if commands is None: # Handle case where command is not found in installation_types
-                            commands = app_data.get("command")
-
-                        if isinstance(commands, str):
-                            cmd = commands
-                            if app_key == "set_hostname" and "hostnamectl set-hostname" in cmd:
-                                hostname = distro_data["system_config"]["recommended_settings"]["hostname"] or PLACEHOLDERS.get('hostname', 'localhost')
-                                cmd = f"{cmd} {hostname}"
-                            if output_mode == "Quiet" and should_quiet_redirect(commands):
-                                commands += quiet_redirect
-                            config_commands.append(commands)
-                        elif isinstance(commands, list):
-                            for cmd in commands:                            
-                                if app_key == "set_hostname" and "hostnamectl set-hostname" in cmd:
-                                    hostname = distro_data["system_config"]["recommended_settings"]["hostname"] or PLACEHOLDERS.get('hostname', 'localhost')
-                                    cmd = f"{cmd} {hostname}"
-                                if output_mode == "Quiet" and should_quiet_redirect(cmd):
-                                    cmd += quiet_redirect # Append each command with redirection if applicable
-                                config_commands.append(cmd)
-                        config_commands.append("") # Add an empty line for readability
+                    config_commands.append("")  # Add an empty line for readability
 
     return "\n".join(config_commands)
 
 def build_app_install(distro_data: Dict[str, Any], output_mode: str) -> str:
+    def get_commands(app_data: Dict[str, Any], quiet_redirect: str) -> list[str]:
+        commands = []
+        # Get the appropriate command(s)
+        install_type = app_data.get('installation_type')
+        command = (app_data.get('installation_types', {}).get(install_type, {}).get('command') 
+                   if install_type else app_data.get('command'))
+
+        if not command:
+            logging.warning(f"No command found for {app_data.get('name', 'unknown app')}")
+            return []
+
+        # Normalize to a list of commands
+        command_list = command if isinstance(command, list) else [command]
+
+        # Add quiet redirect where applicable
+        for cmd in command_list:
+            commands.append(f"{cmd}{quiet_redirect if should_quiet_redirect(cmd) else ''}")
+        
+        return commands
+    
     install_commands = []
     quiet_redirect = " > /dev/null 2>&1" if output_mode == "Quiet" else ""
 
     # Iterate through the top-level categories and their subcategories
     for options_category, options_category_content in distro_data.items():
-        if options_category == "custom_script" or options_category == "system_config":
+        if options_category in {"custom_script", "system_config"}:
             continue
 
-        if not isinstance(options_category_content, dict):
-            logging.warning(f"Expected dictionary for category content, got {type(options_category_content).__name__} for category {options_category}")
-            logging.warning(f"Category content: {options_category_content}")
-            continue
+        for options_subcategory_content in options_category_content.values():
+            if not isinstance(options_subcategory_content, dict) or 'apps' not in options_subcategory_content:
+                continue
+        
+            apps_content = options_subcategory_content['apps']
+            if not isinstance(apps_content, dict):
+                logging.warning(f"Expected dictionary for apps content, got {type(apps_content).__name__}")
+                continue
+            
+            # Collect and process selected apps
+            selected_apps = [app_id for app_id, app_data in apps_content.items() if isinstance(app_data, dict) and app_data.get('selected', False)]
 
-        for options_subcategory, options_subcategory_content in options_category_content.items():
-            # Only process subcategories containing a dictionary and apps
-            if isinstance(options_subcategory_content, dict) and 'apps' in options_subcategory_content:
-                # Ensure 'apps' is a dictionary
-                apps_content = options_subcategory_content['apps']
-                if not isinstance(apps_content, dict):
-                    logging.warning(f"Expected dictionary for apps content, got {type(apps_content).__name__} in subcategory {options_subcategory}")
+            if not selected_apps:
+                continue
+
+            install_commands.append(f"# Install {options_subcategory_content.get('name', 'unknown')} applications")
+
+            for app_id in selected_apps:
+                app_data = apps_content.get(app_id, {})
+                if not isinstance(app_data, dict):
+                    logging.warning(f"Expected dictionary for app data, got {type(app_data).__name__} for app_id {app_id}")
                     continue
 
-                # Collect selected apps
-                category_apps = [app_id for app_id, app_data in apps_content.items() if app_data.get('selected', False)]
-                
-                if category_apps:
-                    # Add a header for the current subcategory
-                    install_commands.append(f"# Install {options_subcategory_content['name']} applications")
-
-                    for app_id in category_apps:
-                        app_data = apps_content.get(app_id, {})
-                        if not isinstance(app_data, dict):
-                            logging.warning(f"Expected dictionary for app data, got {type(app_data).__name__} for app_id {app_id}")
-                            continue
-
-                        install_commands.append(f"log_message \"Installing {app_data['name']}...\"")
-                        
-                        # Handle if there are multiple installation types
-                        if 'installation_types' in app_data and app_data.get('installation_type'):
-                            install_type = app_data.get('installation_type')
-                            if install_type and install_type in app_data['installation_types']:
-                                commands = app_data['installation_types'][install_type]['command']
-                            else:
-                                logging.warning(f"No valid installation type selected for {app_data['name']}")
-                                continue
-                        else:
-                            # If there's no 'installation_types', fall back to a default 'command' if available
-                            commands = app_data.get("command", "")
-                            if not commands:
-                                logging.warning(f"No command found for {app_data['name']}")
-                                continue
-
-                        # Add commands with quiet_redirect when applicable
-                        if isinstance(commands, list):
-                            for cmd in commands:
-                                install_commands.append(f"{cmd}{quiet_redirect if should_quiet_redirect(cmd) else ''}")
-                        else:
-                            install_commands.append(f"{commands}{quiet_redirect if should_quiet_redirect(commands) else ''}")
-
-                        install_commands.append(f"log_message \"{app_data['name']} installed successfully.\"")
-                    
-                    # Add an empty line for improved readability
-                    install_commands.append("")
+                install_commands.append(f"log_message \"Installing {app_data.get('name', 'unknown')}...\"")
+                install_commands.extend(get_commands(app_data, quiet_redirect))
+                install_commands.append(f"log_message \"{app_data.get('name', 'unknown')} installed successfully.\"")
+            
+            install_commands.append("")  # Add an empty line for readability
 
     return "\n".join(install_commands)
 

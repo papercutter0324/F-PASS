@@ -15,7 +15,7 @@
 #
 # This script is licensed under the GNU General Public License v3.0
 #
-import streamlit as st
+import streamlit as st # type: ignore
 from typing import Dict, Any
 import session_config
 import builder
@@ -112,16 +112,11 @@ def render_sidebar() -> Dict[str, Any]:
         distro_file = supported_distros["Fedora 40"]
         session_config.set_distro_name("Fedora 40")
 
-    # Load the distro data
-    distro_data = load_app_data(distro_file)
+    
+    distro_data = load_app_data(distro_file) # Load the distro data
+    distro_data = add_selected_key(distro_data) # Ensure all app entries have a 'selected' key
+    session_config.set_distro_data(distro_data) # Store it in the session state
 
-    # Ensure all app entries have a 'selected' key
-    distro_data = add_selected_key(distro_data)
-
-    # Store it in the session state
-    session_config.set_distro_data(distro_data)
-
-    # output_mode = st.sidebar.radio("Output Mode", ["Quiet", "Verbose"], index=0, help="Select the output mode for the script.")
     output_mode = st.sidebar.selectbox(
         "Selected Terminal Output Mode",
         ["Quiet", "Verbose"],
@@ -133,8 +128,7 @@ def render_sidebar() -> Dict[str, Any]:
         if distro_data.items() != "name":
             render_app_section(distro_data, options_category)
 
-    # Advanced section for custom script
-    with st.sidebar.expander("Advanced"):
+    with st.sidebar.expander("Advanced"): # Section for adding a custom script
         st.warning("""⚠️ **Caution**: Intended for advanced users. Incorrect shell commands can potentially harm your system or render it inoperable.  
                    Use with care!""")
         
@@ -214,12 +208,11 @@ def render_app_section(distro_data: Dict[str, Any], options_category: str) -> Di
             for options_app, app_data in subcategory_data['apps'].items():
                 app_selected = st.checkbox(
                     app_data['name'],
-                    key=f"{options_category}_{options_subcategory}_{options_app}",
+                    key=f"{options_category}_{options_subcategory}_apps_{options_app}",
                     help=app_data.get('description', '')
                 )
                 app_data['selected'] = app_selected
 
-                # Handle special cases
                 if options_app in special_case_apps:
                     special_case_apps[options_app](
                         app_selected,
@@ -234,11 +227,10 @@ def render_app_section(distro_data: Dict[str, Any], options_category: str) -> Di
                         installation_type = st.radio(
                             f"Choose {app_data['name']} installation type:",
                             list(app_data['installation_types'].keys()),
-                            key=f"{options_category}_{options_subcategory}_{options_app}_install_type"
+                            key=f"{options_category}_{options_subcategory}_apps_{options_app}_install_type"
                         )
                         subcategory_data['apps'][options_app]['installation_type'] = installation_type
 
-                # Display notice and warning messages
                 if app_selected:
                     handle_warnings_and_messages(options_app, distro_data)
 
@@ -248,15 +240,13 @@ def handle_hostname(app_selected: bool, **kwargs):
     distro_data = kwargs['distro_data']
 
     if app_selected:
-        hostname = st.text_input("Enter the new hostname:")
-        distro_data["system_config"]["recommended_settings"]["hostname"] = hostname
+        distro_data["system_config"]["recommended_settings"]["apps"]["set_hostname"]["entered_name"] = st.text_input("Enter the new hostname:")
 
 def handle_rpmfusion(app_selected: bool, **kwargs):
     distro_data = kwargs['distro_data']
-    options_app = kwargs['options_app']
 
     if app_selected:
-        distro_data["system_config"]["recommended_settings"][options_app] = app_selected
+        distro_data["system_config"]["recommended_settings"]["apps"]["enable_rpmfusion"]["selected"] = app_selected
 
 def handle_special_installation_types(app_selected: bool, **kwargs):
     subcategory_data = kwargs['subcategory_data']
@@ -278,7 +268,7 @@ def handle_special_installation_types(app_selected: bool, **kwargs):
         help_text = "Choose how to install Windows fonts."
     
     if app_selected:
-        app_key = f"{options_category}_{options_subcategory}_{options_app}_install_type"
+        app_key = f"{options_category}_{options_subcategory}_apps_{options_app}_install_type"
         installation_type = render_installation_type_selector(install_type_title, install_options, app_key, help_text)
         subcategory_data['apps'][options_app]['installation_type'] = installation_type
 
@@ -293,7 +283,7 @@ def render_installation_type_selector(install_type_title: str, install_options: 
 
 def handle_warnings_and_messages(options_app: str, distro_data: Dict[str, Any]):
     if options_app in ["install_multimedia_codecs", "install_intel_codecs", "install_nvidia_codecs", "install_amd_codecs"]:
-        if not distro_data["system_config"]["recommended_settings"]["apps"]["enable_rpmfusion"]["selected"]:
+        if distro_data["system_config"]["recommended_settings"]["apps"]["enable_rpmfusion"]["selected"] == False:
             st.markdown("""
                 ```
                 RPM Fusion has been enabled  
@@ -329,21 +319,20 @@ def build_script(distro_data: Dict[str, Any], output_mode: str) -> str:
             "app_install": builder.build_app_install(distro_data, output_mode),
             "custom_script": builder.build_custom_script(distro_data, output_mode),
         }
-    
+
     preview_script = f"(...)  # Script header\n\n# Selected distro: {session_config.get_distro_name()}\n# Output Mode: {output_mode}\n\n"
-    
+
     # Rework this. Customization currently gets an App Install label
     for placeholder, content in script_parts.items():
         if content and content.strip():  # Check if content is not None and not empty
             preview_script += f"# {placeholder.replace('_', ' ').title()}\n"
             preview_script += content + "\n\n"
-    
+
     preview_script += "(...)  # Script footer"
-    
-    # Replace the hostname placeholder if it exists
+
     if "hostname" in distro_data:
         preview_script = preview_script.replace("{hostname}", distro_data["hostname"])
-    
+
     return preview_script
 
 def build_full_script(template: str, distro_data: Dict[str, Any], output_mode: str) -> str:
@@ -353,14 +342,13 @@ def build_full_script(template: str, distro_data: Dict[str, Any], output_mode: s
         "app_install": builder.build_app_install(distro_data, output_mode),
         "custom_script": builder.build_custom_script(distro_data, output_mode),
     }
-    
+
     for placeholder, content in script_parts.items():
         template = template.replace(f"{{{{{placeholder}}}}}", content)
-    
-    # Replace the hostname placeholder if it exists
+
     if "hostname" in distro_data:
         template = template.replace("{hostname}", distro_data["hostname"])
-    
+
     return template
 
 def main():
@@ -434,7 +422,7 @@ def main():
             file_name="f-pass.sh",
             mime="text/plain"
         )
-        
+
         st.markdown("""
         ### Your Script Has Been Created!
 

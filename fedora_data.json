@@ -10,7 +10,8 @@
                         "log_message \"Setting hostname...\"",
                         "hostnamectl set-hostname"
                     ],
-                    "description": "Set the system hostname to uniquely identify the machine on the network"
+                    "description": "Set the system hostname to uniquely identify the machine on the network",
+                    "entered_name": ""
                 },
                 "configure_dnf": {
                     "name": "Configure DNF",
@@ -1153,12 +1154,6 @@
                     ],
                     "description": "A flat colorful design icon theme for linux desktops"
                 }
-            }
-        },
-        "other": {
-            "name": "Other",
-            "apps": {
-                
             }
         }
     }
