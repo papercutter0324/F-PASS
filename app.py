@@ -21,6 +21,7 @@ import session_config
 import builder
 import logging
 import json
+import re
 
 # Constants
 script_template = 'template.sh'
@@ -29,6 +30,7 @@ dnf_flatpak_or_appimage_options = [('dnf', 'DNF'), ('flatpak', 'Flatpak'), ('app
 virtualbox_options = [('without_extension', 'VirtualBox Only'), ('with_extension', 'VirtualBox & Extenstion Pack')]
 docker_options = [('install_standard', 'Docker Only'), ('install_portainer', 'Docker & Portainer'), ('install_nvidia_toolkit', 'Docker & Nvidia Toolkit'), ('install_portainer_and_nvidia_toolkit', 'Docker & Both')]
 font_options = [('core', 'Core Fonts'), ('windows', 'Windows Fonts')]
+disk_options = [('ssd', 'SSD'), ('hdd', 'HDD')]
 
 st.set_page_config(
     page_title="F-Pass Creator",
@@ -110,7 +112,7 @@ def render_sidebar() -> Dict[str, Any]:
         session_config.set_distro_name(selected_distro)
     else: #Default to Fedora 40 if nothing has been selected
         distro_file = supported_distros["Fedora 40"]
-        session_config.set_distro_name("Fedora 40")
+        session_config.set_distro_name("Fedora")
 
     
     distro_data = load_app_data(distro_file) # Load the distro data
@@ -128,7 +130,7 @@ def render_sidebar() -> Dict[str, Any]:
         if distro_data.items() != "name":
             render_app_section(distro_data, options_category)
 
-    with st.sidebar.expander("Advanced"): # Section for adding a custom script
+    with st.sidebar.expander("Advanced - Custom Script"): # Section for adding a custom script
         st.warning("""⚠️ **Caution**: Intended for advanced users. Incorrect shell commands can potentially harm your system or render it inoperable.  
                    Use with care!""")
         
@@ -196,7 +198,8 @@ def render_app_section(distro_data: Dict[str, Any], options_category: str) -> Di
             "enable_rpmfusion": handle_rpmfusion,
             "install_virtualbox": handle_special_installation_types,
             "install_docker_engine": handle_special_installation_types,
-            "install_microsoft_fonts": handle_special_installation_types
+            "install_microsoft_fonts": handle_special_installation_types,
+            "extra_swap_space": handle_swapspace
         }
         
         for options_subcategory, subcategory_data in subcategories:
@@ -231,17 +234,70 @@ def render_app_section(distro_data: Dict[str, Any], options_category: str) -> Di
                         )
                         subcategory_data['apps'][options_app]['installation_type'] = installation_type
 
-                if app_selected:
+                if app_selected and options_app not in {"set_hostname", "extra_swap_space"}:
                     handle_warnings_and_messages(options_app, distro_data)
 
     return distro_data
 
 def handle_hostname(app_selected: bool, **kwargs):
-    distro_data = kwargs['distro_data']
+    distro_data = kwargs.get('distro_data', {})
+    hostname_data = distro_data.get("system_config", {}).get("recommended_settings", {}).get("apps", {}).get("set_hostname", {})
+    
+    if app_selected:
+        entered_hostname = st.text_input("Enter the new hostname:")
+
+        try:
+            if is_valid_hostname(entered_hostname):
+                hostname_data["entered_name"] = entered_hostname
+        except KeyError as e:
+            print(f"KeyError: Missing expected key {e} in distro_data.")
+        else:
+            hostname_data["entered_name"] = hostname_data["default"]
+            handle_warnings_and_messages("set_hostname", distro_data)
+
+def is_valid_hostname(hostname: str) -> bool:
+    if not hostname or len(hostname) > 253:
+        return False
+
+    regex = re.compile(
+        r'^(?!-)[A-Za-z0-9-]{1,63}(?<!-)$'
+        r'(\.[A-Za-z0-9-]{1,63})*$'
+    )
+
+    # Split hostname by dots and validate each label
+    labels = hostname.split('.')
+    return all(regex.match(label) for label in labels)
+
+def handle_swapspace(app_selected: bool, **kwargs):
+    subcategory_data = kwargs['subcategory_data']
+    options_category = kwargs['options_category']
+    options_subcategory = kwargs['options_subcategory']
+    options_app = kwargs['options_app']
+    distro_data = kwargs.get('distro_data', {})
+    swap_data = distro_data.get("advanced_settings", {}).get("settings", {}).get("apps", {}).get("extra_swap_space", {})
 
     if app_selected:
-        distro_data["system_config"]["recommended_settings"]["apps"]["set_hostname"]["entered_name"] = st.text_input("Enter the new hostname:")
+        entered_size = st.text_input("Enter the desired swap size in GB: (Max: 32)")
 
+        try:
+            if entered_size.strip() and 1 <= int(entered_size) <= 32:
+                swap_data["entered_size"] = int(entered_size)
+                handle_special_installation_types(
+                        "extra_swap_space",
+                        subcategory_data=subcategory_data,
+                        options_category=options_category,
+                        options_subcategory=options_subcategory,
+                        options_app=options_app,
+                        distro_data=distro_data
+                    )
+            else:
+                # Handle the case where input is invalid but not an exception
+                swap_data["entered_size"] = swap_data["default"]
+                handle_warnings_and_messages("extra_swap_space", distro_data)
+        except ValueError:
+            swap_data["entered_size"] = swap_data["default"]
+            handle_warnings_and_messages("extra_swap_space", distro_data)
+        
 def handle_rpmfusion(app_selected: bool, **kwargs):
     distro_data = kwargs['distro_data']
 
@@ -266,6 +322,10 @@ def handle_special_installation_types(app_selected: bool, **kwargs):
         install_type_title = "VirtualBox Extension Pack"
         install_options = font_options
         help_text = "Choose how to install Windows fonts."
+    elif options_app == "extra_swap_space":
+        install_type_title = "Select Disk Type:"
+        install_options = disk_options
+        help_text = "Choose the type of drive being used."
     
     if app_selected:
         app_key = f"{options_category}_{options_subcategory}_apps_{options_app}_install_type"
@@ -282,7 +342,18 @@ def render_installation_type_selector(install_type_title: str, install_options: 
     )
 
 def handle_warnings_and_messages(options_app: str, distro_data: Dict[str, Any]):
-    if options_app in ["install_multimedia_codecs", "install_intel_codecs", "install_nvidia_codecs", "install_amd_codecs"]:
+    if options_app == "set_hostname":
+        default_hostname = distro_data.get("system_config", {}).get("recommended_settings", {}).get("apps", {}).get("set_hostname", {}).get("default", {})
+        st.warning(
+            "Invalid hostname.  \n"
+            f"Using default: \"{default_hostname}\"\n"
+            "- Use only letters, digits, and hyphens\n"
+            "- Start and end with letters or digits\n"
+            "- Each label may be 1 to 63 characters\n"
+            "- Multiple labels permitted, separated by a period\n"
+            "- Total max of 253 characters"
+        )
+    elif options_app in ["install_multimedia_codecs", "install_intel_codecs", "install_nvidia_codecs", "install_amd_codecs"]:
         if distro_data["system_config"]["recommended_settings"]["apps"]["enable_rpmfusion"]["selected"] == False:
             st.markdown("""
                 ```
@@ -304,6 +375,8 @@ def handle_warnings_and_messages(options_app: str, distro_data: Dict[str, Any]):
             st.warning("⚠️ This method requires a valid Windows license. "
                        "Please ensure you comply with Microsoft's licensing terms.")
             st.markdown("[Learn more about Windows fonts licensing](https://learn.microsoft.com/en-us/typography/fonts/font-faq)")
+    elif options_app == "extra_swap_space":
+        st.warning("Invalid value. Please enter a number between 1 and 32.")
 
 def build_script(distro_data: Dict[str, Any], output_mode: str) -> str:
     if distro_data["custom_script"] == "# Each command goes on a new line.":

@@ -6,6 +6,7 @@
             "apps": {
                 "set_hostname": {
                     "name": "Set Hostname",
+                    "default": "Fedora",
                     "command": [
                         "log_message \"Setting hostname...\"",
                         "hostnamectl set-hostname"
@@ -1153,6 +1154,28 @@
                         "sudo -u $ACTUAL_USER gsettings set org.gnome.desktop.interface icon-theme \"Qogir\""
                     ],
                     "description": "A flat colorful design icon theme for linux desktops"
+                }
+            }
+        }
+    },
+    "advanced_settings": {
+        "name": "Advanced Settings",
+        "settings": {
+            "name": "System Configuration",
+            "apps": {
+                "extra_swap_space": {
+                    "name": "Extra Swap Space",
+                    "description": "Add more swap space in addition to Fedora's default ZRAM settings",
+                    "default": "8",
+                    "installation_types": {
+                        "ssd": {
+                            "command": "filesystem=$(stat -f -c %T /) && [[ $filesystem == \"btrfs\" || $filesystem == \"ext4\" ]] && echo \"Filesystem is $filesystem. Proceeding with $filesystem-specific commands...\" && ([[ $filesystem == \"btrfs\" ]] && (btrfs sub create /swaps && chattr +C /swaps) || ([[ $filesystem == \"ext4\" ]] && mkdir -p /swaps)) && cd /swaps && fallocate -l SELECTEDSWAPSIZEG swapfile.0 && chmod 600 swapfile.0 && ([[ $filesystem == \"btrfs\" ]] && (mkswap --discard swapfile.0 && swapon --discard swapfile.0) || (mkswap swapfile.0 && swapon swapfile.0)) && echo '/swaps/swapfile.0 none swap sw 0 0' | sudo tee -a /etc/fstab && echo \"Commands for $filesystem executed successfully.\" || echo \"This feature is only supported on btrfs and ext4 filesystems.\""
+                        },
+                        "hdd": {
+                            "command": "filesystem=$(stat -f -c %T /) && [[ $filesystem == \"btrfs\" || $filesystem == \"ext4\" ]] && echo \"Filesystem is $filesystem. Proceeding with $filesystem-specific commands...\" && ([[ $filesystem == \"btrfs\" ]] && btrfs sub create /swaps && chattr +C /swaps || ([[ $filesystem == \"ext4\" ]] && mkdir -p /swaps)) && cd /swaps && fallocate -l SELECTEDSWAPSIZEG swapfile.0 && chmod 600 swapfile.0 && mkswap swapfile.0 && swapon swapfile.0 && echo '/swaps/swapfile.0 none swap sw 0 0' | sudo tee -a /etc/fstab && echo \"Commands for $filesystem executed successfully.\" || echo \"This feature is only supported on btrfs and ext4 filesystems.\""
+
+                        }
+                    }
                 }
             }
         }
