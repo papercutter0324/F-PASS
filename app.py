@@ -24,13 +24,13 @@ import json
 import re
 
 # Constants
-script_template = 'template.sh'
-dnf_or_flatpak_options = [('dnf', 'DNF'), ('flatpak', 'Flatpak')]
-dnf_flatpak_or_appimage_options = [('dnf', 'DNF'), ('flatpak', 'Flatpak'), ('appimage', 'AppImage')]
-virtualbox_options = [('without_extension', 'VirtualBox Only'), ('with_extension', 'VirtualBox & Extenstion Pack')]
-docker_options = [('install_standard', 'Docker Only'), ('install_portainer', 'Docker & Portainer'), ('install_nvidia_toolkit', 'Docker & Nvidia Toolkit'), ('install_portainer_and_nvidia_toolkit', 'Docker & Both')]
-font_options = [('core', 'Core Fonts'), ('windows', 'Windows Fonts')]
-disk_options = [('ssd', 'SSD'), ('hdd', 'HDD')]
+SCRIPT_TEMPLATE = 'template.sh'
+DNF_OR_FLATPAK_OPTIONS = [('dnf', 'DNF'), ('flatpak', 'Flatpak')]
+DNF_OR_FLATPAK_OR_APPIMAGE_OPTIONS = [('dnf', 'DNF'), ('flatpak', 'Flatpak'), ('appimage', 'AppImage')]
+VIRTUALBOX_OPTIONS = [('without_extension', 'VirtualBox Only'), ('with_extension', 'VirtualBox & Extenstion Pack')]
+DOCKER_OPTIONS = [('install_standard', 'Docker Only'), ('install_portainer', 'Docker & Portainer'), ('install_nvidia_toolkit', 'Docker & Nvidia Toolkit'), ('install_portainer_and_nvidia_toolkit', 'Docker & Both')]
+FONT_OPTIONS = [('core', 'Core Fonts'), ('windows', 'Windows Fonts')]
+DISK_OPTIONS = [('ssd', 'SSD'), ('hdd', 'HDD')]
 
 st.set_page_config(
     page_title="F-Pass Creator",
@@ -63,7 +63,7 @@ logging.basicConfig(
 )
 
 def load_template() -> str:
-    with open(script_template, 'r') as file:
+    with open(SCRIPT_TEMPLATE, 'r') as file:
         return file.read()
 
 def add_selected_key(data: Dict[str, Any]) -> Dict[str, Any]:
@@ -312,19 +312,19 @@ def handle_special_installation_types(app_selected: bool, **kwargs):
 
     if options_app == "install_virtualbox":
         install_type_title = "VirtualBox Extension Pack"
-        install_options = virtualbox_options
+        install_options = VIRTUALBOX_OPTIONS
         help_text = "Select if you wish to download the VirtualBox Extension Pack."
     elif options_app == "install_docker_engine":
         install_type_title = "VirtualBox Extension Pack"
-        install_options = docker_options
+        install_options = DOCKER_OPTIONS
         help_text = "Select if you wish to install Portainer and/or the Nvidia container toolkit."
     elif options_app == "install_microsoft_fonts":
         install_type_title = "VirtualBox Extension Pack"
-        install_options = font_options
+        install_options = FONT_OPTIONS
         help_text = "Choose how to install Windows fonts."
     elif options_app == "extra_swap_space":
         install_type_title = "Select Disk Type:"
-        install_options = disk_options
+        install_options = DISK_OPTIONS
         help_text = "Choose the type of drive being used."
     
     if app_selected:
