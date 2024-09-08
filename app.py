@@ -315,11 +315,11 @@ def handle_special_installation_types(app_selected: bool, **kwargs):
         install_options = VIRTUALBOX_OPTIONS
         help_text = "Select if you wish to download the VirtualBox Extension Pack."
     elif options_app == "install_docker_engine":
-        install_type_title = "VirtualBox Extension Pack"
+        install_type_title = "Docker Installation Options"
         install_options = DOCKER_OPTIONS
         help_text = "Select if you wish to install Portainer and/or the Nvidia container toolkit."
     elif options_app == "install_microsoft_fonts":
-        install_type_title = "VirtualBox Extension Pack"
+        install_type_title = "Windows Font Groups"
         install_options = FONT_OPTIONS
         help_text = "Choose how to install Windows fonts."
     elif options_app == "extra_swap_space":
@@ -506,7 +506,9 @@ def main():
 
         2. **Make the Script Executable**  
         There are two methods for doing this:  
-        <span style="visibility: hidden;">....</span>A - Right-click on f-pass.sh and select 'Properties'. Navigate to the 'Permissions' tab, check 'Is executable', and click 'Ok'.  
+        <span style="visibility: hidden;">....</span>A - Right-click on f-pass.sh and select 'Properties'.  
+                    <span style="visibility: hidden;">........</span> Gnome: Enable 'Executable as Program' and click 'Ok'.  
+                    <span style="visibility: hidden;">........</span> KDE:  Navigate to the 'Permissions' tab, check 'Is executable', and click 'Ok'.  
         <span style="visibility: hidden;">....</span>B - Open a terminal, navigate to the directory containing the downloaded script, and run:
            ```
            chmod +x f-pass.sh

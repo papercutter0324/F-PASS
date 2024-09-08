@@ -20,7 +20,7 @@ generate_log() {
 
 error_handler() {
     local exit_code=$?; local message="$1"
-    [ $exit_code -eq 0 ] ||; { generate_log "ERROR: $message"; exit $exit_code; }
+    [ $exit_code -eq 0 ] || { generate_log "ERROR: $message"; exit $exit_code; }
 }
 
 request_restart() {
