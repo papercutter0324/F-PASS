@@ -31,11 +31,7 @@ request_restart() {
 # Function to backup files
 backup_file() {
     local file="$1"
-    if [ -f "$file" ]; then
-        cp "$file" "$file.bak"
-        error_handler "Failed to backup $file"
-        generate_log "Backed up $file"
-    fi
+    [ -f "$file" ] && cp "$file" "$file.bak" && { generate_log "Backed up $file"; } || error_handler "Failed to backup $file"
 }
 
 echo -e "";
@@ -47,7 +43,7 @@ echo -e "\e[34m      ║ ██╔══╝░░╚════╝██╔═�
 echo -e "\e[34m      ║ ██║░░░░░░░░░░░██║░░░░░██║░░██║██████╔╝██████╔╝ ║\e[0m";
 echo -e "\e[34m      ║ ╚═╝░░░░░░░░░░░╚═╝░░░░░╚═╝░░╚═╝╚═════╝░╚═════╝░ ║\e[0m";
 echo -e "\e[34m      ╚════════════════════════════════════════════════╝\e[0m";
-echo -e "\e[34m        Fedora Post-Installation Automated Setup Script\e[0m";
+echo "        Fedora Post-Installation Automated Setup Script";
 echo "";
 echo -e "       Do \e[1m\e[31mNOT\e[0m run this script unless build it yourself!";
 echo "It changes system settings and installs a variety of programs.";
