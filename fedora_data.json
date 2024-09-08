@@ -8,7 +8,7 @@
                     "name": "Set Hostname",
                     "default": "Fedora",
                     "command": [
-                        "log_message \"Setting hostname...\"",
+                        "generate_log \"Setting hostname...\"",
                         "hostnamectl set-hostname"
                     ],
                     "description": "Set the system hostname to uniquely identify the machine on the network",
@@ -17,7 +17,7 @@
                 "configure_dnf": {
                     "name": "Configure DNF",
                     "command": [
-                        "log_message \"Configuring DNF Package Manager...\"",
+                        "generate_log \"Configuring DNF Package Manager...\"",
                         "backup_file \"/etc/dnf/dnf.conf\"",
                         "echo \"max_parallel_downloads=10\" | tee -a /etc/dnf/dnf.conf > /dev/null",
                         "echo \"fastestmirror=True\" | tee -a /etc/dnf/dnf.conf > /dev/null"
@@ -27,7 +27,7 @@
                 "enable_dnf_autoupdate": {
                     "name": "Enable DNF Autoupdate",
                     "command": [
-                        "log_message \"Enabling DNF autoupdate...\"",
+                        "generate_log \"Enabling DNF autoupdate...\"",
                         "dnf install dnf-automatic -y",
                         "sed -i 's/apply_updates = no/apply_updates = yes/' /etc/dnf/automatic.conf",
                         "systemctl enable --now dnf-automatic.timer"
@@ -37,7 +37,7 @@
                 "gnome_power_settings": {
                     "name": "Gnome Power Settings",
                     "command": [
-                        "log_message \"Configuring power settings...\"",
+                        "generate_log \"Configuring power settings...\"",
                         "sudo -u $ACTUAL_USER gsettings set org.gnome.desktop.session idle-delay 0",
                         "sudo -u $ACTUAL_USER gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type 'nothing'",
                         "sudo -u $ACTUAL_USER gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-type 'nothing'",
@@ -50,7 +50,7 @@
                 "install_ssh": {
                     "name": "Install and Enable SSH",
                     "command": [
-                        "log_message \"Installing and enabling SSH...\"",
+                        "generate_log \"Installing and enabling SSH...\"",
                         "dnf install -y openssh-server",
                         "systemctl enable --now sshd"
                     ],
@@ -59,7 +59,7 @@
                 "firmware_updates": {
                     "name": "Update Firmware",
                     "command": [
-                        "log_message \"Checking for firmware updates...\"",
+                        "generate_log \"Checking for firmware updates...\"",
                         "fwupdmgr refresh --force",
                         "fwupdmgr get-updates",
                         "fwupdmgr update -y"
@@ -69,7 +69,7 @@
                 "enable_rpmfusion": {
                     "name": "RPM Fusion Repositories",
                     "command": [
-                        "log_message \"Enabling RPM Fusion repositories...\"",
+                        "generate_log \"Enabling RPM Fusion repositories...\"",
                         "dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm",
                         "dnf install -y https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm",
                         "dnf group update core -y"
@@ -84,7 +84,7 @@
                 "install_multimedia_codecs": {
                     "name": "Multimedia Codecs",
                     "command": [
-                        "log_message \"Installing multimedia codecs...\"",
+                        "generate_log \"Installing multimedia codecs...\"",
                         "dnf swap ffmpeg-free ffmpeg --allowerasing -y",
                         "dnf update @multimedia --setopt=\"install_weak_deps=False\" --exclude=PackageKit-gstreamer-plugin -y",
                         "dnf update @sound-and-video -y"
@@ -95,7 +95,7 @@
                 "install_intel_codecs": {
                     "name": "Intel Codecs",
                     "command": [
-                        "log_message \"Installing Intel Hardware Accelerated Codecs...\"",
+                        "generate_log \"Installing Intel Hardware Accelerated Codecs...\"",
                         "dnf -y install intel-media-driver"
                     ],
                     "description": "Install Hardware Accelerated Codecs for Intel integrated GPUs. This improves video playback and encoding performance on systems with Intel graphics.",
@@ -104,7 +104,7 @@
                 "install_nvidia_codecs": {
                     "name": "Nvidia Codecs",
                     "command": [
-                        "log_message \"Installing Nvidia Hardware Accelerated Codecs...\"",
+                        "generate_log \"Installing Nvidia Hardware Accelerated Codecs...\"",
                         "dnf -y install libva-nvidia-driver"
                     ],
                     "description": "Install wrapper that can bridge Nvidia's NVDEC/NVENC with VAAPI.",
@@ -113,7 +113,7 @@
                 "install_amd_codecs": {
                     "name": "AMD Codecs",
                     "command": [
-                        "log_message \"Installing AMD Hardware Accelerated Codecs...\"",
+                        "generate_log \"Installing AMD Hardware Accelerated Codecs...\"",
                         "dnf swap mesa-va-drivers mesa-va-drivers-freeworld -y",
                         "dnf swap mesa-vdpau-drivers mesa-vdpau-drivers-freeworld -y"
                     ],
@@ -128,7 +128,7 @@
                 "install_virtualization_tools": {
                     "name": "Virtualization Tools",
                     "command": [
-                        "log_message \"Installing virtualization tools...\"",
+                        "generate_log \"Installing virtualization tools...\"",
                         "dnf install -y @virtualization"
                     ],
                     "description": "Install virtualization tools to enable virtual machines and containerization"
