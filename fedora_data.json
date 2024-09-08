@@ -516,7 +516,7 @@
                             "command": [
                                 "wget -O /etc/yum.repos.d/virtualbox.repo https://download.virtualbox.org/virtualbox/rpm/fedora/virtualbox.repo",
                                 "yum install -y VirtualBox",
-                                "wget -O $ACTUAL_HOME/Downloads/Oracle_VM_VirtualBox_Extension_Pack-7.0.20.vbox-extpack https://download.virtualbox.org/virtualbox/7.0.20/Oracle_VM_VirtualBox_Extension_Pack-7.0.20.vbox-extpack"
+                                "sudo -u $ACTUAL_USER wget -O $ACTUAL_HOME/Downloads/Oracle_VM_VirtualBox_Extension_Pack-7.0.20.vbox-extpack https://download.virtualbox.org/virtualbox/7.0.20/Oracle_VM_VirtualBox_Extension_Pack-7.0.20.vbox-extpack"
                             ]
                         },
                         "without_extension": {
@@ -1044,8 +1044,8 @@
                         "wget https://raw.githubusercontent.com/streamdeck-linux-gui/streamdeck-linux-gui/main/udev/60-streamdeck.rules -O /etc/udev/rules.d/60-streamdeck.rules",
                         "udevadm trigger",
                         "python -m pip install streamdeck-linux-gui --user",
-                        "mkdir -p $ACTUAL_HOME/.local/share/systemd/user/",
-                        "echo -e \"[Unit]\\nDescription=A Linux compatible UI for the Elgato Stream Deck.\\n\\n[Service]\\nType=simple\\nExecStart=$ACTUAL_HOME/.local/bin/streamdeck -n\\nRestart=on-failure\\n\\n[Install]\\nWantedBy=default.target\" > \"$ACTUAL_HOME/.local/share/systemd/user/streamdeck.service\"",
+                        "sudo -u $ACTUAL_USER mkdir -p $ACTUAL_HOME/.local/share/systemd/user/",
+                        "sudo -u $ACTUAL_USER echo -e \"[Unit]\\nDescription=A Linux compatible UI for the Elgato Stream Deck.\\n\\n[Service]\\nType=simple\\nExecStart=$ACTUAL_HOME/.local/bin/streamdeck -n\\nRestart=on-failure\\n\\n[Install]\\nWantedBy=default.target\" > \"$ACTUAL_HOME/.local/share/systemd/user/streamdeck.service\"",
                         "systemctl --user daemon-reload",
                         "systemctl --user enable streamdeck",
                         "systemctl --user start streamdeck"
@@ -1056,8 +1056,8 @@
                     "name": "Xpadneo",
                     "command": [
                         "dnf install -y dkms make bluez bluez-tools kernel-devel-`uname -r` kernel-headers ",
-                        "mkdir -p $ACTUAL_HOME/Git-Repos && cd $ACTUAL_HOME/Git-Repos",
-                        "git clone https://github.com/atar-axis/xpadneo.git",
+                        "sudo -u $ACTUAL_USER mkdir -p $ACTUAL_HOME/Git-Repos && cd $ACTUAL_HOME/Git-Repos",
+                        "sudo -u $ACTUAL_USER git clone https://github.com/atar-axis/xpadneo.git",
                         "cd $ACTUAL_HOME/Git-Repos/xpadneo",
                         "./install.sh"
                     ],
@@ -1112,7 +1112,7 @@
                     "name": "Google Fonts",
                     "command": [
                         "wget -O /tmp/google-fonts.zip https://github.com/google/fonts/archive/main.zip",
-                        "mkdir -p $ACTUAL_HOME/.local/share/fonts/google",
+                        "sudo -u $ACTUAL_USER mkdir -p $ACTUAL_HOME/.local/share/fonts/google",
                         "unzip /tmp/google-fonts.zip -d $ACTUAL_HOME/.local/share/fonts/google",
                         "rm -f /tmp/google-fonts.zip",
                         "fc-cache -fv"
@@ -1122,10 +1122,10 @@
                 "install_adobe_fonts": {
                     "name": "Adobe Fonts",
                     "command": [
-                        "mkdir -p $ACTUAL_HOME/.local/share/fonts/adobe-fonts",
-                        "git clone --depth 1 https://github.com/adobe-fonts/source-sans.git $ACTUAL_HOME/.local/share/fonts/adobe-fonts/source-sans",
-                        "git clone --depth 1 https://github.com/adobe-fonts/source-serif.git $ACTUAL_HOME/.local/share/fonts/adobe-fonts/source-serif",
-                        "git clone --depth 1 https://github.com/adobe-fonts/source-code-pro.git $ACTUAL_HOME/.local/share/fonts/adobe-fonts/source-code-pro",
+                        "sudo -u $ACTUAL_USER mkdir -p $ACTUAL_HOME/.local/share/fonts/adobe-fonts",
+                        "sudo -u $ACTUAL_USER git clone --depth 1 https://github.com/adobe-fonts/source-sans.git $ACTUAL_HOME/.local/share/fonts/adobe-fonts/source-sans",
+                        "sudo -u $ACTUAL_USER git clone --depth 1 https://github.com/adobe-fonts/source-serif.git $ACTUAL_HOME/.local/share/fonts/adobe-fonts/source-serif",
+                        "sudo -u $ACTUAL_USER git clone --depth 1 https://github.com/adobe-fonts/source-code-pro.git $ACTUAL_HOME/.local/share/fonts/adobe-fonts/source-code-pro",
                         "fc-cache -f"
                     ],
                     "description": "Install Adobe fonts collection"
