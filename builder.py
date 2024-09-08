@@ -18,7 +18,7 @@ def build_system_upgrade(options: Dict[str, Any], output_mode: str) -> str:
     quiet_redirect = " > /dev/null 2>&1" if output_mode == "Quiet" else ""
     
     upgrade_commands = [
-        "log_message \"Installing dnf-plugins-core and performing system upgrade... This may take a while...\"",
+        "generate_log \"Installing dnf-plugins-core and performing system upgrade... This may take a while...\"",
         f"dnf -y install dnf-plugins-core{quiet_redirect}",
         f"dnf -y upgrade{quiet_redirect}",
         ""  # Add an empty line for readability
@@ -27,7 +27,7 @@ def build_system_upgrade(options: Dict[str, Any], output_mode: str) -> str:
     return "\n".join(upgrade_commands)
 
 def should_quiet_redirect(cmd: str) -> bool:
-    no_redirect_patterns = ["log_message", "echo", "printf", "read", "prompt_", "EOF"]
+    no_redirect_patterns = ["generate_log", "echo", "printf", "read", "prompt_", "EOF"]
     # Check if the command starts with any of the patterns or contains "EOF"
     return not any(cmd.startswith(pattern) or "EOF" in cmd for pattern in no_redirect_patterns)
 
@@ -139,9 +139,9 @@ def build_app_install(distro_data: Dict[str, Any], output_mode: str) -> str:
                     logging.warning(f"Expected dictionary for app data, got {type(app_data).__name__} for app_id {app_id}")
                     continue
 
-                install_commands.append(f"log_message \"Installing {app_data.get('name', 'unknown')}...\"")
+                install_commands.append(f"generate_log \"Installing {app_data.get('name', 'unknown')}...\"")
                 install_commands.extend(get_commands(app_data, quiet_redirect))
-                install_commands.append(f"log_message \"{app_data.get('name', 'unknown')} installed successfully.\"")
+                install_commands.append(f"generate_log \"{app_data.get('name', 'unknown')} installed successfully.\"")
             
             install_commands.append("")  # Add an empty line for readability
 
