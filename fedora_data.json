@@ -1045,7 +1045,7 @@
                         "udevadm trigger",
                         "python -m pip install streamdeck-linux-gui --user",
                         "mkdir -p $ACTUAL_HOME/.local/share/systemd/user/",
-                        "cat <<EOF > \"$ACTUAL_HOME/.local/share/systemd/user/streamdeck.service\"; echo -e \"[Unit]\\nDescription=A Linux compatible UI for the Elgato Stream Deck.\\n\\n[Service]\\nType=simple\\nExecStart=$ACTUAL_HOME/.local/bin/streamdeck -n\\nRestart=on-failure\\n\\n[Install]\\nWantedBy=default.target\" > \"$ACTUAL_HOME/.local/share/systemd/user/streamdeck.service\"",
+                        "echo -e \"[Unit]\\nDescription=A Linux compatible UI for the Elgato Stream Deck.\\n\\n[Service]\\nType=simple\\nExecStart=$ACTUAL_HOME/.local/bin/streamdeck -n\\nRestart=on-failure\\n\\n[Install]\\nWantedBy=default.target\" > \"$ACTUAL_HOME/.local/share/systemd/user/streamdeck.service\"",
                         "systemctl --user daemon-reload",
                         "systemctl --user enable streamdeck",
                         "systemctl --user start streamdeck"
