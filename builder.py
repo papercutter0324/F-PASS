@@ -1,4 +1,3 @@
-import session_config
 from typing import Dict, Any
 import logging
 
@@ -8,11 +7,6 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S'
 )
-
-# List of placeholders
-PLACEHOLDERS = {
-    "hostname": "Fedora40",
-}
 
 def build_system_upgrade(options: Dict[str, Any], output_mode: str) -> str:
     quiet_redirect = " > /dev/null 2>&1" if output_mode == "Quiet" else ""
@@ -54,12 +48,12 @@ def build_system_config(distro_data: Dict[str, Any], output_mode: str) -> str:
     
     def process_command(distro_data: Dict, output_mode: str, quiet_redirect: str, cmd: str, app_key: str) -> str:
         # Prepare command by adding hostname and quiet redirection if needed.
+        logging.warning(f"app_key: {app_key}")
         if app_key == "set_hostname" and "hostnamectl set-hostname" in cmd:
-            hostname = (
-                distro_data["system_config"]["recommended_settings"]["apps"]["set_hostname"].get("entered_name")
-                or PLACEHOLDERS.get("hostname", "localhost")
-            )
+            logging.warning(f"Replacing hostname with: {distro_data['system_config']['recommended_settings']['apps']['set_hostname']['entered_name']}")
+            hostname = distro_data['system_config']['recommended_settings']['apps']['set_hostname']['entered_name']
             cmd = f"{cmd} {hostname}"
+
         if output_mode == "Quiet" and should_quiet_redirect(cmd):
             cmd += quiet_redirect
         return cmd
@@ -104,6 +98,9 @@ def build_app_install(distro_data: Dict[str, Any], output_mode: str) -> str:
 
         # Add quiet redirect where applicable
         for cmd in command_list:
+            if "SELECTEDSWAPSIZE" in cmd:
+                cmd = cmd.replace ("SELECTEDSWAPSIZE", distro_data["advanced_settings"]["system_settings"]["apps"]["extra_swap_space"]["entered_size"])
+
             commands.append(f"{cmd}{quiet_redirect if should_quiet_redirect(cmd) else ''}")
         
         return commands

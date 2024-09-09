@@ -17,7 +17,6 @@
 #
 import streamlit as st # type: ignore
 from typing import Dict, Any
-import session_config
 import builder
 import logging
 import json
@@ -109,15 +108,12 @@ def render_sidebar() -> Dict[str, Any]:
 
     if selected_distro:
         distro_file = supported_distros[selected_distro]
-        session_config.set_distro_name(selected_distro)
     else: #Default to Fedora 40 if nothing has been selected
         distro_file = supported_distros["Fedora 40"]
-        session_config.set_distro_name("Fedora")
 
     
     distro_data = load_app_data(distro_file) # Load the distro data
     distro_data = add_selected_key(distro_data) # Ensure all app entries have a 'selected' key
-    session_config.set_distro_data(distro_data) # Store it in the session state
 
     output_mode = st.sidebar.selectbox(
         "Selected Terminal Output Mode",
@@ -248,12 +244,17 @@ def handle_hostname(app_selected: bool, **kwargs):
 
         try:
             if is_valid_hostname(entered_hostname):
+                logging.warning(f"Valid hostname entered")
                 hostname_data["entered_name"] = entered_hostname
+                logging.warning(f"Entered hostname: {entered_hostname}")
         except KeyError as e:
-            print(f"KeyError: Missing expected key {e} in distro_data.")
+            logging.warning(f"KeyError: Missing expected key {e} in distro_data.")
         else:
-            hostname_data["entered_name"] = hostname_data["default"]
-            handle_warnings_and_messages("set_hostname", distro_data)
+            if hostname_data["entered_name"] == "":
+                hostname_data["entered_name"] = hostname_data["default"]
+                handle_warnings_and_messages("set_hostname", distro_data)
+
+    logging.warning(f"New hostname is: {distro_data['system_config']['recommended_settings']['apps']['set_hostname']['entered_name']}")
 
 def is_valid_hostname(hostname: str) -> bool:
     if not hostname or len(hostname) > 253:
@@ -274,14 +275,14 @@ def handle_swapspace(app_selected: bool, **kwargs):
     options_subcategory = kwargs['options_subcategory']
     options_app = kwargs['options_app']
     distro_data = kwargs.get('distro_data', {})
-    swap_data = distro_data.get("advanced_settings", {}).get("settings", {}).get("apps", {}).get("extra_swap_space", {})
+    swap_data = distro_data.get("advanced_settings", {}).get("system_settings", {}).get("apps", {}).get("extra_swap_space", {})
 
     if app_selected:
         entered_size = st.text_input("Enter the desired swap size in GB: (Max: 32)")
 
         try:
             if entered_size.strip() and 1 <= int(entered_size) <= 32:
-                swap_data["entered_size"] = int(entered_size)
+                swap_data["entered_size"] = f"{int(entered_size)}G"
                 handle_special_installation_types(
                         "extra_swap_space",
                         subcategory_data=subcategory_data,
@@ -393,7 +394,7 @@ def build_script(distro_data: Dict[str, Any], output_mode: str) -> str:
             "custom_script": builder.build_custom_script(distro_data, output_mode),
         }
 
-    preview_script = f"(...)  # Script header\n\n# Selected distro: {session_config.get_distro_name()}\n# Output Mode: {output_mode}\n\n"
+    preview_script = f"(...)  # Script header\n\n# Selected distro: {distro_data['system_config']['recommended_settings']['apps']['set_hostname']['default']}\n# Output Mode: {output_mode}\n\n"
 
     # Rework this. Customization currently gets an App Install label
     for placeholder, content in script_parts.items():
@@ -523,7 +524,7 @@ def main():
 
     st.markdown(f"""
     ### Impotant Notes:
-    <span style="visibility: hidden;">....</span>🛠️ This script may work with other releases, but these commands were written with {session_config.get_distro_name()} in mind.  
+    <span style="visibility: hidden;">....</span>🛠️ This script may work with other releases, but these commands were written with {distro_data['system_config']['recommended_settings']['apps']['set_hostname']['default']} in mind.  
     <span style="visibility: hidden;">....</span>⚠️  Similarly, this script will install programs and make changes to your system. Use with care.
     """, unsafe_allow_html=True)
 
