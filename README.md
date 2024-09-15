@@ -51,7 +51,7 @@ A web application, powered by Streamlit for generating a customized shell script
 1. Clone this repository:
    ```
    git clone https://github.com/papercutter0324/F-PASS.git
-   cd ./F-Pass
+   cd ./F-PASS
    ```
 
 2. Install the required Python packages:
