@@ -151,11 +151,6 @@
                     "name": "Curl",
                     "command": "dnf install -y curl",
                     "description": "Command-line tool for transferring data using various protocols with extensive options"
-                },
-                "install_git": {
-                    "name": "Git",
-                    "command": "dnf install -y git",
-                    "description": "Distributed version control system for tracking changes in source code and collaboration"
                 }
             }
         },
