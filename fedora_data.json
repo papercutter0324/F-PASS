@@ -550,7 +550,7 @@
                                 "systemctl enable docker.service",
                                 "systemctl enable containerd.service",
                                 "if ! docker ps --format '{{.Names}}' | grep -q '^portainer$'; then \n    if ! docker volume ls --format '{{.Name}}' | grep -q '^portainer_data$'; then \n        docker volume create portainer_data \n    fi \n    docker run -d -p 8000:8000 -p 9443:9443 --privileged --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest \nfi",
-                                "xdg-open http://localhost:9443/"
+                                "sudo -u $ACTUAL_USER XAUTHORITY=$XAUTHORITY xdg-open https://localhost:9443/"
                             ]
                         },
                         "install_nvidia_toolkit": {
@@ -580,7 +580,7 @@
                                 "nvidia-ctk runtime configure --runtime=docker",
                                 "sudo systemctl restart docker",
                                 "if ! docker ps --format '{{.Names}}' | grep -q '^portainer$'; then \n    if ! docker volume ls --format '{{.Name}}' | grep -q '^portainer_data$'; then \n        docker volume create portainer_data \n    fi \n    docker run -d -p 8000:8000 -p 9443:9443 --privileged --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest \nfi",
-                                "xdg-open http://localhost:9443/"
+                                "sudo -u $ACTUAL_USER XAUTHORITY=$XAUTHORITY xdg-open https://localhost:9443/"
                             ]
                         }
                     }
