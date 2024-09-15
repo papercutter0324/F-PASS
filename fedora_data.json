@@ -1096,23 +1096,12 @@
                                 "dnf install -y wget cabextract xorg-x11-font-utils fontconfig",
                                 "wget -O /tmp/winfonts.zip https://mktr.sbs/fonts",
                                 "mkdir -p $ACTUAL_HOME/.local/share/fonts/windows",
-                                "unzip /tmp/winfonts.zip -d $ACTUAL_HOME/.local/share/fonts/windows",
+                                "unzip -n /tmp/winfonts.zip -d $ACTUAL_HOME/.local/share/fonts/windows",
                                 "rm -f /tmp/winfonts.zip",
                                 "fc-cache -fv"
                             ]
                         }
                     }
-                },
-                "install_google_fonts": {
-                    "name": "Google Fonts",
-                    "command": [
-                        "wget -O /tmp/google-fonts.zip https://github.com/google/fonts/archive/main.zip",
-                        "sudo -u $ACTUAL_USER mkdir -p $ACTUAL_HOME/.local/share/fonts/google",
-                        "unzip /tmp/google-fonts.zip -d $ACTUAL_HOME/.local/share/fonts/google",
-                        "rm -f /tmp/google-fonts.zip",
-                        "fc-cache -fv"
-                    ],
-                    "description": "Install Google fonts collection"
                 },
                 "install_adobe_fonts": {
                     "name": "Adobe Fonts",
