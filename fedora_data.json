@@ -549,8 +549,7 @@
                                 "systemctl start docker",
                                 "systemctl enable docker.service",
                                 "systemctl enable containerd.service",
-                                "docker volume create portainer_data",
-                                "docker run -d -p 8000:8000 -p 9443:9443 --privileged --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest",
+                                "if ! docker ps --format '{{.Names}}' | grep -q '^portainer$'; then \n    if ! docker volume ls --format '{{.Name}}' | grep -q '^portainer_data$'; then \n        docker volume create portainer_data \n    fi \n    docker run -d -p 8000:8000 -p 9443:9443 --privileged --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest \nfi",
                                 "xdg-open http://localhost:9443/"
                             ]
                         },
@@ -580,8 +579,7 @@
                                 "yum install -y nvidia-container-toolkit",
                                 "nvidia-ctk runtime configure --runtime=docker",
                                 "sudo systemctl restart docker",
-                                "docker volume create portainer_data",
-                                "docker run -d -p 8000:8000 -p 9443:9443 --privileged --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest",
+                                "if ! docker ps --format '{{.Names}}' | grep -q '^portainer$'; then \n    if ! docker volume ls --format '{{.Name}}' | grep -q '^portainer_data$'; then \n        docker volume create portainer_data \n    fi \n    docker run -d -p 8000:8000 -p 9443:9443 --privileged --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest \nfi",
                                 "xdg-open http://localhost:9443/"
                             ]
                         }
