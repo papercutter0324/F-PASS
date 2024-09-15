@@ -117,7 +117,7 @@ def render_sidebar() -> Dict[str, Any]:
 
     output_mode = st.sidebar.selectbox(
         "Selected Terminal Output Mode",
-        ["VErbose", "Quiet"],
+        ["Verbose", "Quiet"],
         help="Determines how much information the terminal will display as the script runs."
     )
 
