@@ -12,8 +12,13 @@ def build_system_upgrade(options: Dict[str, Any], output_mode: str) -> str:
     quiet_redirect = " > /dev/null 2>&1" if output_mode == "Quiet" else ""
     
     upgrade_commands = [
-        "generate_log \"Installing dnf-plugins-core and performing system upgrade... This may take a while...\"",
+        ('generate_log "Performing initial setup steps:\n'
+         '   1. Installing dnf-plugins-core\n'
+         '   2. Enabling Flathub repo\n'
+         '   3. Performing system upgrade\n\n'
+         'Please be patient. This may take a while."'),
         f"dnf -y install dnf-plugins-core{quiet_redirect}",
+        f"flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo{quiet_redirect}",
         f"dnf -y upgrade{quiet_redirect}",
         ""  # Add an empty line for readability
     ]
