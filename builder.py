@@ -22,8 +22,8 @@ def should_quiet_redirect(cmd: str) -> bool:
     return not any(cmd.startswith(pattern) or "EOF" in cmd for pattern in no_redirect_patterns)
 
 def check_dependencies(distro_data: Dict[str, Any]) -> Dict[str, Any]:
-    additional_codecs = distro_data["system_config"]["additional_codecs"]["apps"]
-    if any(app.get("selected", False) for app in additional_codecs.values()):
+    multimedia_codecs = distro_data["system_config"]["multimedia_codecs"]["apps"]
+    if any(app.get("selected", False) for app in multimedia_codecs.values()):
         distro_data["system_config"]["recommended_settings"]["apps"]["enable_rpmfusion"]["selected"] = True
     
     return distro_data

@@ -80,21 +80,45 @@
                         "fwupdmgr update -y"
                     ],
                     "description": "Check and apply firmware updates to improve hardware compatibility and performance"
-                },
+                }
+            }
+        },
+        "useful_repos": {
+            "name": "Useful Repositories",
+            "apps": {
                 "enable_rpmfusion": {
                     "name": "RPM Fusion Repositories",
                     "command": [
                         "generate_log \"Enabling RPM Fusion repositories...\"",
                         "dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm",
                         "dnf install -y https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm",
+                        "dnf config-manager --enable fedora-cisco-openh264",
                         "dnf group update core -y"
                     ],
                     "description": "Enable RPM Fusion repositories to access additional software packages and codecs"
+                },
+                "enable_chrome": {
+                    "name": "RPM Fusion Repositories",
+                    "command": [
+                        "generate_log \"Enabling Google Chrome repository...\"",
+                        "wget https://dl.google.com/linux/linux_signing_key.pub",
+                        "rpm --import linux_signing_key.pub",
+                        "dnf config-manager --enable google-chrome"
+                    ],
+                    "description": "Enable repo to support installing Google Chrome via dnf"
+                },
+                "enable_steam": {
+                    "name": "Steam Repository",
+                    "command": "dnf config-manager --enable rpmfusion-nonfree-steam"
+                },
+                "enable_nvidia_driver": {
+                    "name": "Nvidia Graphics Driver",
+                    "command": "dnf config-manager --enable rpmfusion-nonfree-nvidia-driver"
                 }
             }
         },
-        "additional_codecs": {
-            "name": "Additional Codecs",
+        "multimedia_codecs": {
+            "name": "Multimedia Codecs",
             "apps": {
                 "install_multimedia_codecs": {
                     "name": "Multimedia Codecs",
@@ -137,22 +161,6 @@
                 }
             }
         },
-        "virtualization_tools": {
-            "name": "Virtualization Tools",
-            "apps": {
-                "install_virtualization_tools": {
-                    "name": "Virtualization Tools",
-                    "command": [
-                        "generate_log \"Installing virtualization tools...\"",
-                        "dnf install -y @virtualization"
-                    ],
-                    "description": "Install virtualization tools to enable virtual machines and containerization"
-                }
-            }
-        }
-    },
-    "recommended_apps": {
-        "name": "Recommend Applications",
         "essential_apps": {
             "name": "Essential Programs",
             "description": "Essential apps useful for almost every Linux user",
@@ -166,13 +174,35 @@
                     "name": "Curl",
                     "command": "dnf install -y curl",
                     "description": "Command-line tool for transferring data using various protocols with extensive options"
+                },
+                "install_git": {
+                    "name": "Git",
+                    "command": "dnf install -y git",
+                    "description": "Distributed version control system for tracking changes in source code and collaboration"
+                },
+                "install_unzip": {
+                    "name": "Unzip",
+                    "command": "dnf install -y unzip",
+                    "description": "Extraction utility for ZIP archives with support for various compression methods"
+                },
+                "install_unrar": {
+                    "name": "Unrar",
+                    "command": "dnf install -y unrar",
+                    "description": "Extraction utility for RAR archives, including support for password-protected files"
                 }
             }
         },
-        "useful_apps": {
-            "name": "Useful Programs",
-            "description": "A selection of popular, useful apps",
+        "recommended_tools": {
+            "name": "Recommended Tools",
             "apps": {
+                "install_virtualization_tools": {
+                    "name": "Virtualization Tools",
+                    "command": [
+                        "generate_log \"Installing virtualization tools...\"",
+                        "dnf install -y @virtualization"
+                    ],
+                    "description": "Install virtualization tools to enable virtual machines and containerization"
+                },
                 "install_fastfetch": {
                     "name": "Fastfetch",
                     "command": "dnf install -y fastfetch",
@@ -183,34 +213,16 @@
                     "command": "dnf install -y gnome-tweaks",
                     "description": "Advanced configuration tool for customizing GNOME desktop environment settings"
                 },
-                "install_git": {
-                    "name": "Git",
-                    "command": "dnf install -y git",
-                    "description": "Distributed version control system for tracking changes in source code and collaboration"
-                }
-            }
-        },
-        "archival_apps": {
-            "name": "Archive Tools",
-            "description": "Tools to creating and handling popular file archive formats",
-            "apps": {
-                "install_unzip": {
-                    "name": "Unzip",
-                    "command": "dnf install -y unzip",
-                    "description": "Extraction utility for ZIP archives with support for various compression methods"
-                },
-                "install_unrar": {
-                    "name": "Unrar",
-                    "command": "dnf install -y unrar",
-                    "description": "Extraction utility for RAR archives, including support for password-protected files"
-                },
                 "install_peazip": {
                     "name": "PeaZip",
                     "command": "flatpak install -y flathub io.github.peazip.PeaZip",
                     "description": "A free file archiver utility, based on Open Source technologies of 7-Zip, p7zip, Brotli, FreeArc, PAQ, Zstandard, and PEA projects"
                 }
             }
-        },
+        }
+    },
+    "recommended_apps": {
+        "name": "Recommend Applications",
         "terminal_apps": {
             "name": "Terminal-Based Resource Monitors",
             "description": "Powerful system-management apps run in the terminal",
@@ -271,8 +283,18 @@
                 },
                 "install_chrome": {
                     "name": "Google Chrome",
-                    "command": "flatpak install -y flathub com.google.Chrome",
-                    "description": "The web browser from Google."
+                    "description": "The web browser from Google.",
+                    "installation_types": {
+                        "DNF": {
+                            "command": [
+                                "dnf config-manager --enable google-chrome",
+                                "dnf install google-chrome-stable"
+                            ]
+                        },
+                        "Flatpak":{
+                            "command": "flatpak install -y flathub com.google.Chrome"
+                        }
+                    }
                 },
                 "install_chromium": {
                     "name": "Chromium",

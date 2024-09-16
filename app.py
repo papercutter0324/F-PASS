@@ -514,8 +514,8 @@ def main():
 
     st.markdown(f"""
     ### Impotant Notes:
-    <span style="visibility: hidden;">....</span>🛠️ This script may work with other releases, but these commands were written with {distro_data['system_config']['recommended_settings']['apps']['set_hostname']['default']} in mind.  
-    <span style="visibility: hidden;">....</span>⚠️ Similarly, this script will install programs and make changes to your system. Use with care.
+    <span style="visibility: hidden;">....</span>⚠️ This script will install programs and make changes to your system. Use with care.  
+    <span style="visibility: hidden;">....</span>🛠️ This script may work with other distributions, but these commands were written with {distro_data['system_config']['recommended_settings']['apps']['set_hostname']['default']} in mind.  
     """, unsafe_allow_html=True)
 
 if __name__ == "__main__":
