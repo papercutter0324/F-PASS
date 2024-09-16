@@ -271,7 +271,7 @@ def handle_rpmfusion(app_selected: bool, **kwargs):
     distro_data = kwargs['distro_data']
 
     if app_selected:
-        distro_data["system_config"]["recommended_settings"]["apps"]["enable_rpmfusion"]["selected"] = app_selected
+        distro_data["system_config"]["useful_repos"]["apps"]["enable_rpmfusion"]["selected"] = app_selected
 
 def handle_special_installation_types(app_selected: bool, **kwargs):
     subcategory_data = kwargs['subcategory_data']
@@ -345,14 +345,16 @@ def handle_warnings_and_messages(options_app: str, distro_data: Dict[str, Any]):
             "- Total max of 253 characters"
         )
     elif options_app in ["install_multimedia_codecs", "install_intel_codecs", "install_nvidia_codecs", "install_amd_codecs"]:
-        if distro_data["system_config"]["recommended_settings"]["apps"]["enable_rpmfusion"]["selected"] == False:
+        if options_app == "install_nvidia_codecs":
+            st.warning("⚠️ This requires the Nvidia proprietary to function properly. It is recommended to first update to the latest kernel version and install the Nvidia driver first.")
+        if distro_data["system_config"]["useful_repos"]["apps"]["enable_rpmfusion"]["selected"] == False:
             st.markdown("""
                 ```
                 RPM Fusion has been enabled  
                 due to codec dependencies.
                 ```
             """)
-            distro_data["system_config"]["recommended_settings"]["apps"]["enable_rpmfusion"]["selected"] = True
+            distro_data["system_config"]["useful_repos"]["apps"]["enable_rpmfusion"]["selected"] = True
     elif options_app == "install_virtualbox":
         if distro_data['virtualization_apps']['virtualization_apps']['apps']['install_virtualbox']['installation_type'] == "with_extension":
             st.warning("⚠️ The extension pack will be saved in your downloads folder. You will still need to manually install it as normal.")

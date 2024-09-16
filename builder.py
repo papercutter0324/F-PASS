@@ -24,8 +24,10 @@ def should_quiet_redirect(cmd: str) -> bool:
 def check_dependencies(distro_data: Dict[str, Any]) -> Dict[str, Any]:
     multimedia_codecs = distro_data["system_config"]["multimedia_codecs"]["apps"]
     if any(app.get("selected", False) for app in multimedia_codecs.values()):
-        distro_data["system_config"]["recommended_settings"]["apps"]["enable_rpmfusion"]["selected"] = True
+        distro_data["system_config"]["useful_repos"]["apps"]["enable_rpmfusion"]["selected"] = True
     
+    if multimedia_codecs["install_nvidia_codecs"]["selected"]:
+        distro_data["system_config"]["useful_repos"]["apps"]["enable_nvidia_driver"]["selected"] = True
     return distro_data
 
 def build_system_config(distro_data: Dict[str, Any], output_mode: str) -> str:
@@ -51,6 +53,9 @@ def build_system_config(distro_data: Dict[str, Any], output_mode: str) -> str:
                     config_commands.append(f"# {app_data.get("description", "")}")
                     for cmd in get_commands(app_data):
                         config_commands.append(process_command(distro_data, output_mode, cmd, app_key))
+                    config_commands.append("")  # Empty line for readability
+                    config_commands.append("# Refreshing all repositories before beginning app installation.")
+                    config_commands.append("dnf -y upgrade")
                     config_commands.append("")  # Empty line for readability
 
     return "\n".join(config_commands)

@@ -98,22 +98,45 @@
                     "description": "Enable RPM Fusion repositories to access additional software packages and codecs"
                 },
                 "enable_chrome": {
-                    "name": "RPM Fusion Repositories",
-                    "command": [
-                        "generate_log \"Enabling Google Chrome repository...\"",
-                        "wget https://dl.google.com/linux/linux_signing_key.pub",
-                        "rpm --import linux_signing_key.pub",
-                        "dnf config-manager --enable google-chrome"
-                    ],
-                    "description": "Enable repo to support installing Google Chrome via dnf"
+                    "name": "Google Chrome Repository",
+                    "description": "Enable repo to support installing Google Chrome via dnf",
+                    "installation_types": {
+                        "Repository Only": {
+                            "command": [
+                                "generate_log \"Enabling Google Chrome repository...\"",
+                                "wget https://dl.google.com/linux/linux_signing_key.pub",
+                                "rpm --import linux_signing_key.pub",
+                                "dnf config-manager --enable google-chrome"
+                            ]
+                        },
+                        "Repository & Chrome": {
+                            "command": [
+                                "generate_log \"Enabling Google Chrome repository...\"",
+                                "dnf config-manager --enable google-chrome",
+                                "dnf install -y google-chrome-stable"
+                            ]
+                        }
+                    }
                 },
                 "enable_steam": {
                     "name": "Steam Repository",
-                    "command": "dnf config-manager --enable rpmfusion-nonfree-steam"
+                    "description": "Enable the repository to install Steam via dnf",
+                    "installation_types": {
+                        "Repository Only": {
+                            "command": "dnf config-manager --enable rpmfusion-nonfree-steam"
+                        },
+                        "Repository & Steam": {
+                            "command": [
+                                "dnf config-manager --enable rpmfusion-nonfree-steam",
+                                "dnf install -y steam"
+                            ]
+                        }
+                    }
                 },
                 "enable_nvidia_driver": {
                     "name": "Nvidia Driver Repository",
-                    "command": "dnf config-manager --enable rpmfusion-nonfree-nvidia-driver"
+                    "command": "dnf config-manager --enable rpmfusion-nonfree-nvidia-driver",
+                    "description": "Enable non-free repository to allow installation of the proprietary Nvidia driver"
                 }
             }
         },
@@ -288,7 +311,7 @@
                         "DNF": {
                             "command": [
                                 "dnf config-manager --enable google-chrome",
-                                "dnf install google-chrome-stable"
+                                "dnf install -y google-chrome-stable"
                             ]
                         },
                         "Flatpak":{
