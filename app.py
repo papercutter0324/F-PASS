@@ -121,6 +121,9 @@ def render_sidebar() -> Dict[str, Any]:
         help="Determines how much information the terminal will display as the script runs."
     )
 
+    if output_mode =="Quiet":
+        st.warning("⚠️ Quiet mode is recommended for advanced users only. Most errors and prompts will not be displayed, which could lead to system instability.")
+
     # Generate the sidebar sections for the selected distro
     for options_category, disto_category_keys in distro_data.items():
         if distro_data.items() != "name":
@@ -236,6 +239,19 @@ def render_app_section(distro_data: Dict[str, Any], options_category: str) -> Di
     return distro_data
 
 def handle_hostname(app_selected: bool, **kwargs):
+    def is_valid_hostname(hostname: str) -> bool:
+        if not hostname or len(hostname) > 253:
+            return False
+
+        regex = re.compile(
+            r'^(?!-)[A-Za-z0-9-]{1,63}(?<!-)$'
+            r'(\.[A-Za-z0-9-]{1,63})*$'
+        )
+
+        # Split hostname by dots and validate each label
+        labels = hostname.split('.')
+        return all(regex.match(label) for label in labels)
+    
     distro_data = kwargs.get('distro_data', {})
     hostname_data = distro_data.get("system_config", {}).get("recommended_settings", {}).get("apps", {}).get("set_hostname", {})
     
@@ -255,50 +271,7 @@ def handle_hostname(app_selected: bool, **kwargs):
                 handle_warnings_and_messages("set_hostname", distro_data)
 
     logging.warning(f"New hostname is: {distro_data['system_config']['recommended_settings']['apps']['set_hostname']['entered_name']}")
-
-def is_valid_hostname(hostname: str) -> bool:
-    if not hostname or len(hostname) > 253:
-        return False
-
-    regex = re.compile(
-        r'^(?!-)[A-Za-z0-9-]{1,63}(?<!-)$'
-        r'(\.[A-Za-z0-9-]{1,63})*$'
-    )
-
-    # Split hostname by dots and validate each label
-    labels = hostname.split('.')
-    return all(regex.match(label) for label in labels)
-
-def handle_swapspace(app_selected: bool, **kwargs):
-    subcategory_data = kwargs['subcategory_data']
-    options_category = kwargs['options_category']
-    options_subcategory = kwargs['options_subcategory']
-    options_app = kwargs['options_app']
-    distro_data = kwargs.get('distro_data', {})
-    swap_data = distro_data.get("advanced_settings", {}).get("system_settings", {}).get("apps", {}).get("extra_swap_space", {})
-
-    if app_selected:
-        entered_size = st.text_input("Enter the desired swap size in GB: (Max: 32)")
-
-        try:
-            if entered_size.strip() and 1 <= int(entered_size) <= 32:
-                swap_data["entered_size"] = f"{int(entered_size)}G"
-                handle_special_installation_types(
-                        "extra_swap_space",
-                        subcategory_data=subcategory_data,
-                        options_category=options_category,
-                        options_subcategory=options_subcategory,
-                        options_app=options_app,
-                        distro_data=distro_data
-                    )
-            else:
-                # Handle the case where input is invalid but not an exception
-                swap_data["entered_size"] = swap_data["default"]
-                handle_warnings_and_messages("extra_swap_space", distro_data)
-        except ValueError:
-            swap_data["entered_size"] = swap_data["default"]
-            handle_warnings_and_messages("extra_swap_space", distro_data)
-        
+     
 def handle_rpmfusion(app_selected: bool, **kwargs):
     distro_data = kwargs['distro_data']
 
@@ -332,6 +305,36 @@ def handle_special_installation_types(app_selected: bool, **kwargs):
         app_key = f"{options_category}_{options_subcategory}_apps_{options_app}_install_type"
         installation_type = render_installation_type_selector(install_type_title, install_options, app_key, help_text)
         subcategory_data['apps'][options_app]['installation_type'] = installation_type
+
+def handle_swapspace(app_selected: bool, **kwargs):
+    subcategory_data = kwargs['subcategory_data']
+    options_category = kwargs['options_category']
+    options_subcategory = kwargs['options_subcategory']
+    options_app = kwargs['options_app']
+    distro_data = kwargs.get('distro_data', {})
+    swap_data = distro_data.get("advanced_settings", {}).get("system_settings", {}).get("apps", {}).get("extra_swap_space", {})
+
+    if app_selected:
+        entered_size = st.text_input("Enter the desired swap size in GB: (Max: 32)")
+
+        try:
+            if entered_size.strip() and 1 <= int(entered_size) <= 32:
+                swap_data["entered_size"] = f"{int(entered_size)}G"
+                handle_special_installation_types(
+                        "extra_swap_space",
+                        subcategory_data=subcategory_data,
+                        options_category=options_category,
+                        options_subcategory=options_subcategory,
+                        options_app=options_app,
+                        distro_data=distro_data
+                    )
+            else:
+                # Handle the case where input is invalid but not an exception
+                swap_data["entered_size"] = swap_data["default"]
+                handle_warnings_and_messages("extra_swap_space", distro_data)
+        except ValueError:
+            swap_data["entered_size"] = swap_data["default"]
+            handle_warnings_and_messages("extra_swap_space", distro_data)
 
 def render_installation_type_selector(install_type_title: str, install_options: list, app_key:str, help_text: str) -> str:
     return st.radio(
@@ -525,7 +528,7 @@ def main():
     st.markdown(f"""
     ### Impotant Notes:
     <span style="visibility: hidden;">....</span>🛠️ This script may work with other releases, but these commands were written with {distro_data['system_config']['recommended_settings']['apps']['set_hostname']['default']} in mind.  
-    <span style="visibility: hidden;">....</span>⚠️  Similarly, this script will install programs and make changes to your system. Use with care.
+    <span style="visibility: hidden;">....</span>⚠️ Similarly, this script will install programs and make changes to your system. Use with care.
     """, unsafe_allow_html=True)
 
 if __name__ == "__main__":
