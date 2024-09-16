@@ -118,9 +118,12 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 - ✅ Advanced Section for custom shell commands
 - ✅ Support for other distros (Some work and additional json files needed)
 - ✅ Automatically generated menus based on the chosen distro
+- ✅ Adding more swap space (BTRFS, EXT4 only)
+  - ✅ Check if swapfiles already exist before adding
+  - ✅ Prompt to add additional swapfile or cancel
+- ✅ Expand the Docker and VirtualBox options
 - Improved dependency checks (for those not handled automatically by dnf)
 - Better organization and categorization of apps
-- Expand the Docker and virtualization options
 - More applications and configuration options
 
 Future plans for this project include:
@@ -128,7 +131,6 @@ Future plans for this project include:
 - Customization, theme, and icon options for Gnome and KDE
 - Common file templates (Useful when right-clicking and creating a new file)
 - Recommended and predefined configuration profile support
-- Adding more swap space
 - Post-reboot script support
 
 ## FAQ
