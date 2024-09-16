@@ -110,16 +110,6 @@ def render_sidebar() -> Dict[str, Any]:
         distro_file = supported_distros[selected_distro]
     else: #Default to Fedora 40 if nothing has been selected
         distro_file = supported_distros["Fedora 40"]
-
-    # Selectedbox for the user to choose which DE they use
-    supported_desktop_environments = ["Gnome", "KDE"]
-    selected_desktop_environment = st.sidebar.selectbox(
-        "Select You Desktop Environment",
-        supported_desktop_environments,
-        help="Select your desktop environment to help set specific settings."
-    )
-    # Store this in the dictionary. Query this value when determining the DE-specific commands
-    # such as for power settings, icons, and them
     
     distro_data = load_app_data(distro_file) # Load the distro data
     distro_data = add_selected_key(distro_data) # Ensure all app entries have a 'selected' key
