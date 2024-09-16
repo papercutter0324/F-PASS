@@ -260,17 +260,13 @@ def handle_hostname(app_selected: bool, **kwargs):
 
         try:
             if is_valid_hostname(entered_hostname):
-                logging.warning(f"Valid hostname entered")
                 hostname_data["entered_name"] = entered_hostname
-                logging.warning(f"Entered hostname: {entered_hostname}")
         except KeyError as e:
             logging.warning(f"KeyError: Missing expected key {e} in distro_data.")
         else:
             if hostname_data["entered_name"] == "":
                 hostname_data["entered_name"] = hostname_data["default"]
                 handle_warnings_and_messages("set_hostname", distro_data)
-
-    logging.warning(f"New hostname is: {distro_data['system_config']['recommended_settings']['apps']['set_hostname']['entered_name']}")
      
 def handle_rpmfusion(app_selected: bool, **kwargs):
     distro_data = kwargs['distro_data']
@@ -284,22 +280,14 @@ def handle_special_installation_types(app_selected: bool, **kwargs):
     options_subcategory = kwargs['options_subcategory']
     options_app = kwargs['options_app']
 
-    if options_app == "install_virtualbox":
-        install_type_title = "VirtualBox Extension Pack"
-        install_options = VIRTUALBOX_OPTIONS
-        help_text = "Select if you wish to download the VirtualBox Extension Pack."
-    elif options_app == "install_docker_engine":
-        install_type_title = "Docker Installation Options"
-        install_options = DOCKER_OPTIONS
-        help_text = "Select if you wish to install Portainer and/or the Nvidia container toolkit."
-    elif options_app == "install_microsoft_fonts":
-        install_type_title = "Windows Font Groups"
-        install_options = FONT_OPTIONS
-        help_text = "Choose how to install Windows fonts."
-    elif options_app == "extra_swap_space":
-        install_type_title = "Select Disk Type:"
-        install_options = DISK_OPTIONS
-        help_text = "Choose the type of drive being used."
+    INSTALL_OPTIONS = {
+        "install_virtualbox": ("VirtualBox Extension Pack", VIRTUALBOX_OPTIONS, "Select if you wish to download the VirtualBox Extension Pack."),
+        "install_docker_engine": ("Docker Installation Options", DOCKER_OPTIONS, "Select if you wish to install Portainer and/or the Nvidia container toolkit."),
+        "install_microsoft_fonts": ("Windows Font Groups", FONT_OPTIONS, "Choose how to install Windows fonts."),
+        "extra_swap_space": ("Select Disk Type:", DISK_OPTIONS, "Choose the type of drive being used.")
+    }
+
+    install_type_title, install_options, help_text = INSTALL_OPTIONS.get(options_app, (None, None, None))
     
     if app_selected:
         app_key = f"{options_category}_{options_subcategory}_apps_{options_app}_install_type"
