@@ -119,7 +119,7 @@ def render_sidebar() -> Dict[str, Any]:
         help="Select your desktop environment to help set specific settings."
     )
     # Store this in the dictionary. Query this value when determining the DE-specific commands
-    # such as for power settings, icons, and themes
+    # such as for power settings, icons, and them
     
     distro_data = load_app_data(distro_file) # Load the distro data
     distro_data = add_selected_key(distro_data) # Ensure all app entries have a 'selected' key
@@ -134,8 +134,8 @@ def render_sidebar() -> Dict[str, Any]:
         st.warning("⚠️ Quiet mode is recommended for advanced users only. Most errors and prompts will not be displayed, which could lead to system instability.")
 
     # Generate the sidebar sections for the selected distro
-    for options_category, disto_category_keys in distro_data.items():
-        if distro_data.items() != "name":
+    for options_category in distro_data:
+        if options_category != "name":
             render_app_section(distro_data, options_category)
 
     with st.sidebar.expander("Advanced - Custom Script"): # Section for adding a custom script
