@@ -7,12 +7,11 @@ def build_system_upgrade(options: Dict[str, Any], output_mode: str) -> str:
         ('generate_log "Performing initial setup steps:\n'
          '   1. Installing dnf-plugins-core\n'
          '   2. Enabling Flathub repo\n'
-         '   3. Performing system upgrade\n\n'
-         'Please be patient. This may take a while."'),
+         '   3. Performing system upgrade\n'
+         'Please be patient. This may take a while."\n'),
         f"dnf -y install dnf-plugins-core{quiet_redirect}",
         f"flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo{quiet_redirect}",
         f"dnf -y upgrade{quiet_redirect}",
-        ""  # Empty line for readability
     ]
     
     return "\n".join(upgrade_commands)
@@ -52,7 +51,7 @@ def build_system_config(distro_data: Dict[str, Any], output_mode: str) -> str:
                     config_commands.append(f"# {app_data.get("description", "")}")
                     for cmd in get_commands(app_data):
                         config_commands.append(process_command(distro_data, output_mode, cmd, app_key))
-                    config_commands.append("")  # Add an empty line for readability
+                    config_commands.append("")  # Empty line for readability
 
     return "\n".join(config_commands)
 

@@ -47,6 +47,32 @@
                     ],
                     "description": "Configure power settings to prevent system sleep and hibernation"
                 },
+                "power_settings_testing": {
+                    "name": "Power Settings (Testing)",
+                    "distro": {
+                        "Gnome": {
+                            "command": [
+                                "generate_log \"Configuring power settings...\"",
+                                "sudo -u $ACTUAL_USER gsettings set org.gnome.desktop.session idle-delay 0",
+                                "sudo -u $ACTUAL_USER gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type 'nothing'",
+                                "sudo -u $ACTUAL_USER gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-type 'nothing'",
+                                "sudo -u $ACTUAL_USER gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-timeout 0",
+                                "sudo -u $ACTUAL_USER gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-timeout 0",
+                                "sudo -u $ACTUAL_USER gsettings set org.gnome.settings-daemon.plugins.power power-button-action 'suspend'"
+                            ]
+                        },
+                        "KDE": {
+                            "command": [
+                                "sudo -u $ACTUAL_USER qdbus org.freedesktop.ScreenSaver /ScreenSaver SetActive false",
+                                "sudo -u $ACTUAL_USER qdbus org.kde.Solid.PowerManagement /org/kde/Solid/PowerManagement/Actions/SleepOnAC setEnabled false",
+                                "sudo -u $ACTUAL_USER qdbus org.kde.Solid.PowerManagement /org/kde/Solid/PowerManagement/Actions/SleepOnBattery setEnabled false",
+                                "sudo -u $ACTUAL_USER qdbus org.kde.Solid.PowerManagement /org/kde/Solid/PowerManagement/Profiles setInactiveTimeout 0",
+                                "sudo -u $ACTUAL_USER qdbus org.kde.Solid.PowerManagement /org/kde/Solid/PowerManagement/Profiles setBatteryTimeout 0",
+                                "sudo -u $ACTUAL_USER kwriteconfig5 --file /etc/kde5rc --group \"Action Buttons\" --key \"PowerButton\" suspend"
+                            ]
+                        }
+                    }
+                },
                 "install_ssh": {
                     "name": "Install and Enable SSH",
                     "command": [
