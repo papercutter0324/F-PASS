@@ -34,22 +34,10 @@
                     ],
                     "description": "Enable and configure automatic system updates to enhance security and stability"
                 },
-                "gnome_power_settings": {
-                    "name": "Gnome Power Settings",
-                    "command": [
-                        "generate_log \"Configuring power settings...\"",
-                        "sudo -u $ACTUAL_USER gsettings set org.gnome.desktop.session idle-delay 0",
-                        "sudo -u $ACTUAL_USER gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type 'nothing'",
-                        "sudo -u $ACTUAL_USER gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-type 'nothing'",
-                        "sudo -u $ACTUAL_USER gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-timeout 0",
-                        "sudo -u $ACTUAL_USER gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-timeout 0",
-                        "sudo -u $ACTUAL_USER gsettings set org.gnome.settings-daemon.plugins.power power-button-action 'suspend'"
-                    ],
-                    "description": "Configure power settings to prevent system sleep and hibernation"
-                },
-                "power_settings_testing": {
-                    "name": "Power Settings (Testing)",
-                    "distro": {
+                "power_settings": {
+                    "name": "Power Settings",
+                    "description": "Configure power settings to prevent system sleep and hibernation",
+                    "installation_types": {
                         "Gnome": {
                             "command": [
                                 "generate_log \"Configuring power settings...\"",
@@ -63,6 +51,7 @@
                         },
                         "KDE": {
                             "command": [
+                                "generate_log \"Configuring power settings...\"",
                                 "sudo -u $ACTUAL_USER qdbus org.freedesktop.ScreenSaver /ScreenSaver SetActive false",
                                 "sudo -u $ACTUAL_USER qdbus org.kde.Solid.PowerManagement /org/kde/Solid/PowerManagement/Actions/SleepOnAC setEnabled false",
                                 "sudo -u $ACTUAL_USER qdbus org.kde.Solid.PowerManagement /org/kde/Solid/PowerManagement/Actions/SleepOnBattery setEnabled false",
