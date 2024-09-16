@@ -112,7 +112,7 @@
                     "command": "dnf config-manager --enable rpmfusion-nonfree-steam"
                 },
                 "enable_nvidia_driver": {
-                    "name": "Nvidia Graphics Driver",
+                    "name": "Nvidia Driver Repository",
                     "command": "dnf config-manager --enable rpmfusion-nonfree-nvidia-driver"
                 }
             }
