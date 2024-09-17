@@ -7,6 +7,7 @@
                 "set_hostname": {
                     "name": "Set Hostname",
                     "default": "Fedora",
+                    "warning": "Invalid hostname.  \nUsing default: \"{default_hostname}\"\n- Use only letters, digits, and hyphens\n- Start and end with letters or digits\n- Each label may be 1 to 63 characters\n- Multiple labels permitted, separated by a period\n- Total max of 253 characters",
                     "command": [
                         "generate_log \"Setting hostname...\"",
                         "hostnamectl set-hostname"
@@ -165,6 +166,7 @@
                 },
                 "install_nvidia_codecs": {
                     "name": "Nvidia Codecs",
+                    "warning": "⚠️ This requires the Nvidia proprietary to function properly. It is recommended to first update to the latest kernel version and install the Nvidia driver first.",
                     "command": [
                         "generate_log \"Installing Nvidia Hardware Accelerated Codecs...\"",
                         "dnf -y install libva-nvidia-driver"
@@ -566,6 +568,7 @@
                 "install_virtualbox": {
                     "name": "VirtualBox",
                     "description": "A powerful virtualization product for enterprise as well as home use",
+                    "warning": "⚠️ The extension pack will be saved in your downloads folder. You will still need to manually install it as normal.",
                     "installation_types": {
                         "with_extension": {
                             "command": [
@@ -590,6 +593,7 @@
                 "install_docker_engine": {
                     "name": "Docker Engine",
                     "description": "A feature-rich cooling device control application for Linux",
+                    "warning": "⚠️ During installation, Docker's GPG key will automatically be imported.",
                     "installation_types": {
                         "install_standard": {
                             "command": [
@@ -1029,6 +1033,7 @@
                 },
                 "install_enpass": {
                     "name": "Enpass",
+                    "warning": "⚠️ During installation, Enpass's repository will automatically be imported.",
                     "command": [
                         "wget -O /etc/yum.repos.d/enpass-yum.repo https://yum.enpass.io/enpass-yum.repo",
                         "yum install -y enpass"
@@ -1142,6 +1147,7 @@
                 "install_microsoft_fonts": {
                     "name": "Microsoft Fonts",
                     "description": "Install Microsoft Windows fonts",
+                    "warning": "⚠️ This option requires a valid Windows license. Please ensure you comply with Microsoft's licensing terms.",
                     "installation_types": {
                         "core": {
                             "command": [
@@ -1208,6 +1214,7 @@
                 "extra_swap_space": {
                     "name": "Extra Swap Space",
                     "description": "Add more swap space in addition to Fedora's default ZRAM settings",
+                    "warning": "Invalid value. Please enter a number between 1 and 32.",
                     "default": "8",
                     "installation_types": {
                         "ssd": {

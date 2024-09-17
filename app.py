@@ -233,7 +233,8 @@ def render_app_section(distro_data: Dict[str, Any], options_category: str) -> Di
                         subcategory_data['apps'][options_app]['installation_type'] = installation_type
 
                 if app_selected and options_app not in {"set_hostname", "extra_swap_space"}:
-                    handle_warnings_and_messages(options_app, distro_data)
+                    dict_key = (options_category, options_subcategory, "apps", options_app)
+                    handle_warnings_and_messages(options_app, distro_data, dict_key)
 
     return distro_data
 
@@ -265,7 +266,8 @@ def handle_hostname(app_selected: bool, **kwargs):
         else:
             if hostname_data["entered_name"] == "":
                 hostname_data["entered_name"] = hostname_data["default"]
-                handle_warnings_and_messages("set_hostname", distro_data)
+                dict_key = ("system_config", "recommended_settings", "apps", "set_hostname")
+                handle_warnings_and_messages("set_hostname", distro_data, dict_key)
      
 def handle_rpmfusion(app_selected: bool, **kwargs):
     distro_data = kwargs['distro_data']
@@ -300,6 +302,7 @@ def handle_swapspace(app_selected: bool, **kwargs):
     options_app = kwargs['options_app']
     distro_data = kwargs.get('distro_data', {})
     swap_data = distro_data.get("advanced_settings", {}).get("system_settings", {}).get("apps", {}).get("extra_swap_space", {})
+    dict_key = ("advanced_settings", "system_settings", "apps", "extra_swap_space")
 
     if app_selected:
         entered_size = st.text_input("Enter the desired swap size in GB: (Max: 32)")
@@ -318,10 +321,10 @@ def handle_swapspace(app_selected: bool, **kwargs):
             else:
                 # Handle the case where input is invalid but not an exception
                 swap_data["entered_size"] = swap_data["default"]
-                handle_warnings_and_messages("extra_swap_space", distro_data)
+                handle_warnings_and_messages("extra_swap_space", distro_data, dict_key)
         except ValueError:
             swap_data["entered_size"] = swap_data["default"]
-            handle_warnings_and_messages("extra_swap_space", distro_data)
+            handle_warnings_and_messages("extra_swap_space", distro_data, dict_key)
 
 def render_installation_type_selector(install_type_title: str, install_options: list, app_key:str, help_text: str) -> str:
     return st.radio(
@@ -332,21 +335,27 @@ def render_installation_type_selector(install_type_title: str, install_options: 
         help=help_text
     )
 
-def handle_warnings_and_messages(options_app: str, distro_data: Dict[str, Any]):
-    if options_app == "set_hostname":
-        default_hostname = distro_data.get("system_config", {}).get("recommended_settings", {}).get("apps", {}).get("set_hostname", {}).get("default", {})
-        st.warning(
-            "Invalid hostname.  \n"
-            f"Using default: \"{default_hostname}\"\n"
-            "- Use only letters, digits, and hyphens\n"
-            "- Start and end with letters or digits\n"
-            "- Each label may be 1 to 63 characters\n"
-            "- Multiple labels permitted, separated by a period\n"
-            "- Total max of 253 characters"
-        )
-    elif options_app in ["install_multimedia_codecs", "install_intel_codecs", "install_nvidia_codecs", "install_amd_codecs"]:
-        if options_app == "install_nvidia_codecs":
-            st.warning("⚠️ This requires the Nvidia proprietary to function properly. It is recommended to first update to the latest kernel version and install the Nvidia driver first.")
+def handle_warnings_and_messages(options_app: str, distro_data: Dict[str, Any], dict_key: tuple):
+    warning_message = ""
+
+    if distro_data[dict_key[0]][dict_key[1]][dict_key[2]][dict_key[3]].get("warning", {}):
+        if options_app == "set_hostname":
+            default_hostname = distro_data.get("system_config", {}).get("recommended_settings", {}).get("apps", {}).get("set_hostname", {}).get("default", {})
+            warning_message = distro_data[dict_key[0]][dict_key[1]][dict_key[2]][dict_key[3]]["warning"].format(default_hostname=default_hostname)
+        elif options_app == "install_virtualbox":
+            if distro_data['virtualization_apps']['virtualization_apps']['apps']['install_virtualbox']['installation_type'] == "with_extension":
+                warning_message = distro_data[dict_key[0]][dict_key[1]][dict_key[2]][dict_key[3]]["warning"]
+        elif options_app == "install_microsoft_fonts":
+            if distro_data['customization']['fonts']['apps']['install_microsoft_fonts']['installation_type'] == "windows":
+                warning_message = distro_data[dict_key[0]][dict_key[1]][dict_key[2]][dict_key[3]]["warning"]
+        else:
+            warning_message = distro_data[dict_key[0]][dict_key[1]][dict_key[2]][dict_key[3]]["warning"]
+        
+        if warning_message != "":
+            logging.warning(f"{warning_message}")
+            st.warning(warning_message)
+
+    if options_app in ["install_multimedia_codecs", "install_intel_codecs", "install_nvidia_codecs", "install_amd_codecs"]:
         if distro_data["system_config"]["useful_repos"]["apps"]["enable_rpmfusion"]["selected"] == False:
             st.markdown("""
                 ```
@@ -355,21 +364,11 @@ def handle_warnings_and_messages(options_app: str, distro_data: Dict[str, Any]):
                 ```
             """)
             distro_data["system_config"]["useful_repos"]["apps"]["enable_rpmfusion"]["selected"] = True
-    elif options_app == "install_virtualbox":
-        if distro_data['virtualization_apps']['virtualization_apps']['apps']['install_virtualbox']['installation_type'] == "with_extension":
-            st.warning("⚠️ The extension pack will be saved in your downloads folder. You will still need to manually install it as normal.")
     elif options_app == "install_docker_engine":
-            st.warning("⚠️ During installation, Docker's GPG key will automatically be imported.")
             st.markdown("[You can verify Docker's GPG key here](https://docs.docker.com/engine/install/fedora/)")
-    elif options_app == "install_enpass":
-        st.warning("⚠️ During installation, Enpass's YUM repository will automatically be imported.")
     elif options_app == "install_microsoft_fonts":
         if distro_data['customization']['fonts']['apps']['install_microsoft_fonts']['installation_type'] == "windows":
-            st.warning("⚠️ This method requires a valid Windows license. "
-                       "Please ensure you comply with Microsoft's licensing terms.")
             st.markdown("[Learn more about Windows fonts licensing](https://learn.microsoft.com/en-us/typography/fonts/font-faq)")
-    elif options_app == "extra_swap_space":
-        st.warning("Invalid value. Please enter a number between 1 and 32.")
 
 def build_script(distro_data: Dict[str, Any], output_mode: str) -> str:
     if distro_data["custom_script"] == "# Each command goes on a new line.":
