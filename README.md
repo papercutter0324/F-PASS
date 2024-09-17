@@ -165,6 +165,10 @@ Future plans for this project include:
 - Common file templates (Useful when right-clicking and creating a new file)
 - Recommended and predefined configuration profile support
 - Post-reboot script support
+  - Add a flag to the script template to mark what to do after rebooting
+  - Add to autorun (including flag) before reboot, and remove from autorun after reboot
+  - Useful for installing the Nvidia drivers and firmware updates
+  - Add support for additional apps during testing
 
 ## FAQ
 
