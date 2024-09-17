@@ -1190,6 +1190,7 @@
             "apps": {
                 "install_cooler_control": {
                     "name": "CoolerControl",
+                    "warning": "⚠️ During installation, CoolerControl's COPR repository will be imported.",
                     "command": [
                         "dnf -y copr enable codifryed/CoolerControl",
                         "dnf install -y coolercontrol",
