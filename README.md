@@ -7,8 +7,33 @@
 A web application, powered by Streamlit for generating a customized shell script to automated Fedora Workstation installation. The app provides an intuitive interface for choosing system configurations, applications, and customization options. It is currently open for testing and is generally suitable for production use, although minor bug fixes and code improvements are ongoing.
 
 ## Latest Changes
-*(As of 2024-09-01)*
+*(As of 2024-09-18)*
+- Many code updates, optimizations, and rewrites
+  - More veritile while coming in at a smaller size
+  - Still many thanks to [k-mktr](https://github.com/k-mktr) for the original version and inspiration!
+- Selectbox to choose from currently supported distributions (currently only Fedora 40)
+- Default to verbose mode
+  - Prevents the risk of script failure due to an important prompt being unknowingly discarded
+- More categories and options
+  - New app and game choices
+  - Power options for both Gnome and KDE
+  - Many more DNF or Flatpak install choices
+  - Multiple useful choices for installing VirtualBox and Docker
+- Verify a valid hostname has been entered
+  - If invalid, a warning message with instructions will appear
+  - If invalid or not entered, a default loaded from the json will be used
+- Ability to enable 3rd party repositories
+  - Solves the risk of failed installs if 3rd party repositories weren't enabled when installing Fedora
+  - All enabled repositories, including those enabled by this script, will be updated before any apps are installed
+- Ability to add aditional swap space via a swapfile
+  - Can help with virtual machines, where their need for guestOS RAM & VRAM may exceed the amount of system RAM available
+  - Only BTRFS and EXT4 are supported
+  - SSD and HDD specific commands
+  - Check for existing swapfiles before executing
+    - If found, user will be informed of how many and current total swapspace (excluding ZRAM)
+    - If found, user will also be asked if the want to add the addition swap space or cancel
 
+*(As of 2024-09-01)*
 - Support for different distros via json files
   - Currently only Fedora 40 is officially supported
   - Should work with other Fedora releases
@@ -30,15 +55,18 @@ A web application, powered by Streamlit for generating a customized shell script
 - **Output Mode Selection**: Choose between Quiet (hide command output) and Verbose (show full output) modes.
 
 **Menu Categories**
-- **System Configuration**: Set hostname, configure DNF, enable auto-updates, and other useful setup options.
+- **System Configuration**: Set hostname, configure DNF, addtional repositories, codecs, and other useful setup options.
 - **Recommended Apps**: A range of essetial and/or popular command-line tools and utilities.
 - **Internet Apps**: A selection of popular browsers, messaging clients, download apps, and more.
-- **Productivity Apps**: Office suites, notetaking apps, and programming IDEs.
-- **Mulitmedia Apps**: Video, music, and image players and editors.
-- **Gaming Apps**: A collection of popular game stores, launchers, and emulators.
+- **Productivity Apps**: Office suites, notetaking apps, and other useful apps.
+- **Virtualization & Container Apps**: Options for virtual machines and Docker containers.
+- **Programming Apps**: A selection of editors, IDEs, automation, and dev environments.
+- **Mulitmedia Apps**: Video, music, ebook readers, and image viewers and editors.
+- **Gaming Apps**: A collection of popular game stores, launchers, games, and emulators.
 - **Management Apps**: Password managers, system management, hardware support, and more.
-- **Customization**: Additional fonts, themes, and more.
-- **Advanced Options**: Add custom shell commands to be included in the generated script.
+- **Customization**: Additional fonts and themes.
+- **Advanced Settings**: Add additional swap space
+- **Custom Script**: Add custom shell commands to be included in the generated script.
 
 ## Requirements
 
@@ -116,15 +144,20 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 **In-Progress and Completed
 - ✅ Intuitive interface options
 - ✅ Advanced Section for custom shell commands
-- ✅ Support for other distros (Some work and additional json files needed)
-- ✅ Automatically generated menus based on the chosen distro
+- ✅ Automatically generate menus based on the chosen distro/json file
 - ✅ Adding more swap space (BTRFS, EXT4 only)
   - ✅ Check if swapfiles already exist before adding
   - ✅ Prompt to add additional swapfile or cancel
 - ✅ Expand the Docker and VirtualBox options
+- Distro agnostic (99% complete)
+  - All data and commands are loaded from a json file
+  - Move initial system upgrade code to the json file
+  - Provide json template for others to make for other distros
 - Improved dependency checks (for those not handled automatically by dnf)
-- Better organization and categorization of apps
-- More applications and configuration options
+- Improved sidebar menu
+  - Better organization and categorization of apps
+  - More applications and configuration options
+  - Automatically close other sub-menus when another is opened
 
 Future plans for this project include:
 - Support for installing other desktop environments
