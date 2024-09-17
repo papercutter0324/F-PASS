@@ -128,7 +128,7 @@ def render_sidebar() -> Dict[str, Any]:
         if options_category != "name":
             render_app_section(distro_data, options_category)
 
-    with st.sidebar.expander("Advanced - Custom Script"): # Section for adding a custom script
+    with st.sidebar.expander("Custom Script"): # Section for adding a custom script
         st.warning("""⚠️ **Caution**: Intended for advanced users. Incorrect shell commands can potentially harm your system or render it inoperable.  
                    Use with care!""")
         
@@ -412,13 +412,10 @@ def build_full_script(template: str, distro_data: Dict[str, Any], output_mode: s
     for placeholder, content in script_parts.items():
         template = template.replace(f"{{{{{placeholder}}}}}", content)
 
-    if "hostname" in distro_data:
-        template = template.replace("{hostname}", distro_data["hostname"])
-
     return template
 
 def main():
-    # Add a header with a logo and links
+    # Display header with a logo and links
     st.markdown("""
     <style>
         @keyframes fadeIn {
