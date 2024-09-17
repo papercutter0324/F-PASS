@@ -352,7 +352,6 @@ def handle_warnings_and_messages(options_app: str, distro_data: Dict[str, Any], 
             warning_message = distro_data[dict_key[0]][dict_key[1]][dict_key[2]][dict_key[3]]["warning"]
         
         if warning_message != "":
-            logging.warning(f"{warning_message}")
             st.warning(warning_message)
 
     if options_app in ["install_multimedia_codecs", "install_intel_codecs", "install_nvidia_codecs", "install_amd_codecs"]:
