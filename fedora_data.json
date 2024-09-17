@@ -146,6 +146,7 @@
             "apps": {
                 "install_multimedia_codecs": {
                     "name": "Multimedia Codecs",
+                    "info_message": "RPM Fusion has been enabled\ndue to codec dependencies.",
                     "command": [
                         "generate_log \"Installing multimedia codecs...\"",
                         "dnf swap ffmpeg-free ffmpeg --allowerasing -y",
@@ -157,6 +158,7 @@
                 },
                 "install_intel_codecs": {
                     "name": "Intel Codecs",
+                    "info_message": "RPM Fusion has been enabled\ndue to codec dependencies.",
                     "command": [
                         "generate_log \"Installing Intel Hardware Accelerated Codecs...\"",
                         "dnf -y install intel-media-driver"
@@ -166,6 +168,7 @@
                 },
                 "install_nvidia_codecs": {
                     "name": "Nvidia Codecs",
+                    "info_message": "RPM Fusion has been enabled\ndue to codec dependencies.",
                     "warning": "⚠️ This requires the Nvidia proprietary to function properly. It is recommended to first update to the latest kernel version and install the Nvidia driver first.",
                     "command": [
                         "generate_log \"Installing Nvidia Hardware Accelerated Codecs...\"",
@@ -176,6 +179,7 @@
                 },
                 "install_amd_codecs": {
                     "name": "AMD Codecs",
+                    "info_message": "RPM Fusion has been enabled\ndue to codec dependencies.",
                     "command": [
                         "generate_log \"Installing AMD Hardware Accelerated Codecs...\"",
                         "dnf swap mesa-va-drivers mesa-va-drivers-freeworld -y",
@@ -593,6 +597,7 @@
                 "install_docker_engine": {
                     "name": "Docker Engine",
                     "description": "A feature-rich cooling device control application for Linux",
+                    "info_message": "[You can verify Docker's GPG key here](https://docs.docker.com/engine/install/fedora/)",
                     "warning": "⚠️ During installation, Docker's GPG key will automatically be imported.",
                     "installation_types": {
                         "install_standard": {
@@ -1147,6 +1152,7 @@
                 "install_microsoft_fonts": {
                     "name": "Microsoft Fonts",
                     "description": "Install Microsoft Windows fonts",
+                    "info_message": "[Learn more about Windows fonts licensing](https://learn.microsoft.com/en-us/typography/fonts/font-faq)",
                     "warning": "⚠️ This option requires a valid Windows license. Please ensure you comply with Microsoft's licensing terms.",
                     "installation_types": {
                         "core": {

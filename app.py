@@ -337,6 +337,8 @@ def render_installation_type_selector(install_type_title: str, install_options: 
 
 def handle_warnings_and_messages(options_app: str, distro_data: Dict[str, Any], dict_key: tuple):
     warning_message = ""
+    info_message = ""
+    display_url = False
 
     if distro_data[dict_key[0]][dict_key[1]][dict_key[2]][dict_key[3]].get("warning", {}):
         if options_app == "set_hostname":
@@ -354,20 +356,29 @@ def handle_warnings_and_messages(options_app: str, distro_data: Dict[str, Any], 
         if warning_message != "":
             st.warning(warning_message)
 
-    if options_app in ["install_multimedia_codecs", "install_intel_codecs", "install_nvidia_codecs", "install_amd_codecs"]:
-        if distro_data["system_config"]["useful_repos"]["apps"]["enable_rpmfusion"]["selected"] == False:
-            st.markdown("""
-                ```
-                RPM Fusion has been enabled  
-                due to codec dependencies.
-                ```
-            """)
-            distro_data["system_config"]["useful_repos"]["apps"]["enable_rpmfusion"]["selected"] = True
-    elif options_app == "install_docker_engine":
-            st.markdown("[You can verify Docker's GPG key here](https://docs.docker.com/engine/install/fedora/)")
-    elif options_app == "install_microsoft_fonts":
-        if distro_data['customization']['fonts']['apps']['install_microsoft_fonts']['installation_type'] == "windows":
-            st.markdown("[Learn more about Windows fonts licensing](https://learn.microsoft.com/en-us/typography/fonts/font-faq)")
+    if distro_data[dict_key[0]][dict_key[1]][dict_key[2]][dict_key[3]].get("info_message", {}):
+        if options_app in ["install_multimedia_codecs", "install_intel_codecs", "install_nvidia_codecs", "install_amd_codecs"]:
+            if distro_data["system_config"]["useful_repos"]["apps"]["enable_rpmfusion"]["selected"] == False:
+                distro_data["system_config"]["useful_repos"]["apps"]["enable_rpmfusion"]["selected"] = True
+                info_message = distro_data[dict_key[0]][dict_key[1]][dict_key[2]][dict_key[3]]["info_message"]
+        elif options_app == "install_docker_engine":
+            info_message = distro_data[dict_key[0]][dict_key[1]][dict_key[2]][dict_key[3]]["info_message"]
+            display_url = True
+        elif options_app == "install_microsoft_fonts":
+            if distro_data['customization']['fonts']['apps']['install_microsoft_fonts']['installation_type'] == "windows":
+                info_message = distro_data[dict_key[0]][dict_key[1]][dict_key[2]][dict_key[3]]["info_message"]
+                display_url = True
+        else:
+            info_message = distro_data[dict_key[0]][dict_key[1]][dict_key[2]][dict_key[3]]["info_message"]
+        
+        if info_message != "":
+            if display_url:
+                st.markdown(info_message)
+            else:
+                st.markdown(f"""
+                        ```
+                            {info_message}
+                    """)
 
 def build_script(distro_data: Dict[str, Any], output_mode: str) -> str:
     if distro_data["custom_script"] == "# Each command goes on a new line.":
@@ -393,9 +404,6 @@ def build_script(distro_data: Dict[str, Any], output_mode: str) -> str:
             preview_script += content + "\n\n"
 
     preview_script += "(...)  # Script footer"
-
-    if "hostname" in distro_data:
-        preview_script = preview_script.replace("{hostname}", distro_data["hostname"])
 
     return preview_script
 
