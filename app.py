@@ -336,43 +336,31 @@ def render_installation_type_selector(install_type_title: str, install_options: 
     )
 
 def handle_warnings_and_messages(options_app: str, distro_data: Dict[str, Any], dict_key: tuple):
+    target_data = distro_data[dict_key[0]][dict_key[1]][dict_key[2]][dict_key[3]]
+    codec_apps = {"install_multimedia_codecs", "install_intel_codecs", "install_nvidia_codecs", "install_amd_codecs"}
     warning_message = ""
-    info_message = ""
-    display_url = False
 
-    if distro_data[dict_key[0]][dict_key[1]][dict_key[2]][dict_key[3]].get("warning", {}):
+    if target_data.get("warning", {}):
         if options_app == "set_hostname":
-            default_hostname = distro_data.get("system_config", {}).get("recommended_settings", {}).get("apps", {}).get("set_hostname", {}).get("default", {})
-            warning_message = distro_data[dict_key[0]][dict_key[1]][dict_key[2]][dict_key[3]]["warning"].format(default_hostname=default_hostname)
+            default_hostname = distro_data["system_config"]["recommended_settings"]["apps"]["set_hostname"]["default"]
+            warning_message = target_data["warning"].format(default_hostname=default_hostname)
+        elif options_app in codec_apps:
+            if not distro_data["system_config"]["useful_repos"]["apps"]["enable_rpmfusion"]["selected"]:
+                distro_data["system_config"]["useful_repos"]["apps"]["enable_rpmfusion"]["selected"] = True
+                st.warning("RPM Fusion has been enabled due to codec dependencies.")
+            if options_app == "install_nvidia_codecs":
+                warning_message = target_data["warning"]
         elif options_app == "install_virtualbox":
             if distro_data['virtualization_apps']['virtualization_apps']['apps']['install_virtualbox']['installation_type'] == "with_extension":
-                warning_message = distro_data[dict_key[0]][dict_key[1]][dict_key[2]][dict_key[3]]["warning"]
+                warning_message = target_data["warning"]
         elif options_app == "install_microsoft_fonts":
             if distro_data['customization']['fonts']['apps']['install_microsoft_fonts']['installation_type'] == "windows":
-                warning_message = distro_data[dict_key[0]][dict_key[1]][dict_key[2]][dict_key[3]]["warning"]
+                warning_message = target_data["warning"]
         else:
-            warning_message = distro_data[dict_key[0]][dict_key[1]][dict_key[2]][dict_key[3]]["warning"]
+            warning_message = target_data["warning"]
         
         if warning_message != "":
             st.warning(warning_message)
-
-    if distro_data[dict_key[0]][dict_key[1]][dict_key[2]][dict_key[3]].get("info_message", {}):
-        if options_app in ["install_multimedia_codecs", "install_intel_codecs", "install_nvidia_codecs", "install_amd_codecs"]:
-            if distro_data["system_config"]["useful_repos"]["apps"]["enable_rpmfusion"]["selected"] == False:
-                distro_data["system_config"]["useful_repos"]["apps"]["enable_rpmfusion"]["selected"] = True
-                info_message = distro_data[dict_key[0]][dict_key[1]][dict_key[2]][dict_key[3]]["info_message"]
-        else:
-            info_message = distro_data[dict_key[0]][dict_key[1]][dict_key[2]][dict_key[3]]["info_message"]
-        
-        if info_message != "":
-            # URLs are not supported in code blocks, so a different format needs to be used.
-            if display_url:
-                st.markdown(info_message)
-            else:
-                st.markdown(f"""
-                        ```
-                            {info_message}
-                    """)
 
 def build_script(distro_data: Dict[str, Any], output_mode: str) -> str:
     if distro_data["custom_script"] == "# Each command goes on a new line.":

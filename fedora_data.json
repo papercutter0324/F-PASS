@@ -125,7 +125,7 @@
             "apps": {
                 "install_multimedia_codecs": {
                     "name": "Multimedia Codecs",
-                    "info_message": "RPM Fusion has been enabled\ndue to codec dependencies.",
+                    "warning": "RPM Fusion has been enabled\ndue to codec dependencies.",
                     "command": [
                         "generate_log \"Installing multimedia codecs...\"",
                         "dnf swap ffmpeg-free ffmpeg --allowerasing -y",
@@ -137,7 +137,7 @@
                 },
                 "install_intel_codecs": {
                     "name": "Intel Codecs",
-                    "info_message": "RPM Fusion has been enabled\ndue to codec dependencies.",
+                    "warning": "RPM Fusion has been enabled\ndue to codec dependencies.",
                     "command": [
                         "generate_log \"Installing Intel Hardware Accelerated Codecs...\"",
                         "dnf -y install intel-media-driver"
@@ -147,7 +147,6 @@
                 },
                 "install_nvidia_codecs": {
                     "name": "Nvidia Codecs",
-                    "info_message": "RPM Fusion has been enabled\ndue to codec dependencies.",
                     "warning": "⚠️ This requires the Nvidia proprietary to function properly. It is recommended to first update to the latest kernel version and install the Nvidia driver first.",
                     "command": [
                         "generate_log \"Installing Nvidia Hardware Accelerated Codecs...\"",
@@ -158,7 +157,7 @@
                 },
                 "install_amd_codecs": {
                     "name": "AMD Codecs",
-                    "info_message": "RPM Fusion has been enabled\ndue to codec dependencies.",
+                    "warning": "RPM Fusion has been enabled\ndue to codec dependencies.",
                     "command": [
                         "generate_log \"Installing AMD Hardware Accelerated Codecs...\"",
                         "dnf swap mesa-va-drivers mesa-va-drivers-freeworld -y",
@@ -286,7 +285,7 @@
             "apps": {
                 "install_firefox": {
                     "name": "Firefox",
-                    "info_message": "This will remove the standard\ninstallation and replace it\nwith the flatpak version.",
+                    "warning": "This will remove the standard\ninstallation and replace it\nwith the flatpak version.",
                     "command": [
                         "dnf remove -y firefox*",
                         "flatpak install -y flathub org.mozilla.firefox"
