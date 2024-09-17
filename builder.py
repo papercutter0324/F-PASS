@@ -54,9 +54,6 @@ def build_system_config(distro_data: Dict[str, Any], output_mode: str) -> str:
                     for cmd in get_commands(app_data):
                         config_commands.append(process_command(distro_data, output_mode, cmd, app_key))
                     config_commands.append("")  # Empty line for readability
-                    config_commands.append("# Refreshing all repositories before beginning app installation.")
-                    config_commands.append("dnf -y upgrade")
-                    config_commands.append("")  # Empty line for readability
 
     return "\n".join(config_commands)
 
@@ -82,6 +79,7 @@ def build_app_install(distro_data: Dict[str, Any], output_mode: str) -> str:
         
         return commands
     
+    refresh_repositories = False
     install_commands = []
     quiet_redirect = " > /dev/null 2>&1" if output_mode == "Quiet" else ""
 
@@ -92,6 +90,13 @@ def build_app_install(distro_data: Dict[str, Any], output_mode: str) -> str:
                 if isinstance(options_subcategory_content, dict):
                     apps_content = options_subcategory_content.get('apps', {})
                     selected_apps = {app_id: app_data for app_id, app_data in apps_content.items() if app_data.get('selected', False)}
+
+                    # Code to trigger a refresh before apps are installed
+                    if selected_apps and not refresh_repositories:
+                            refresh_repositories = True
+                            install_commands.append("# Refresh all repositories, including newly added ones, before beginning installation.")
+                            install_commands.append("dnf -y upgrade")
+                            install_commands.append("")  # Empty line for readability
 
                     if selected_apps:
                         install_commands.append(f"# Install {options_subcategory_content.get('name', 'unknown')} applications")
