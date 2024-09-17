@@ -286,7 +286,11 @@
             "apps": {
                 "install_firefox": {
                     "name": "Firefox",
-                    "command": "flatpak install -y flathub org.mozilla.firefox",
+                    "info_message": "This will remove the standard\ninstallation and replace it\nwith the flatpak version.",
+                    "command": [
+                        "dnf remove -y firefox*",
+                        "flatpak install -y flathub org.mozilla.firefox"
+                    ],
                     "description": "Fast, private & safe web browser."
                 },
                 "install_chrome": {
@@ -541,6 +545,23 @@
                     "description": "A note-taking app with a focus on privacy and security"
                 }
             }
+        },
+        "useful_utilities": {
+            "name": "Useful Utilities",
+            "apps":{
+                "install_pdf_arranger": {
+                    "name": "PDF Arranger",
+                    "description": "An intuitive pdf app to merge, split, and more.",
+                    "installation_types":{
+                        "DNF": {
+                            "command": "dnf install -y pdfarranger"
+                        },
+                        "Flatpak":{
+                            "command": "flatpak install -y flathub com.github.jeromerobert.pdfarranger"
+                        }
+                    }
+                }
+            }
         }
     },
     "virtualization_apps": {
@@ -576,8 +597,7 @@
                 "install_docker_engine": {
                     "name": "Docker Engine",
                     "description": "A feature-rich cooling device control application for Linux",
-                    "info_message": "[You can verify Docker's GPG key here](https://docs.docker.com/engine/install/fedora/)",
-                    "warning": "⚠️ During installation, Docker's GPG key will automatically be imported.",
+                    "warning": "⚠️ During installation, Docker's GPG key will automatically be imported. You can verify Docker's GPG key [here](https://docs.docker.com/engine/install/fedora/).",
                     "installation_types": {
                         "install_standard": {
                             "command": [
@@ -785,6 +805,35 @@
                 }
             }
         },
+        "eBook_and_comic_readers": {
+            "name": "eBook and Comic Readers",
+            "apps": {
+                "install_folitate": {
+                    "name": "Foliate",
+                    "description": "A simple, modern ebook reader with lots of customization features.",
+                    "installation_types": {
+                        "DNF": {
+                            "command": "dnf install -y foliate"
+                        },
+                        "Flatpak": {
+                            "command": "flatpak install -y flathub com.github.johnfactotum.Foliate"
+                        }
+                    }
+                },
+                "install_calibre": {
+                    "name": "Calibre",
+                    "description": "The one stop solution to all your e-book needs.",
+                    "installation_types": {
+                        "DNF": {
+                            "command": "dnf install -y calibre"
+                        },
+                        "Flatpak": {
+                            "command": "flatpak install -y flathub com.calibre_ebook.calibre"
+                        }
+                    }
+                }
+            }
+        },
         "media_image-editors": {
             "name": "Image Editors",
             "apps": {
@@ -891,6 +940,77 @@
                     "name": "ProtonUp-Qt",
                     "command": "flatpak install -y flathub net.davidotek.pupgui2",
                     "description": "Install and manage Wine- and Proton-based compatibility tools for Steam and Lutris with this graphical user interface"
+                }
+            }
+        },
+        "open_source_games": {
+            "name": "Open-Source Games",
+            "apps": {
+                "install_dungeon_crawl": {
+                    "name": "Dungeon Crawl Stone Soup",
+                    "command": "flatpak install -y flathub org.develz.Crawl",
+                    "description": "Roguelike dungeon exploration game"
+                },
+                "install_openttd": {
+                    "name": "OpenTTD",
+                    "description": "An open-source take on the popular Transport Tycoon Deluxe",
+                    "installation_types": {
+                        "DNF": {
+                            "command": "dnf install -y openttd"
+                        },
+                        "Flatpak": {
+                            "command": "flatpak install -y flathub org.openttd.OpenTTD"
+                        }
+                    }
+                },
+                "install_shattered_pixel": {
+                    "name": "Shattered Pixel Dungeon",
+                    "command": "flatpak install -y com.shatteredpixel.shatteredpixeldungeon",
+                    "description": "Roguelike dungeon exploration game"
+                },
+                "install_supertux": {
+                    "name": "SuperTux",
+                    "description": "A jump-and-run game starring Tux the Penguin",
+                    "installation_types": {
+                        "DNF": {
+                            "command": "dnf install -y supertux"
+                        },
+                        "Flatpak": {
+                            "command": "flatpak install -y flathub org.supertuxproject.SuperTux"
+                        }
+                    }
+                },
+                "install_supertuxkart": {
+                    "name": "SuperTuxKart",
+                    "description": "A 3D open-source kart racing game",
+                    "installation_types": {
+                        "DNF": {
+                            "command": "dnf install -y supertuxkart"
+                        },
+                        "Flatpak": {
+                            "command": "flatpak install -y flathub net.supertuxkart.SuperTuxKart"
+                        }
+                    }
+                }
+            }
+        },
+        "open_source_game_engines": {
+            "name": "Open-Source Game Engines",
+            "apps": {
+                "install_commander_genius": {
+                    "name": "Commander Genius",
+                    "command": "flatpak install -y flathub io.sourceforge.clonekeenplus",
+                    "description": "A Game Engine for Commander Keen"
+                },
+                "install_gzdoom": {
+                    "name": "GZDoom",
+                    "command": "flatpak install -y flathub org.zdoom.GZDoom",
+                    "description": "An open-source engine for Doom, Doom II, Hexen, and other idTech 1 games"
+                },
+                "install_jazz_resurrection": {
+                    "name": "Jazz² Resurrection",
+                    "command": "flatpak install -y flathub tk.deat.Jazz2Resurrection",
+                    "description": "A re-implementation of Jazz Jackrabbit 2"
                 }
             }
         },
@@ -1131,8 +1251,7 @@
                 "install_microsoft_fonts": {
                     "name": "Microsoft Fonts",
                     "description": "Install Microsoft Windows fonts",
-                    "info_message": "[Learn more about Windows fonts licensing](https://learn.microsoft.com/en-us/typography/fonts/font-faq)",
-                    "warning": "⚠️ This option requires a valid Windows license. Please ensure you comply with Microsoft's licensing terms.",
+                    "warning": "⚠️ This option requires a valid Windows license. You can learn more about Windows fonts licensing [here](https://learn.microsoft.com/en-us/typography/fonts/font-faq).",
                     "installation_types": {
                         "core": {
                             "command": [
