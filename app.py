@@ -361,17 +361,11 @@ def handle_warnings_and_messages(options_app: str, distro_data: Dict[str, Any], 
             if distro_data["system_config"]["useful_repos"]["apps"]["enable_rpmfusion"]["selected"] == False:
                 distro_data["system_config"]["useful_repos"]["apps"]["enable_rpmfusion"]["selected"] = True
                 info_message = distro_data[dict_key[0]][dict_key[1]][dict_key[2]][dict_key[3]]["info_message"]
-        elif options_app == "install_docker_engine":
-            info_message = distro_data[dict_key[0]][dict_key[1]][dict_key[2]][dict_key[3]]["info_message"]
-            display_url = True
-        elif options_app == "install_microsoft_fonts":
-            if distro_data['customization']['fonts']['apps']['install_microsoft_fonts']['installation_type'] == "windows":
-                info_message = distro_data[dict_key[0]][dict_key[1]][dict_key[2]][dict_key[3]]["info_message"]
-                display_url = True
         else:
             info_message = distro_data[dict_key[0]][dict_key[1]][dict_key[2]][dict_key[3]]["info_message"]
         
         if info_message != "":
+            # URLs are not supported in code blocks, so a different format needs to be used.
             if display_url:
                 st.markdown(info_message)
             else:
