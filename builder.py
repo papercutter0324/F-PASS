@@ -43,6 +43,13 @@ def build_system_config(distro_data: Dict[str, Any], output_mode: str) -> str:
         return cmd + (" > /dev/null 2>&1" if output_mode == "Quiet" and should_quiet_redirect(cmd) else "")
     
     distro_data = check_dependencies(distro_data)
+    trigger_descriptions = {
+        "# Enable RPM Fusion repositories to access additional software packages and codecs",
+        "# Enable repo to support installing Google Chrome via dnf",
+        "# Enable the repository to install Steam via dnf",
+        "# Enable non-free repository to allow installation of the proprietary Nvidia driver"
+        }
+    repo_refresh_trigger = False
     config_commands = []
 
     for subcategory_value in distro_data.get("system_config", {}).values(): # Iterate through each subcategory in system_config
@@ -51,9 +58,16 @@ def build_system_config(distro_data: Dict[str, Any], output_mode: str) -> str:
             for app_key, app_data in apps.items():
                 if isinstance(app_data, dict) and app_data.get("selected", False):
                     config_commands.append(f"# {app_data.get("description", "")}")
+                    if app_data.get("description", "") in trigger_descriptions:
+                        repo_refresh_trigger = True
                     for cmd in get_commands(app_data):
                         config_commands.append(process_command(distro_data, output_mode, cmd, app_key))
                     config_commands.append("")  # Empty line for readability
+    
+    if repo_refresh_trigger:
+        config_commands.append("# Refresh all repositories, including newly added ones, before beginning installation.")
+        config_commands.append("dnf -y upgrade")
+        config_commands.append("")  # Empty line for readability
 
     return "\n".join(config_commands)
 
@@ -79,7 +93,6 @@ def build_app_install(distro_data: Dict[str, Any], output_mode: str) -> str:
         
         return commands
     
-    refresh_repositories = False
     install_commands = []
     quiet_redirect = " > /dev/null 2>&1" if output_mode == "Quiet" else ""
 
@@ -90,13 +103,6 @@ def build_app_install(distro_data: Dict[str, Any], output_mode: str) -> str:
                 if isinstance(options_subcategory_content, dict):
                     apps_content = options_subcategory_content.get('apps', {})
                     selected_apps = {app_id: app_data for app_id, app_data in apps_content.items() if app_data.get('selected', False)}
-
-                    # Code to trigger a refresh before apps are installed
-                    if selected_apps and not refresh_repositories:
-                            refresh_repositories = True
-                            install_commands.append("# Refresh all repositories, including newly added ones, before beginning installation.")
-                            install_commands.append("dnf -y upgrade")
-                            install_commands.append("")  # Empty line for readability
 
                     if selected_apps:
                         install_commands.append(f"# Install {options_subcategory_content.get('name', 'unknown')} applications")
