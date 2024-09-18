@@ -251,7 +251,10 @@
                     "dependencies": "enable_rpmfusion"
                 }
             }
-        },
+        }
+    },
+    "recommended_apps": {
+        "name": "Recommend Applications",
         "essential_apps": {
             "name": "Essential Programs",
             "description": "Essential apps useful for almost every Linux user",
@@ -310,10 +313,7 @@
                     "description": "A free file archiver utility, based on Open Source technologies of 7-Zip, p7zip, Brotli, FreeArc, PAQ, Zstandard, and PEA projects"
                 }
             }
-        }
-    },
-    "recommended_apps": {
-        "name": "Recommend Applications",
+        },
         "terminal_apps": {
             "name": "Terminal-Based Resource Monitors",
             "description": "Powerful system-management apps run in the terminal",
