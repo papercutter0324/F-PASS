@@ -43,21 +43,23 @@ def build_system_config(distro_data: Dict[str, Any], output_mode: str) -> str:
         return cmd + (" > /dev/null 2>&1" if output_mode == "Quiet" and should_quiet_redirect(cmd) else "")
     
     distro_data = check_dependencies(distro_data)
-    trigger_descriptions = {
+    
+    trigger_descriptions = [
         "# Enable RPM Fusion repositories to access additional software packages and codecs",
         "# Enable repo to support installing Google Chrome via dnf",
         "# Enable the repository to install Steam via dnf",
         "# Enable non-free repository to allow installation of the proprietary Nvidia driver"
-        }
+    ]
+    
     repo_refresh_trigger = False
     config_commands = []
 
-    for subcategory_value in distro_data.get("system_config", {}).values(): # Iterate through each subcategory in system_config
+    for subcategory_value in distro_data.get("system_config", {}).values():
         if isinstance(subcategory_value, dict):
             apps = subcategory_value.get("apps", {})
             for app_key, app_data in apps.items():
-                if isinstance(app_data, dict) and app_data.get("selected", False):
-                    config_commands.append(f"# {app_data.get("description", "")}")
+                if isinstance(app_data, dict) and app_data.get("selected"):
+                    config_commands.append(f"# {app_data.get('description', '')}")
                     if app_data.get("description", "") in trigger_descriptions:
                         repo_refresh_trigger = True
                     for cmd in get_commands(app_data):
