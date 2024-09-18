@@ -677,7 +677,7 @@
                                 "systemctl start docker",
                                 "systemctl enable docker.service",
                                 "systemctl enable containerd.service",
-                                "if ! docker ps --format '{{.Names}}' | grep -q '^portainer$'; then \n    if ! docker volume ls --format '{{.Name}}' | grep -q '^portainer_data$'; then \n        docker volume create portainer_data \n    fi \n    docker run -d -p 8000:8000 -p 9443:9443 --privileged --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest \nfi",
+                                "! docker ps --format '{{.Names}}' | grep -q '^portainer$' && (! docker volume ls --format '{{.Name}}' | grep -q '^portainer_data$' && docker volume create portainer_data) && docker run -d -p 8000:8000 -p 9443:9443 --privileged --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest",
                                 "sudo -u $ACTUAL_USER XAUTHORITY=$XAUTHORITY xdg-open https://localhost:9443/"
                             ],
                             "dependencies": "Docker Only"
@@ -714,7 +714,7 @@
                                 "nvidia-ctk runtime configure --runtime=docker",
                                 "sleep 5",
                                 "systemctl restart docker",
-                                "if ! docker ps --format '{{.Names}}' | grep -q '^portainer$'; then \n    if ! docker volume ls --format '{{.Name}}' | grep -q '^portainer_data$'; then \n        docker volume create portainer_data \n    fi \n    docker run -d -p 8000:8000 -p 9443:9443 --privileged --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest \nfi",
+                                "! docker ps --format '{{.Names}}' | grep -q '^portainer$' && (! docker volume ls --format '{{.Name}}' | grep -q '^portainer_data$' && docker volume create portainer_data) && docker run -d -p 8000:8000 -p 9443:9443 --privileged --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest",
                                 "sudo -u $ACTUAL_USER XAUTHORITY=$XAUTHORITY xdg-open https://localhost:9443/"
                             ],
                             "dependencies": [
