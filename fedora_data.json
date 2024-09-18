@@ -68,6 +68,7 @@
                     "command": [
                         "generate_log \"Installing and enabling SSH...\"",
                         "dnf install -y openssh-server",
+                        "sleep 5",
                         "systemctl enable --now sshd"
                     ],
                     "description": "Install and enable SSH server for secure remote access and file transfers"
@@ -103,20 +104,109 @@
                     "description": "Enable repo to support installing Google Chrome via dnf",
                     "command": [
                         "generate_log \"Enabling Google Chrome repository...\"",
-                        "wget https://dl.google.com/linux/linux_signing_key.pub",
-                        "rpm --import linux_signing_key.pub",
                         "dnf config-manager --enable google-chrome"
+                    ]
+                },
+                "enable_brave": {
+                    "name": "Brave Repository",
+                    "description": "Enable the repository to install Steam via dnf",
+                    "command": [
+                        "dnf config-manager --add-repo https://brave-browser-rpm-release.s3.brave.com/brave-browser.repo",
+                        "rpm --import https://brave-browser-rpm-release.s3.brave.com/brave-core.asc"
                     ]
                 },
                 "enable_steam": {
                     "name": "Steam Repository",
                     "description": "Enable the repository to install Steam via dnf",
-                    "command": "dnf config-manager --enable rpmfusion-nonfree-steam"
+                    "command": [
+                        "generate_log \"Enabling Steam repository...\"",
+                        "dnf config-manager --enable rpmfusion-nonfree-steam"
+                    ]
                 },
                 "enable_nvidia_driver": {
                     "name": "Nvidia Driver Repository",
-                    "command": "dnf config-manager --enable rpmfusion-nonfree-nvidia-driver",
+                    "command": [
+                        "generate_log \"Enabling RPM Fusions's Nvidia driver repository...\"",
+                        "dnf config-manager --enable rpmfusion-nonfree-nvidia-driver"
+                    ],
                     "description": "Enable non-free repository to allow installation of the proprietary Nvidia driver"
+                },
+                "enable_yadm": {
+                    "name": "Yadm's Repository for Fedora 40",
+                    "command": [
+                        "generate_log \"Enabling yadm's repository for Fedora 40...\"",
+                        "dnf config-manager --add-repo https://download.opensuse.org/repositories/home:TheLocehiliosan:yadm/Fedora_40/home:TheLocehiliosan:yadm.repo"
+                    ],
+                    "description": "Enable installation of yadm using dnf"
+                },
+                "enable_virtualbox": {
+                    "name": "VirtualBox Repository",
+                    "command": [
+                        "generate_log \"Enabling VirtualBox's repository...\"",
+                        "wget -O /etc/yum.repos.d/virtualbox.repo https://download.virtualbox.org/virtualbox/rpm/fedora/virtualbox.repo"
+                    ],
+                    "description": "Enable installation of VirtualBox using dnf"
+                },
+                "enable_docker": {
+                    "name": "Docker Repositories",
+                    "installation_types": {
+                        "Docker Only": {
+                            "command": [
+                                "generate_log \"Enabling Docker repository...\"",
+                                "dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo"
+                            ]
+                        },
+                        "Docker & Nvidia Tookit": {
+                            "command": [
+                                "generate_log \"Enabling Docker and Nvidia Tookit repositories...\"",
+                                "dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo",
+                                "curl -s -L https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-container-toolkit.repo | tee /etc/yum.repos.d/nvidia-container-toolkit.repo"
+                            ]
+                        }
+                    },
+                    "description": "Enable installation of yadm using dnf"
+                },
+                "enable_mullvad_vpn": {
+                    "name": "Mullvad VPN Repositories",
+                    "command": [
+                        "generate_log \"Enabling Mullvad VPN's repository...\"",
+                        "dnf config-manager --add-repo https://repository.mullvad.net/rpm/stable/mullvad.repo"
+                    ],
+                    "description": "Enable installation of VirtualBox using dnf"
+                },
+                "enable_vscode": {
+                    "name": "Visual Studio Code Repositories",
+                    "command": [
+                        "generate_log \"Enabling Microsoft's Visual Studio Code repository...\"",
+                        "rpm --import https://packages.microsoft.com/keys/microsoft.asc",
+                        "echo -e \"[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc\" | tee /etc/yum.repos.d/vscode.repo > /dev/null"
+                    ],
+                    "description": "Enable installation of Visual Studio Code using dnf"
+                },
+                "enable_vscodium": {
+                    "name": "VSCodium Repository",
+                    "command": [
+                        "generate_log \"Enabling VSCodium's repository...\"",
+                        "rpmkeys --import https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/-/raw/master/pub.gpg",
+                        "printf \"[gitlab.com_paulcarroty_vscodium_repo]\nname=download.vscodium.com\nbaseurl=https://download.vscodium.com/rpms/\nenabled=1\ngpgcheck=1\nrepo_gpgcheck=1\ngpgkey=https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/-/raw/master/pub.gpg\nmetadata_expire=1h\" | tee -a /etc/yum.repos.d/vscodium.repo"
+                    ],
+                    "description": "Enable installation of VSCodium using dnf"
+                },
+                "enable_enpass": {
+                    "name": "Enpass Repository",
+                    "command": [
+                        "generate_log \"Enabling Enpass's repository...\"",
+                        "wget -O /etc/yum.repos.d/enpass-yum.repo https://yum.enpass.io/enpass-yum.repo"
+                    ],
+                    "description": "Enable installation of Enpass using dnf"
+                },
+                "enable_cooler_control": {
+                    "name": "CoolerControl Repository",
+                    "command": [
+                        "generate_log \"Enabling Enpass's repository...\"",
+                        "dnf -y copr enable codifryed/CoolerControl"
+                    ],
+                    "description": "Enable installation of CoolerControl using dnf"
                 }
             }
         },
@@ -133,7 +223,7 @@
                         "dnf update @sound-and-video -y"
                     ],
                     "description": "Install multimedia codecs to enhance multimedia capabilities",
-                    "dependencies": ["install_rpmfusion"]
+                    "dependencies": "enable_rpmfusion"
                 },
                 "install_intel_codecs": {
                     "name": "Intel Codecs",
@@ -143,7 +233,7 @@
                         "dnf -y install intel-media-driver"
                     ],
                     "description": "Install Hardware Accelerated Codecs for Intel integrated GPUs. This improves video playback and encoding performance on systems with Intel graphics.",
-                    "dependencies": ["install_rpmfusion"]
+                    "dependencies": "enable_rpmfusion"
                 },
                 "install_nvidia_codecs": {
                     "name": "Nvidia Codecs",
@@ -153,7 +243,11 @@
                         "dnf -y install libva-nvidia-driver"
                     ],
                     "description": "Install wrapper that can bridge Nvidia's NVDEC/NVENC with VAAPI.",
-                    "dependencies": ["install_rpmfusion"]
+                    "dependencies": [
+                        "enable_rpmfusion",
+                        "enable_nvidia_driver",
+                        "install_nvidia_driver"
+                    ]
                 },
                 "install_amd_codecs": {
                     "name": "AMD Codecs",
@@ -164,7 +258,7 @@
                         "dnf swap mesa-vdpau-drivers mesa-vdpau-drivers-freeworld -y"
                     ],
                     "description": "Install Hardware Accelerated Codecs for AMD GPUs. This improves video playback and encoding performance on systems with AMD graphics.",
-                    "dependencies": ["install_rpmfusion"]
+                    "dependencies": "enable_rpmfusion"
                 }
             }
         },
@@ -274,6 +368,12 @@
                     "name": "Syncthing",
                     "command": "dnf install -y syncthing",
                     "description": "Continuous file synchronization program for sharing files between devices securely"
+                },
+                "install_yadm": {
+                    "name": "Yadm",
+                    "command": "dnf install -y syncthing",
+                    "description": "A tool to backup and manage your dotfiles",
+                    "dependencies": "enable_yadm"
                 }
             }
         }
@@ -297,10 +397,8 @@
                     "description": "The web browser from Google.",
                     "installation_types": {
                         "DNF": {
-                            "command": [
-                                "dnf config-manager --enable google-chrome",
-                                "dnf install -y google-chrome-stable"
-                            ]
+                            "command": "dnf install -y google-chrome-stable",
+                            "dependencies": "enable_chrome"
                         },
                         "Flatpak":{
                             "command": "flatpak install -y flathub com.google.Chrome"
@@ -317,11 +415,8 @@
                     "description": "Privacy-focused web browser.",
                     "installation_types": {
                         "DNF": {
-                            "command": [
-                                "dnf config-manager --add-repo https://brave-browser-rpm-release.s3.brave.com/brave-browser.repo",
-                                "rpm --import https://brave-browser-rpm-release.s3.brave.com/brave-core.asc",
-                                "dnf install brave-browser"
-                            ]
+                            "command": "dnf install brave-browser",
+                            "dependencies": "enable_brave"
                         },
                         "Flatpak": {
                             "command": "flatpak install -y flathub com.brave.Browser"
@@ -334,9 +429,9 @@
                     "installation_types": {
                         "DNF": {
                             "command": [
-                                "wget https://downloads.vivaldi.com/stable/vivaldi-stable-6.8.3381.48-1.x86_64.rpm",
-                                "dnf install -y ./vivaldi-stable-6.8.3381.48-1.x86_64.rpm",
-                                "rm -f ./vivaldi-stable-6.8.3381.48-1.x86_64.rpm"
+                                "wget https://downloads.vivaldi.com/stable/vivaldi-stable-6.9.3447.44-1.x86_64.rpm",
+                                "dnf install -y ./vivaldi-stable-6.9.3447.44-1.x86_64.rpm",
+                                "rm -f ./vivaldi-stable-6.9.3447.44-1.x86_64.rpm"
                             ]
                         },
                         "Flatpak": {
@@ -467,33 +562,9 @@
                 },
                 "install_mullvad_vpn": {
                     "name": "Mullvad VPN",
-                    "command": [
-                        "dnf config-manager --add-repo https://repository.mullvad.net/rpm/stable/mullvad.repo",
-                        "dnf install -y mullvad-vpn"
-                    ],
-                    "description": "A VPN client, that provides a secure and private connection to the internet"
-                },
-                "install_zerotier": {
-                    "name": "ZeroTier",
-                    "command": [
-                        "curl -s 'https://raw.githubusercontent.com/zerotier/ZeroTierOne/main/doc/contact%40zerotier.com.gpg' | gpg --import &&",
-                        "if z=$(curl -s 'https://install.zerotier.com' | gpg); then echo \"$z\" | sudo bash; fi"
-                    ],
-                    "description": "A secure network overlay that allows you to manage all of your network resources as if they were on the same LAN"
-                }
-            }
-        },
-        "internet_other": {
-            "name": "Other Useful Apps",
-            "apps": {
-                "install_webappmanager": {
-                    "name": "WebAppManager",
-                    "command": [
-                        "dnf copr enable risi/risiOS -y",
-                        "echo 'includepkgs=webapp-manager' | tee -a /etc/yum.repos.d/_copr:copr.fedorainfracloud.org:risi:risiOS.repo",
-                        "dnf install webapp-manager -y"
-                    ],
-                    "description": "Run websites as if they were apps."
+                    "command": "dnf install -y mullvad-vpn",
+                    "description": "A VPN client, that provides a secure and private connection to the internet",
+                    "dependencies": "enable_mullvad_vpn"
                 }
             }
         }
@@ -505,6 +576,7 @@
           "apps": {
             "install_libreoffice": {
                 "name": "LibreOffice",
+                "warning": "⚠️ This will remove the default system package and install the flatpak version.",
                 "command": [
                     "dnf remove -y libreoffice*",
                     "flatpak install -y flathub org.libreoffice.LibreOffice",
@@ -575,16 +647,14 @@
                     "installation_types": {
                         "with_extension": {
                             "command": [
-                                "wget -O /etc/yum.repos.d/virtualbox.repo https://download.virtualbox.org/virtualbox/rpm/fedora/virtualbox.repo",
-                                "yum install -y VirtualBox",
+                                "dnf install -y VirtualBox",
                                 "sudo -u $ACTUAL_USER wget -O $ACTUAL_HOME/Downloads/Oracle_VM_VirtualBox_Extension_Pack-7.0.20.vbox-extpack https://download.virtualbox.org/virtualbox/7.0.20/Oracle_VM_VirtualBox_Extension_Pack-7.0.20.vbox-extpack"
-                            ]
+                            ],
+                            "dependencies": "enable_virtualbox"
                         },
                         "without_extension": {
-                            "command": [
-                                "wget -O /etc/yum.repos.d/virtualbox.repo https://download.virtualbox.org/virtualbox/rpm/fedora/virtualbox.repo",
-                                "yum install -y VirtualBox"
-                            ]
+                            "command": "dnf install -y VirtualBox",
+                            "dependencies": "enable_virtualbox"
                         }
                     }
                 }
@@ -601,53 +671,67 @@
                         "install_standard": {
                             "command": [
                                 "dnf remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-selinux docker-engine-selinux docker-engine -y",
-                                "dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo",
                                 "dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin",
+                                "sleep 5",
                                 "systemctl start docker",
                                 "systemctl enable docker.service",
                                 "systemctl enable containerd.service"
-                            ]
+                            ],
+                            "dependencies": "Docker Only"
                         },
                         "install_portainer": {
                             "command": [
-                                "dnf remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-selinux docker-engine-selinux docker-engine -y",
-                                "dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo",
+                                "dnf remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-selinux docker-engine-selinux docker-engine -y",                                
                                 "dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin",
+                                "sleep 5",
                                 "systemctl start docker",
                                 "systemctl enable docker.service",
                                 "systemctl enable containerd.service",
                                 "if ! docker ps --format '{{.Names}}' | grep -q '^portainer$'; then \n    if ! docker volume ls --format '{{.Name}}' | grep -q '^portainer_data$'; then \n        docker volume create portainer_data \n    fi \n    docker run -d -p 8000:8000 -p 9443:9443 --privileged --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest \nfi",
                                 "sudo -u $ACTUAL_USER XAUTHORITY=$XAUTHORITY xdg-open https://localhost:9443/"
-                            ]
+                            ],
+                            "dependencies": "Docker Only"
                         },
                         "install_nvidia_toolkit": {
                             "command": [
                                 "dnf remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-selinux docker-engine-selinux docker-engine -y",
-                                "dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo",
                                 "dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin",
+                                "sleep 5",
                                 "systemctl start docker",
                                 "systemctl enable docker.service",
                                 "systemctl enable containerd.service",
-                                "curl -s -L https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-container-toolkit.repo | tee /etc/yum.repos.d/nvidia-container-toolkit.repo",
-                                "yum install -y nvidia-container-toolkit",
+                                "dnf install -y nvidia-container-toolkit",
                                 "nvidia-ctk runtime configure --runtime=docker",
-                                "sudo systemctl restart docker"
+                                "sleep 5",
+                                "systemctl restart docker"
+                            ],
+                            "dependencies": [
+                                "Docker & Nvidia Tookit",
+                                "enable_rpmfusion",
+                                "enable_nvidia_driver",
+                                "install_nvidia_driver"
                             ]
                         },
                         "install_portainer_and_nvidia_toolkit": {
                             "command": [
                                 "dnf remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-selinux docker-engine-selinux docker-engine -y",
-                                "dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo",
                                 "dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin",
+                                "sleep 5",
                                 "systemctl start docker",
                                 "systemctl enable docker.service",
                                 "systemctl enable containerd.service",
-                                "curl -s -L https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-container-toolkit.repo | tee /etc/yum.repos.d/nvidia-container-toolkit.repo",
-                                "yum install -y nvidia-container-toolkit",
+                                "dnf install -y nvidia-container-toolkit",
                                 "nvidia-ctk runtime configure --runtime=docker",
-                                "sudo systemctl restart docker",
+                                "sleep 5",
+                                "systemctl restart docker",
                                 "if ! docker ps --format '{{.Names}}' | grep -q '^portainer$'; then \n    if ! docker volume ls --format '{{.Name}}' | grep -q '^portainer_data$'; then \n        docker volume create portainer_data \n    fi \n    docker run -d -p 8000:8000 -p 9443:9443 --privileged --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest \nfi",
                                 "sudo -u $ACTUAL_USER XAUTHORITY=$XAUTHORITY xdg-open https://localhost:9443/"
+                            ],
+                            "dependencies": [
+                                "Docker & Nvidia Tookit",
+                                "enable_rpmfusion",
+                                "enable_nvidia_driver",
+                                "install_nvidia_driver"
                             ]
                         }
                     }
@@ -667,22 +751,15 @@
             "apps": {
                 "install_vscode": {
                     "name": "Visual Studio Code",
-                    "command": [
-                        "rpm --import https://packages.microsoft.com/keys/microsoft.asc",
-                        "echo -e \"[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc\" | tee /etc/yum.repos.d/vscode.repo > /dev/null",
-                        "dnf check-update",
-                        "sudo dnf install -y code"
-                    ],
-                    "description": "A lightweight but powerful source code editor"
+                    "command": "sudo dnf install -y code",
+                    "description": "A lightweight but powerful source code editor",
+                    "dependencies": "enable_vscode"
                 },
                 "install_vscodium": {
                     "name": "VSCodium",
-                    "command": [
-                        "rpmkeys --import https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/-/raw/master/pub.gpg",
-                        "printf \"[gitlab.com_paulcarroty_vscodium_repo]\nname=download.vscodium.com\nbaseurl=https://download.vscodium.com/rpms/\nenabled=1\ngpgcheck=1\nrepo_gpgcheck=1\ngpgkey=https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/-/raw/master/pub.gpg\nmetadata_expire=1h\" | tee -a /etc/yum.repos.d/vscodium.repo",
-                        "dnf -y install codium"
-                    ],
-                    "description": "A free and open-source distribution of VS Code"
+                    "command": "dnf -y install codium",
+                    "description": "A free and open-source distribution of VS Code",
+                    "dependencies": "enable_vscodium"
                 },
                 "install_kate": {
                     "name": "Kate",
@@ -752,11 +829,7 @@
                 },
                 "install_tabby": {
                     "name": "Tabby",
-                    "command": [
-                        "wget https://github.com/Eugeny/tabby/releases/download/v1.0.211/tabby-1.0.211-linux-x64.rpm",
-                        "dnf install -y ./tabby-1.0.211-linux-x64.rpm",
-                        "rm -f ./tabby-1.0.211-linux-x64.rpm"
-                    ],
+                    "command": "curl -s https://packagecloud.io/install/repositories/eugeny/tabby/script.rpm.sh | sudo bash",
                     "description": "A terminal for a more modern age"
                 },
                 "install_tilix": {
@@ -903,7 +976,11 @@
                     "description": "A software distribution service with an online store, automated installation, automatic updates, achievements, SteamCloud synchronized savegame and screenshot functionality, and many social features",
                     "installation_types": {
                         "DNF": {
-                            "command": "dnf install -y steam"
+                            "command": "dnf install -y steam",
+                            "dependencies": [
+                                "enable_steam",
+                                "enable_rpmfusion"
+                            ]
                         },
                         "Flatpak": {
                             "command": "flatpak install -y flathub com.valvesoftware.Steam"
@@ -1137,11 +1214,9 @@
                 "install_enpass": {
                     "name": "Enpass",
                     "warning": "⚠️ During installation, Enpass's repository will automatically be imported.",
-                    "command": [
-                        "wget -O /etc/yum.repos.d/enpass-yum.repo https://yum.enpass.io/enpass-yum.repo",
-                        "yum install -y enpass"
-                    ],
-                    "description": "A secure and free password manager for all of your devices"
+                    "command": "dnf install -y enpass",
+                    "description": "A secure and free password manager for all of your devices",
+                    "dependencies": "enable_enpass"
                 },
                 "install_keepassxc": {
                     "name": "KeePassXC",
@@ -1191,12 +1266,13 @@
                     "name": "CoolerControl",
                     "warning": "⚠️ During installation, CoolerControl's COPR repository will be imported.",
                     "command": [
-                        "dnf -y copr enable codifryed/CoolerControl",
                         "dnf install -y coolercontrol",
+                        "sleep 5",
                         "systemctl enable --now coolercontrold",
-                        "xdg-open http://localhost:11987/"
+                        "sudo -u $ACTUAL_USER XAUTHORITY=$XAUTHORITY xdg-open http://localhost:11987/"
                     ],
-                    "description": "A feature-rich cooling device control application for Linux"
+                    "description": "A feature-rich cooling device control application for Linux",
+                    "dependencies": "enable_cooler_control"
                 },
                 "install_streamdeck_ui": {
                     "name": "Streamdeck UI",
