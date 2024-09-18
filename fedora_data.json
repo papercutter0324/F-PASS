@@ -72,16 +72,6 @@
                         "systemctl enable --now sshd"
                     ],
                     "description": "Install and enable SSH server for secure remote access and file transfers"
-                },
-                "firmware_updates": {
-                    "name": "Update Firmware",
-                    "command": [
-                        "generate_log \"Checking for firmware updates...\"",
-                        "fwupdmgr refresh --force",
-                        "fwupdmgr get-updates",
-                        "fwupdmgr update -y"
-                    ],
-                    "description": "Check and apply firmware updates to improve hardware compatibility and performance"
                 }
             }
         },
