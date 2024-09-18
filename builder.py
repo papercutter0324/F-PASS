@@ -9,14 +9,12 @@ def build_system_upgrade(options: Dict[str, Any], output_mode: str) -> str:
          '   2. Installing dnf-plugins-core\n'
          '   3. Refresh all enabled repositories\n'
          '   4. Updating firmware\n'
-         '   4. Performing system upgrade\n'
+         '   5. Performing system upgrade\n'
          'Please be patient. This may take a while."\n'),
         f"flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo{quiet_redirect}",
         f"dnf -y check-update --refresh{quiet_redirect}",
         f"dnf -y install dnf-plugins-core{quiet_redirect}",
-        f"fwupdmgr refresh --force",
-        f"fwupdmgr get-updates",
-        f"fwupdmgr update -y",
+        f"fwupdmgr refresh --force && fwupdmgr get-updates && fwupdmgr update -y",
         f"dnf -y upgrade{quiet_redirect}",
     ]
     
