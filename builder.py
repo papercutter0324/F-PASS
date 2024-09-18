@@ -44,12 +44,12 @@ def build_system_config(distro_data: Dict[str, Any], output_mode: str) -> str:
     
     distro_data = check_dependencies(distro_data)
     
-    trigger_descriptions = [
+    trigger_descriptions = {
         "# Enable RPM Fusion repositories to access additional software packages and codecs",
         "# Enable repo to support installing Google Chrome via dnf",
         "# Enable the repository to install Steam via dnf",
         "# Enable non-free repository to allow installation of the proprietary Nvidia driver"
-    ]
+    }
     
     repo_refresh_trigger = False
     config_commands = []
