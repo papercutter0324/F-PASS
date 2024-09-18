@@ -5,12 +5,18 @@ def build_system_upgrade(options: Dict[str, Any], output_mode: str) -> str:
     
     upgrade_commands = [
         ('generate_log "Performing initial setup steps:\n'
-         '   1. Installing dnf-plugins-core\n'
-         '   2. Enabling Flathub repo\n'
-         '   3. Performing system upgrade\n'
+         '   1. Enabling Flathub repo\n'
+         '   2. Installing dnf-plugins-core\n'
+         '   3. Refresh all enabled repositories\n'
+         '   4. Updating firmware\n'
+         '   4. Performing system upgrade\n'
          'Please be patient. This may take a while."\n'),
-        f"dnf -y install dnf-plugins-core{quiet_redirect}",
         f"flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo{quiet_redirect}",
+        f"dnf -y check-update --refresh{quiet_redirect}",
+        f"dnf -y install dnf-plugins-core{quiet_redirect}",
+        f"fwupdmgr refresh --force",
+        f"fwupdmgr get-updates",
+        f"fwupdmgr update -y",
         f"dnf -y upgrade{quiet_redirect}",
     ]
     
@@ -43,15 +49,6 @@ def build_system_config(distro_data: Dict[str, Any], output_mode: str) -> str:
         return cmd + (" > /dev/null 2>&1" if output_mode == "Quiet" and should_quiet_redirect(cmd) else "")
     
     distro_data = check_dependencies(distro_data)
-    
-    trigger_descriptions = {
-        "# Enable RPM Fusion repositories to access additional software packages and codecs",
-        "# Enable repo to support installing Google Chrome via dnf",
-        "# Enable the repository to install Steam via dnf",
-        "# Enable non-free repository to allow installation of the proprietary Nvidia driver"
-    }
-    
-    repo_refresh_trigger = False
     config_commands = []
 
     for subcategory_value in distro_data.get("system_config", {}).values():
@@ -60,16 +57,10 @@ def build_system_config(distro_data: Dict[str, Any], output_mode: str) -> str:
             for app_key, app_data in apps.items():
                 if isinstance(app_data, dict) and app_data.get("selected"):
                     config_commands.append(f"# {app_data.get('description', '')}")
-                    if app_data.get("description", "") in trigger_descriptions:
-                        repo_refresh_trigger = True
+                                            
                     for cmd in get_commands(app_data):
                         config_commands.append(process_command(distro_data, output_mode, cmd, app_key))
                     config_commands.append("")  # Empty line for readability
-    
-    if repo_refresh_trigger:
-        config_commands.append("# Refresh all repositories, including newly added ones, before beginning installation.")
-        config_commands.append("dnf -y upgrade")
-        config_commands.append("")  # Empty line for readability
 
     return "\n".join(config_commands)
 
