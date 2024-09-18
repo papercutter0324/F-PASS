@@ -365,14 +365,14 @@ def handle_warnings_and_messages(options_app: str, distro_data: Dict[str, Any], 
 def build_script(distro_data: Dict[str, Any], output_mode: str) -> str:
     if distro_data["custom_script"] == "# Each command goes on a new line.":
         script_parts = {
-            "system_upgrade": builder.build_system_upgrade(distro_data, output_mode),
             "system_config": builder.build_system_config(distro_data, output_mode),
+            "system_upgrade": builder.build_system_upgrade(distro_data, output_mode),
             "app_install": builder.build_app_install(distro_data, output_mode),
         }
     else: 
         script_parts = {
-            "system_upgrade": builder.build_system_upgrade(distro_data, output_mode),
             "system_config": builder.build_system_config(distro_data, output_mode),
+            "system_upgrade": builder.build_system_upgrade(distro_data, output_mode),
             "app_install": builder.build_app_install(distro_data, output_mode),
             "custom_script": builder.build_custom_script(distro_data, output_mode),
         }
@@ -391,8 +391,8 @@ def build_script(distro_data: Dict[str, Any], output_mode: str) -> str:
 
 def build_full_script(template: str, distro_data: Dict[str, Any], output_mode: str) -> str:
     script_parts = {
-        "system_upgrade": builder.build_system_upgrade(distro_data, output_mode),
         "system_config": builder.build_system_config(distro_data, output_mode),
+        "system_upgrade": builder.build_system_upgrade(distro_data, output_mode),
         "app_install": builder.build_app_install(distro_data, output_mode),
         "custom_script": builder.build_custom_script(distro_data, output_mode),
     }
