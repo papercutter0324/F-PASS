@@ -92,7 +92,7 @@ def build_app_install(distro_data: Dict[str, Any], output_mode: str) -> str:
                     selected_apps = {app_id: app_data for app_id, app_data in apps_content.items() if app_data.get('selected', False)}
 
                     # Code to trigger a refresh before apps are installed
-                    if selected_apps and not refresh_repositories:
+                    if options_subcategory_content == "multimedia_codecs" and selected_apps and not refresh_repositories:
                             refresh_repositories = True
                             install_commands.append("# Refresh all repositories, including newly added ones, before beginning installation.")
                             install_commands.append("dnf -y upgrade")
