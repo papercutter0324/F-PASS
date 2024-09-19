@@ -14,7 +14,7 @@ def build_system_upgrade(options: Dict[str, Any], output_mode: str) -> str:
         f"flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo{quiet_redirect}",
         f"dnf -y check-update --refresh{quiet_redirect}",
         f"dnf -y install dnf-plugins-core{quiet_redirect}",
-        f"fwupdmgr refresh --force && fwupdmgr get-updates && fwupdmgr update -y",
+        f"fwupdmgr refresh --force && fwupdmgr get-updates -y && fwupdmgr update -y --no-reboot-check",
         f"dnf -y upgrade{quiet_redirect}",
     ]
     
