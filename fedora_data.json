@@ -35,34 +35,6 @@
                     ],
                     "description": "Enable and configure automatic system updates to enhance security and stability"
                 },
-                "power_settings": {
-                    "name": "Power Settings",
-                    "description": "Configure power settings to prevent system sleep and hibernation",
-                    "installation_types": {
-                        "Gnome": {
-                            "command": [
-                                "generate_log \"Configuring power settings...\"",
-                                "sudo -u $ACTUAL_USER gsettings set org.gnome.desktop.session idle-delay 0",
-                                "sudo -u $ACTUAL_USER gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type 'nothing'",
-                                "sudo -u $ACTUAL_USER gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-type 'nothing'",
-                                "sudo -u $ACTUAL_USER gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-timeout 0",
-                                "sudo -u $ACTUAL_USER gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-timeout 0",
-                                "sudo -u $ACTUAL_USER gsettings set org.gnome.settings-daemon.plugins.power power-button-action 'suspend'"
-                            ]
-                        },
-                        "KDE": {
-                            "command": [
-                                "generate_log \"Configuring power settings...\"",
-                                "sudo -u $ACTUAL_USER qdbus org.freedesktop.ScreenSaver /ScreenSaver SetActive false",
-                                "sudo -u $ACTUAL_USER qdbus org.kde.Solid.PowerManagement /org/kde/Solid/PowerManagement/Actions/SleepOnAC setEnabled false",
-                                "sudo -u $ACTUAL_USER qdbus org.kde.Solid.PowerManagement /org/kde/Solid/PowerManagement/Actions/SleepOnBattery setEnabled false",
-                                "sudo -u $ACTUAL_USER qdbus org.kde.Solid.PowerManagement /org/kde/Solid/PowerManagement/Profiles setInactiveTimeout 0",
-                                "sudo -u $ACTUAL_USER qdbus org.kde.Solid.PowerManagement /org/kde/Solid/PowerManagement/Profiles setBatteryTimeout 0",
-                                "sudo -u $ACTUAL_USER kwriteconfig5 --file /etc/kde5rc --group \"Action Buttons\" --key \"PowerButton\" suspend"
-                            ]
-                        }
-                    }
-                },
                 "install_ssh": {
                     "name": "Install and Enable SSH",
                     "command": [
@@ -678,7 +650,8 @@
                                 "systemctl enable docker.service",
                                 "systemctl enable containerd.service",
                                 "! docker ps --format '{{.Names}}' | grep -q '^portainer$' && (! docker volume ls --format '{{.Name}}' | grep -q '^portainer_data$' && docker volume create portainer_data) && docker run -d -p 8000:8000 -p 9443:9443 --privileged --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest",
-                                "sudo -u $ACTUAL_USER XAUTHORITY=$XAUTHORITY xdg-open https://localhost:9443/"
+                                "sleep 5",
+                                "sudo -u $ACTUAL_USER XAUTHORITY=$XAUTHORITY xdg-open https://localhost:9443/ &>/dev/null &"
                             ],
                             "dependencies": "Docker Only"
                         },
@@ -715,7 +688,8 @@
                                 "sleep 5",
                                 "systemctl restart docker",
                                 "! docker ps --format '{{.Names}}' | grep -q '^portainer$' && (! docker volume ls --format '{{.Name}}' | grep -q '^portainer_data$' && docker volume create portainer_data) && docker run -d -p 8000:8000 -p 9443:9443 --privileged --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest",
-                                "sudo -u $ACTUAL_USER XAUTHORITY=$XAUTHORITY xdg-open https://localhost:9443/"
+                                "sleep 5",
+                                "sudo -u $ACTUAL_USER XAUTHORITY=$XAUTHORITY xdg-open https://localhost:9443/ &>/dev/null &"
                             ],
                             "dependencies": [
                                 "Docker & Nvidia Tookit",
@@ -768,12 +742,12 @@
             "apps": {
                 "install_github_desktop": {
                     "name": "GitHub Desktop",
-                    "command": "flatpak install flathub io.github.shiftey.Desktop",
+                    "command": "flatpak install -y flathub io.github.shiftey.Desktop",
                     "description": "A powerful desktop client for GitHub"
                 },
                 "install_gitkraken": {
                     "name": "GitKraken",
-                    "command": "flatpak install flathub com.axosoft.GitKraken",
+                    "command": "flatpak install -y flathub com.axosoft.GitKraken",
                     "description": "A tool for repo management, in-app code editing & issue tracking"
                 },
                 "install_ansible": {
@@ -862,7 +836,7 @@
                 },
                 "install_freetube": {
                     "name": "FreeTube",
-                    "command": "flatpak install -y flathub com.freetubeapp.FreeTube",
+                    "command": "flatpak install -y flathub io.freetubeapp.FreeTube",
                     "description": "An open source desktop YouTube player built with privacy in mind."
                 }
             }
@@ -1259,7 +1233,8 @@
                         "dnf install -y coolercontrol",
                         "sleep 5",
                         "systemctl enable --now coolercontrold",
-                        "sudo -u $ACTUAL_USER XAUTHORITY=$XAUTHORITY xdg-open http://localhost:11987/"
+                        "sleep 5",
+                        "sudo -u $ACTUAL_USER XAUTHORITY=$XAUTHORITY xdg-open http://localhost:11987/ &>/dev/null &"
                     ],
                     "description": "A feature-rich cooling device control application for Linux",
                     "dependencies": "enable_cooler_control"
@@ -1341,6 +1316,9 @@
                     "name": "Adobe Fonts",
                     "command": [
                         "sudo -u $ACTUAL_USER mkdir -p $ACTUAL_HOME/.local/share/fonts/adobe-fonts",
+                        "sudo -u $ACTUAL_USER mkdir -p $ACTUAL_HOME/.local/share/fonts/adobe-fonts/source-sans",
+                        "sudo -u $ACTUAL_USER mkdir -p $ACTUAL_HOME/.local/share/fonts/adobe-fonts/source-serif",
+                        "sudo -u $ACTUAL_USER mkdir -p $ACTUAL_HOME/.local/share/fonts/adobe-fonts/source-code-pro",
                         "sudo -u $ACTUAL_USER git clone --depth 1 https://github.com/adobe-fonts/source-sans.git $ACTUAL_HOME/.local/share/fonts/adobe-fonts/source-sans",
                         "sudo -u $ACTUAL_USER git clone --depth 1 https://github.com/adobe-fonts/source-serif.git $ACTUAL_HOME/.local/share/fonts/adobe-fonts/source-serif",
                         "sudo -u $ACTUAL_USER git clone --depth 1 https://github.com/adobe-fonts/source-code-pro.git $ACTUAL_HOME/.local/share/fonts/adobe-fonts/source-code-pro",
