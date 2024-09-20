@@ -1311,20 +1311,6 @@
                             ]
                         }
                     }
-                },
-                "install_adobe_fonts": {
-                    "name": "Adobe Fonts",
-                    "command": [
-                        "sudo -u $ACTUAL_USER mkdir -p $ACTUAL_HOME/.local/share/fonts/adobe-fonts",
-                        "sudo -u $ACTUAL_USER mkdir -p $ACTUAL_HOME/.local/share/fonts/adobe-fonts/source-sans",
-                        "sudo -u $ACTUAL_USER mkdir -p $ACTUAL_HOME/.local/share/fonts/adobe-fonts/source-serif",
-                        "sudo -u $ACTUAL_USER mkdir -p $ACTUAL_HOME/.local/share/fonts/adobe-fonts/source-code-pro",
-                        "sudo -u $ACTUAL_USER git clone --depth 1 https://github.com/adobe-fonts/source-sans.git $ACTUAL_HOME/.local/share/fonts/adobe-fonts/source-sans",
-                        "sudo -u $ACTUAL_USER git clone --depth 1 https://github.com/adobe-fonts/source-serif.git $ACTUAL_HOME/.local/share/fonts/adobe-fonts/source-serif",
-                        "sudo -u $ACTUAL_USER git clone --depth 1 https://github.com/adobe-fonts/source-code-pro.git $ACTUAL_HOME/.local/share/fonts/adobe-fonts/source-code-pro",
-                        "fc-cache -f"
-                    ],
-                    "description": "Install Adobe fonts collection"
                 }
             }
         },
