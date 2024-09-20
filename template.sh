@@ -52,9 +52,9 @@ echo -e "        \e[1m\e[31mONLY\e[0m run this script if you trust the source!";
 echo "";
 read -p "Press Enter to continue or CTRL+C to cancel."
 
-{{system_upgrade}}
-
 {{system_config}}
+
+{{system_upgrade}}
 
 {{app_install}}
 
