@@ -26,6 +26,15 @@ def should_quiet_redirect(cmd: str) -> bool:
     return not any(cmd.startswith(pattern) or "EOF" in cmd for pattern in no_redirect_patterns)
 
 def check_dependencies(distro_data: Dict[str, Any]) -> Dict[str, Any]:
+    # Pass in the app_name/app_id; better yet, pass a tuple to know it's exact place in the dictionary
+    # If possible, pass in a boolean to denote if 'installation_types' is present
+    # If not, it should be an easy check here
+    # Check if a 'dependencies' key exists, either under the app or its installation_types
+    # If found, loop through the dictionary to find it
+    # When found, check if it is enabled
+    # If enabled, do nothing
+    # If not, set as enabled and display a warning message stating a dependency has been enabled
+    
     multimedia_codecs = distro_data["system_config"]["multimedia_codecs"]["apps"]
     if any(app.get("selected", False) for app in multimedia_codecs.values()):
         distro_data["system_config"]["useful_repos"]["apps"]["enable_rpmfusion"]["selected"] = True
