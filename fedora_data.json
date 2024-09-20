@@ -1243,10 +1243,10 @@
                     "name": "Streamdeck UI",
                     "command": [
                         "dnf install python3-pip python3-devel hidapi -y",
-                        "python -m pip install --upgrade pip",
+                        "sudo -u $ACTUAL_USER python -m pip install --upgrade pip",
                         "wget https://raw.githubusercontent.com/streamdeck-linux-gui/streamdeck-linux-gui/main/udev/60-streamdeck.rules -O /etc/udev/rules.d/60-streamdeck.rules",
                         "udevadm trigger",
-                        "python -m pip install streamdeck-linux-gui --user",
+                        "sudo -u $ACTUAL_USER python -m pip install streamdeck-linux-gui --user",
                         "sudo -u $ACTUAL_USER mkdir -p $ACTUAL_HOME/.local/share/systemd/user/",
                         "sudo -u $ACTUAL_USER echo -e \"[Unit]\\nDescription=A Linux compatible UI for the Elgato Stream Deck.\\n\\n[Service]\\nType=simple\\nExecStart=$ACTUAL_HOME/.local/bin/streamdeck -n\\nRestart=on-failure\\n\\n[Install]\\nWantedBy=default.target\" > \"$ACTUAL_HOME/.local/share/systemd/user/streamdeck.service\"",
                         "systemctl --user daemon-reload",
