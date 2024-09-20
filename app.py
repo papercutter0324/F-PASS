@@ -103,7 +103,7 @@ def render_sidebar() -> Dict[str, Any]:
     st.sidebar.header("Configuration Options")
 
     # Create a dictionary of supported distros, their matching json files
-    supported_distros = {"Fedora 40": 'fedora_data.json'}
+    supported_distros = {"Fedora 40": 'fedora40.json'}
     selected_distro = st.sidebar.selectbox("Choose a Distribution", list(supported_distros.keys()), help="Load the list of options for your distro.")
 
     if selected_distro:
